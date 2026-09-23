@@ -1,0 +1,10 @@
+﻿# temp / extract artifacts
+_boxnow_api_extract.txt
+_boxnow_v5.js
+_inv_css_dl.txt
+_leasing_modal.js
+_patch_boxnow_v5.py
+*.pyc
+.DS_Store
+.vercel
+node_modules

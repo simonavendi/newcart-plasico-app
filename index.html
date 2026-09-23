@@ -65,11 +65,12 @@
 .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 
 /* Layout-only (poruchka.html column structure). Original design CSS untouched. */
-#checkout .checkout-layout{display:-webkit-box;display:-ms-flexbox;display:flex;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start;gap:20px;width:100%;box-sizing:border-box}
+#checkout .checkout-layout{display:-webkit-box;display:-ms-flexbox;display:flex;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start;gap:20px;width:100%;box-sizing:border-box;overflow:visible}
 #checkout .checkout-layout__main{-webkit-box-flex:1;-ms-flex:1 1 0px;flex:1 1 0;min-width:0;max-width:calc(100% - 360px)}
-#checkout .checkout-layout__aside{-webkit-box-flex:0;-ms-flex:0 0 340px;flex:0 0 340px;width:340px;max-width:100%;box-sizing:border-box;min-width:0}
-#checkout .checkout-layout__aside-sticky{position:-webkit-sticky;position:sticky;top:10px;min-width:0;width:100%}
-#checkout .checkout-layout__aside .bgff{box-sizing:border-box;width:100%;max-width:100%;overflow-x:hidden;padding:12px 14px}
+#checkout .checkout-layout__aside{-webkit-box-flex:0;-ms-flex:0 0 340px;flex:0 0 340px;width:340px;max-width:100%;box-sizing:border-box;min-width:0;-ms-flex-item-align:stretch;align-self:stretch;overflow:visible}
+#checkout .checkout-layout__aside-sticky{position:-webkit-sticky;position:sticky;top:12px;z-index:5;min-width:0;width:100%;-ms-flex-item-align:start;align-self:flex-start}
+#checkout .checkout-layout__aside .bgff{box-sizing:border-box;width:100%;max-width:100%;overflow-x:hidden;overflow-y:visible;padding:12px 14px}
+#checkout,#checkout.pw,#checkout .pw{overflow:visible}
 #checkout .checkout-layout__aside #cart-table{display:block;width:100%!important;max-width:100%;table-layout:fixed;border-collapse:collapse;padding:0}
 #checkout .checkout-layout__aside #cart-table>tbody,#checkout .checkout-layout__aside #cart-table>tfoot{display:block;width:100%}
 #checkout .checkout-layout__aside #cart-table th,#checkout .checkout-layout__aside #cart-table td{box-sizing:border-box}
@@ -131,6 +132,22 @@
 #checkout .checkout-guest-field--full{-webkit-box-flex:1;-ms-flex:1 1 100%;flex:1 1 100%;width:100%;margin-top:4px}
 #checkout .checkout-guest-field label{display:block;margin-bottom:5px;color:#000}
 #checkout .checkout-guest-field input[type=text]{padding:8px 5px;width:100%;margin-bottom:10px;box-sizing:border-box}
+#checkout .checkout-guest-field textarea,
+#checkout #field-address{display:block;width:100%!important;max-width:100%;box-sizing:border-box;padding:8px 5px;margin-bottom:10px;resize:vertical}
+#checkout #field-boxnow-city,
+#checkout #field-boxnow-search,
+#checkout .checkout-guest-field select,
+#checkout .checkout-guest-field input[type=text],
+#checkout .checkout-guest-field input[type=tel],
+#checkout .co-ac{display:block;width:100%;max-width:100%;box-sizing:border-box}
+#checkout .co-ac{position:relative;margin-bottom:10px}
+#checkout .co-ac > input[type=text]{width:100%!important;max-width:100%;box-sizing:border-box;padding:8px 5px;margin-bottom:0}
+#checkout .co-ac__list{position:absolute;left:0;right:0;top:100%;z-index:40;margin:0;padding:4px 0;list-style:none;background:#fff;border:1px solid #ccc;border-top:0;box-shadow:0 6px 16px rgba(0,0,0,.08);max-height:220px;overflow:auto}
+#checkout .co-ac__list[hidden]{display:none!important}
+#checkout .co-ac__option{display:block;width:100%;padding:8px 10px;border:0;background:transparent;text-align:left;font:inherit;font-size:14px;color:#000;cursor:pointer;box-sizing:border-box}
+#checkout .co-ac__option:hover,#checkout .co-ac__option.is-active{background:#fff8f3;color:#ff6100}
+#checkout .co-ac__empty{padding:8px 10px;font-size:13px;color:#999}
+
 #checkout .checkout-field-hint{margin:-4px 0 12px;font-size:13px;line-height:1.4;color:#999}
 #checkout #checkout-register .js-register-toggle{margin-top:4px}
 /* Auth modal */
@@ -267,10 +284,14 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
 
 @media (max-width:1100px){
 #checkout .checkout-layout__main{max-width:100%;-ms-flex:1 1 100%;flex:1 1 100%}
-#checkout .checkout-layout__aside{-ms-flex:1 1 100%;flex:1 1 100%;width:100%}
-#checkout .checkout-layout__aside-sticky{position:static}
+#checkout .checkout-layout__aside{-ms-flex:1 1 100%;flex:1 1 100%;width:100%;-ms-flex-item-align:start;align-self:auto}
+#checkout .checkout-layout__aside-sticky{position:static!important;top:auto;z-index:auto}
 #checkout .co-profile-cta{-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start}
 #checkout .checkout-auth-btn{width:100%;text-align:center}
+}
+@media (min-width:1101px){
+#checkout .checkout-layout__aside{-ms-flex-item-align:stretch;align-self:stretch;overflow:visible}
+#checkout .checkout-layout__aside-sticky{position:-webkit-sticky!important;position:sticky!important;top:12px;z-index:5}
 }
 </style>
 <script>
@@ -338,14 +359,14 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
     setClickedForRadios("courier_id");
     setClickedForRadios("office_courier");
     setClickedForRadios("boxnow_locker");
-    // BOX NOW city filter
-    var citySel = document.getElementById("field-boxnow-city");
-    var city = citySel ? citySel.value : "";
+    // BOX NOW city filter (text autocomplete → slug/label)
+    var cityKey = window.__plasicoBoxnowCityKey ? window.__plasicoBoxnowCityKey() : "";
     var lockers = document.querySelectorAll(".boxnow-locker");
     for (var j = 0; j < lockers.length; j++) {
       var lk = lockers[j];
-      var dc = lk.getAttribute("data-city") || "";
-      if (!city || dc === city) showEl(lk);
+      var dc = (lk.getAttribute("data-city") || "").toLowerCase();
+      var hint = ((lk.textContent || "") + "").toLowerCase();
+      if (!cityKey || dc === cityKey || hint.indexOf(cityKey) !== -1) showEl(lk);
       else hideEl(lk);
     }
   }
@@ -512,7 +533,7 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
         syncShipPanels();
         return;
       }
-      if (t.id === "field-boxnow-city" || t.name === "boxnow_city") {
+      if (t.id === "field-boxnow-city" || t.id === "field-boxnow-city-value" || t.name === "boxnow_city") {
         syncShipPanels();
         return;
       }
@@ -540,6 +561,139 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
   });
 })();
 </script>
+
+<script>
+(function () {
+  var CITIES = ["София","Пловдив","Варна","Бургас","Русе","Стара Загора","Плевен","Добрич","Сливен","Шумен"];
+  var SLUGS = { "софия": "sofia", "варна": "varna", "sofia": "sofia", "varna": "varna" };
+
+  function slugFor(label) {
+    var k = String(label || "").trim().toLowerCase();
+    if (SLUGS[k]) return SLUGS[k];
+    return k;
+  }
+
+  window.__plasicoBoxnowCityKey = function () {
+    var hidden = document.getElementById("field-boxnow-city-value");
+    var input = document.getElementById("field-boxnow-city");
+    if (hidden && hidden.value) return String(hidden.value).toLowerCase();
+    return slugFor(input ? input.value : "");
+  };
+
+  function syncHiddenFromInput() {
+    var input = document.getElementById("field-boxnow-city");
+    var hidden = document.getElementById("field-boxnow-city-value");
+    if (!input || !hidden) return;
+    var raw = String(input.value || "").trim();
+    if (!raw) { hidden.value = ""; return; }
+    var lower = raw.toLowerCase();
+    if (SLUGS[lower]) hidden.value = SLUGS[lower];
+    else hidden.value = raw;
+  }
+
+  function initBoxnowCityAc() {
+    var wrap = document.querySelector('[data-co-ac="boxnow-city"]');
+    var input = document.getElementById("field-boxnow-city");
+    var list = document.getElementById("boxnow-city-results");
+    var hidden = document.getElementById("field-boxnow-city-value");
+    if (!wrap || !input || !list) return;
+    if (wrap.getAttribute("data-ready") === "1") return;
+    wrap.setAttribute("data-ready", "1");
+    var active = -1;
+
+    function close() {
+      list.hidden = true;
+      input.setAttribute("aria-expanded", "false");
+      active = -1;
+    }
+    function open() {
+      list.hidden = false;
+      input.setAttribute("aria-expanded", "true");
+    }
+    function choose(label) {
+      input.value = label;
+      if (hidden) hidden.value = SLUGS[String(label).toLowerCase()] || label;
+      close();
+      try { input.dispatchEvent(new Event("change", { bubbles: true })); } catch (e) {}
+      try { if (hidden) hidden.dispatchEvent(new Event("change", { bubbles: true })); } catch (e2) {}
+    }
+    function render(q) {
+      var query = String(q || "").trim().toLowerCase();
+      var filtered = CITIES.filter(function (c) { return !query || c.toLowerCase().indexOf(query) !== -1; });
+      list.innerHTML = "";
+      if (!filtered.length) {
+        var empty = document.createElement("li");
+        empty.className = "co-ac__empty";
+        empty.textContent = "Няма резултати";
+        list.appendChild(empty);
+        open();
+        return;
+      }
+      filtered.slice(0, 8).forEach(function (label, index) {
+        var li = document.createElement("li");
+        li.setAttribute("role", "option");
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "co-ac__option";
+        btn.textContent = label;
+        btn.dataset.index = String(index);
+        btn.addEventListener("mousedown", function (e) {
+          e.preventDefault();
+          choose(label);
+        });
+        li.appendChild(btn);
+        list.appendChild(li);
+      });
+      active = -1;
+      open();
+    }
+
+    input.addEventListener("focus", function () { render(input.value); });
+    input.addEventListener("input", function () {
+      syncHiddenFromInput();
+      render(input.value);
+      try { input.dispatchEvent(new Event("change", { bubbles: true })); } catch (e) {}
+    });
+    input.addEventListener("blur", function () {
+      setTimeout(function () {
+        syncHiddenFromInput();
+        close();
+      }, 120);
+    });
+    input.addEventListener("keydown", function (e) {
+      var opts = list.querySelectorAll(".co-ac__option");
+      if (!opts.length) return;
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        active = Math.min(opts.length - 1, active + 1);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        active = Math.max(0, active - 1);
+      } else if (e.key === "Enter" && active >= 0) {
+        e.preventDefault();
+        choose(opts[active].textContent);
+        return;
+      } else if (e.key === "Escape") {
+        close();
+        return;
+      } else {
+        return;
+      }
+      for (var i = 0; i < opts.length; i++) {
+        if (i === active) opts[i].classList.add("is-active");
+        else opts[i].classList.remove("is-active");
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initBoxnowCityAc);
+  } else {
+    initBoxnowCityAc();
+  }
+})();
+</script>
+
 <link rel=stylesheet href="local-leasing-modal.css">
 <style id=pl-leasing-plasico-overrides>
 /* FULL leasing modal CSS inlined — external link often fails to apply in this preview */
@@ -1280,6 +1434,47 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
 }
 
 </style>
+
+<style id="checkout-steps-pin">
+/* Hug content + pin while scrolling (override absolute top/bottom stretch) */
+#checkout-steps{
+  position:-webkit-sticky!important;
+  position:sticky!important;
+  top:12px!important;
+  bottom:auto!important;
+  left:0;
+  width:11.6666%;
+  height:auto!important;
+  max-height:none!important;
+  float:left;
+  overflow:visible!important;
+  z-index:6;
+  box-sizing:border-box;
+  padding-bottom:8px;
+}
+#checkout.pw,#checkout{/* keep checkout column beside steps */}
+main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
+.pw.cl{position:relative;overflow:visible}
+@media (max-width:990px){
+  #checkout-steps{display:none!important}
+}
+</style>
+
+
+<style id="checkout-steps-icons">
+#checkout-steps a{padding:14px 0;font-size:12px;line-height:1.25}
+#checkout-steps .co-step-icon{display:block;margin:0 auto 8px;color:#666}
+#checkout-steps a.clicked .co-step-icon,#checkout-steps a:hover .co-step-icon{color:#ff6100}
+#checkout-steps .co-step-arr{display:block;margin:2px auto;color:#c8c8c8}
+#checkout-steps .circle{margin-bottom:8px}
+#checkout-steps p{margin:0;padding:0 4px}
+</style>
+
+<style id="checkout-finish-eyebrow">
+#checkout #step-confirm .checkout-step__eyebrow,
+#checkout .checkout-step__eyebrow{margin:0 0 10px;padding:0;font-family:"exo2b",sans-serif;font-size:13px;line-height:1.2;color:#666;text-transform:uppercase;letter-spacing:.02em}
+</style>
+
 </head>
  <body id=order style=padding-top:0px class=aliexpress_superstar_plugin_present>
  
@@ -1411,21 +1606,21 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
 </span>
 </label>
 <label class="co-option-row">
-<input type=radio name="ship_to_id[2]" value=1 autocomplete=off>
-<span class="co-option-row__body">
-<span class="co-option-row__copy">
-<span class="co-option-row__title">До адрес</span>
-<span class="co-option-row__hint">Куриер до посочения от теб адрес</span>
-</span>
-<span class="co-option-row__price">от 3.57 €</span>
-</span>
-</label>
-<label class="co-option-row">
 <input type=radio name="ship_to_id[2]" value=office autocomplete=off>
 <span class="co-option-row__body">
 <span class="co-option-row__copy">
 <span class="co-option-row__title">До офис</span>
 <span class="co-option-row__hint">Вземи пратката от офис на Speedy или Еконт</span>
+</span>
+<span class="co-option-row__price">от 3.57 €</span>
+</span>
+</label>
+<label class="co-option-row">
+<input type=radio name="ship_to_id[2]" value=1 autocomplete=off>
+<span class="co-option-row__body">
+<span class="co-option-row__copy">
+<span class="co-option-row__title">До адрес</span>
+<span class="co-option-row__hint">Куриер до посочения от теб адрес</span>
 </span>
 <span class="co-option-row__price">от 3.57 €</span>
 </span>
@@ -1447,7 +1642,7 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
 <!-- 03 Ship details -->
 <section class="checkout-step bgff" id=step-ship-details data-step=3>
 <div id=checkout-addresses class=oh>
-<h2 class="checkout-step__title-plain">Данни за доставка <span class="checkout-step__sub">(Доставка в България)</span></h2>
+<h2 class="checkout-step__title-plain" id=checkout-ship-details>Данни за доставка <span class="checkout-step__sub">(Доставка в България)</span></h2>
 <p class="checkout-step__lead">Попълни данните според избрания метод на доставка.</p>
 
 <label class=co-country-label>Държава *</label>
@@ -1796,11 +1991,11 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
 <div class="co-ship-panel" data-ship-panel=boxnow>
 <div class="checkout-guest-field">
 <label for=field-boxnow-city>Град</label>
-<select id=field-boxnow-city name=boxnow_city>
-<option value selected>Изберете град</option>
-<option value=sofia>София</option>
-<option value=varna>Варна</option>
-</select>
+<div class="co-ac" data-co-ac=boxnow-city>
+<input type=hidden name=boxnow_city id=field-boxnow-city-value value>
+<input id=field-boxnow-city type=text value autocomplete=off placeholder="Въведете град" role=combobox aria-autocomplete=list aria-expanded=false aria-controls=boxnow-city-results>
+<ul class="co-ac__list" id=boxnow-city-results role=listbox hidden></ul>
+</div>
 </div>
 <div class="checkout-guest-field">
 <label for=field-boxnow-search>Автомат BOX NOW</label>
@@ -1873,7 +2068,7 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
 <!-- 04 Payment -->
 <section class="checkout-step bgff" id=step-payment data-step=4>
 <div id=checkout-payments class="cl checkout-payments">
-<h2>Метод на плащане</h2>
+<h2 id=checkout-payment>Метод на плащане</h2>
 <p class="checkout-step__lead">Всички плащания са защитени с 3D Secure.</p>
 
 <input type=hidden name=person id=checkout-person-value value=1>
@@ -1995,6 +2190,7 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
 </section>
 
 <section class="checkout-step bgff" id=step-confirm data-step=5>
+<p class="checkout-step__eyebrow" id=checkout-finish-title>Завършване</p>
 <div class=cl>
  <div class=fr>
  <label class=conditions>
@@ -2116,23 +2312,35 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
 </aside>
 </div>
 </div>
-<div id=checkout-steps style=top:0px>
- <a href=#checkout class=clicked>
+<div id=checkout-steps>
+ <a href=#step-data class=clicked>
  <span class=circle>1</span>
- <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==" width=34 height=24 class="spr cart" alt=Количка>
- <p>Количка</p>
+ <svg class="co-step-icon" width=28 height=28 viewBox="0 0 24 24" fill="none" aria-hidden=true><circle cx=12 cy=8 r=3.5 stroke=currentColor stroke-width=1.8/><path d="M5.5 19.5c1.6-3.2 4-4.8 6.5-4.8s4.9 1.6 6.5 4.8" stroke=currentColor stroke-width=1.8 stroke-linecap=round/></svg>
+ <p>Данни за клиента</p>
  </a>
- <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==" width=24 height=13 class="spr arr-down" alt=V>
- <a href=#checkout-data>
+ <svg class="co-step-arr" width=16 height=10 viewBox="0 0 16 10" fill="none" aria-hidden=true><path d="M2 2.5l6 5 6-5" stroke=currentColor stroke-width=1.6 stroke-linecap=round stroke-linejoin=round/></svg>
+ <a href=#step-ship-method>
  <span class=circle>2</span>
- <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==" width=26 height=27 class="spr shipment" alt="Доставка, плащане и куриер">
- <p>Доставка, плащане и куриер</p>
+ <svg class="co-step-icon" width=28 height=28 viewBox="0 0 24 24" fill="none" aria-hidden=true><path d="M3 7.5h11v8H3v-8z" stroke=currentColor stroke-width=1.8/><path d="M14 10.5h3.2l2.3 2.8v2.2H14v-5z" stroke=currentColor stroke-width=1.8 stroke-linejoin=round/><circle cx=7 cy=17.5 r=1.7 stroke=currentColor stroke-width=1.6/><circle cx=17 cy=17.5 r=1.7 stroke=currentColor stroke-width=1.6/></svg>
+ <p>Метод на доставка</p>
  </a>
- <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==" width=24 height=13 class="spr arr-down" alt=V>
- <a href=#step-confirm>
+ <svg class="co-step-arr" width=16 height=10 viewBox="0 0 16 10" fill="none" aria-hidden=true><path d="M2 2.5l6 5 6-5" stroke=currentColor stroke-width=1.6 stroke-linecap=round stroke-linejoin=round/></svg>
+ <a href=#step-ship-details>
  <span class=circle>3</span>
- <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==" width=26 height=22 class="spr confirm" alt=Потвърждение>
- <p>Обобщение на поръчката</p>
+ <svg class="co-step-icon" width=28 height=28 viewBox="0 0 24 24" fill="none" aria-hidden=true><path d="M12 21s6-5.2 6-10a6 6 0 10-12 0c0 4.8 6 10 6 10z" stroke=currentColor stroke-width=1.8 stroke-linejoin=round/><circle cx=12 cy=11 r=2.2 stroke=currentColor stroke-width=1.6/></svg>
+ <p>Данни за доставка</p>
+ </a>
+ <svg class="co-step-arr" width=16 height=10 viewBox="0 0 16 10" fill="none" aria-hidden=true><path d="M2 2.5l6 5 6-5" stroke=currentColor stroke-width=1.6 stroke-linecap=round stroke-linejoin=round/></svg>
+ <a href=#step-payment>
+ <span class=circle>4</span>
+ <svg class="co-step-icon" width=28 height=28 viewBox="0 0 24 24" fill="none" aria-hidden=true><rect x=3 y=6.5 width=18 height=11.5 rx=2 stroke=currentColor stroke-width=1.8/><path d="M3 10.5h18" stroke=currentColor stroke-width=1.8/><path d="M7 15h4" stroke=currentColor stroke-width=1.8 stroke-linecap=round/></svg>
+ <p>Метод на плащане</p>
+ </a>
+ <svg class="co-step-arr" width=16 height=10 viewBox="0 0 16 10" fill="none" aria-hidden=true><path d="M2 2.5l6 5 6-5" stroke=currentColor stroke-width=1.6 stroke-linecap=round stroke-linejoin=round/></svg>
+ <a href=#step-confirm>
+ <span class=circle>5</span>
+ <svg class="co-step-icon" width=28 height=28 viewBox="0 0 24 24" fill="none" aria-hidden=true><circle cx=12 cy=12 r=8 stroke=currentColor stroke-width=1.8/><path d="M8.5 12.2l2.3 2.3 4.7-4.8" stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round/></svg>
+ <p>Завършване</p>
  </a>
  </div>
 </div> </main>

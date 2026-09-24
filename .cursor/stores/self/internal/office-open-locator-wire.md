@@ -28,3 +28,7 @@ BOX NOW path unchanged.
 
 ## Files
 - `index.html`, `poruchka.html`
+
+## Git
+- Code on `main` @ `70acbcb` (bundled in that SHA; capture delegation + CTA outside `<label>`)
+- Docs/media noted @ `3d40bf9`

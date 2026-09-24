@@ -295,15 +295,15 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
 #checkout .co-person-type label{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid #e0e0e0;border-radius:6px;cursor:pointer;background:#fff;font-size:14px}
 #checkout .co-person-type label:has(input:checked),#checkout .co-person-type label.clicked{border-color:#ff6100;background:#fff8f3}
 #checkout .co-invoice-type-label{margin:0 0 6px;font-size:13px;color:#666}
-#checkout #installment-options{margin:8px 0 4px;padding:10px 12px;border:1px solid #e6e6e6;border-radius:6px;background:#fafafa}
+#checkout #installment-options{margin:8px 0 4px;padding:0;border:0;border-radius:0;background:transparent}
 #checkout #installment-options[hidden],#checkout #installment-options.hide{display:none!important}
 #checkout .installment-options__label{margin:0 0 8px;font-size:13px;color:#666}
-#checkout .installment-options__grid{display:flex;flex-wrap:wrap;gap:10px}
-#checkout .installment-option{display:block;width:100%;max-width:180px;padding:10px 12px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer;font:inherit;font-size:13px;text-align:left}
+#checkout .installment-options__grid{display:flex;flex-wrap:nowrap;gap:10px;align-items:stretch}
+#checkout .installment-option{display:block;flex:1 1 0;min-width:0;width:auto;max-width:none;padding:10px 12px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer;font:inherit;font-size:13px;text-align:left;box-sizing:border-box}
 #checkout .installment-option[aria-pressed=true],#checkout .installment-option.is-selected{border-color:#ff6100;background:#fff8f3}
-#checkout .installment-option__caption{display:block;margin-top:4px;font-size:12px;color:#666}
+#checkout .installment-option__caption{display:block;margin-top:4px;font-size:12px;color:#666;line-height:1.35}
 #checkout .installment-option img{display:block;width:154px;max-width:100%;height:auto;margin:0 auto}
-#checkout .installment-option{max-width:180px;padding:8px;text-align:center}
+#checkout .installment-option{padding:8px;text-align:center}
 
 #checkout .co-ship-panel{margin-top:8px}
 #checkout .co-ship-panel[hidden],#checkout .co-ship-panel.hide{display:none!important}

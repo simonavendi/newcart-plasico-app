@@ -151,15 +151,6 @@
 #checkout .co-ac__empty{padding:8px 10px;font-size:13px;color:#999}
 
 #checkout .checkout-field-hint{margin:-4px 0 12px;font-size:13px;line-height:1.4;color:#999}
-#checkout #checkout-register .co-remember{margin-top:6px}
-#checkout .co-remember{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;gap:10px;cursor:pointer;user-select:none;-webkit-user-select:none;width:-webkit-fit-content;width:fit-content}
-#checkout .co-remember input{position:absolute;opacity:0;width:1px;height:1px;margin:0;pointer-events:none}
-#checkout .co-remember__track{position:relative;display:block;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:0 0 auto;width:40px;height:22px;border-radius:11px;background:#d0d0d0;border:1px solid #c4c4c4;box-sizing:border-box;transition:background .18s ease,border-color .18s ease}
-#checkout .co-remember__track::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.18);transition:transform .18s ease}
-#checkout .co-remember input:checked + .co-remember__track{background:#ff6100;border-color:#e85700}
-#checkout .co-remember input:checked + .co-remember__track::after{-webkit-transform:translateX(18px);transform:translateX(18px)}
-#checkout .co-remember input:focus-visible + .co-remember__track{outline:2px solid #ff6100;outline-offset:2px}
-#checkout .co-remember__label{font-size:14px;color:#333;line-height:1.3}
 /* Auth modal */
 .auth-modal[hidden]{display:none!important}
 .auth-modal{position:fixed;inset:0;z-index:10050;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;padding:16px;box-sizing:border-box}
@@ -1597,11 +1588,6 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
  <input id=field-email type=text name=email value placeholder="name@email.com" autocomplete=email>
  <p class="checkout-field-hint">Ще използваме имейла за изпращане на потвърждение и проследяване.</p>
  </div>
- <label class=co-remember>
- <input type=checkbox name=remember_me id=field-remember-me value=1 autocomplete=off>
- <span class=co-remember__track aria-hidden=true></span>
- <span class=co-remember__label>Запомни ме</span>
- </label>
  </div>
  </div>
 </section>

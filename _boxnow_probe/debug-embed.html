@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>BoxNow debug</title>
+<style>
+html,body{margin:0;background:#ddd}
+#wrap{width:642px;height:450px;margin:20px;border:2px solid red;background:#fff;position:relative}
+#boxnowmap{width:100%;height:100%}
+iframe{border:0;width:100%;height:100%;display:block}
+#log{font:12px/1.4 monospace;white-space:pre-wrap;padding:12px;max-height:300px;overflow:auto;background:#111;color:#0f0}
+</style></head><body>
+<div id="wrap"><div id="boxnowmap"></div></div>
+<pre id="log"></pre>
+<script>
+const log = (...a)=>{document.getElementById('log').textContent += a.join(' ')+'\n'; console.log(...a)};
+window.addEventListener('message', e => log('MSG', e.origin, JSON.stringify(e.data).slice(0,200)));
+function mount(src){
+  const map=document.getElementById('boxnowmap');
+  map.innerHTML='';
+  const i=document.createElement('iframe');
+  i.src=src; i.allow='geolocation';
+  i.style.cssText='border:0;width:100%;height:100%;display:block';
+  i.onload=()=>log('iframe onload', i.clientWidth+'x'+i.clientHeight, i.src);
+  i.onerror=()=>log('iframe onerror');
+  map.appendChild(i);
+  setTimeout(()=>{
+    try{
+      const doc=i.contentDocument;
+      log('same-origin doc?', !!doc);
+      if(doc){
+        log('inner html len', doc.documentElement.innerHTML.length);
+        log('map el', !!doc.getElementById('map'), 'widget', !!doc.getElementById('boxnow_widget'));
+        log('leaflet panes', doc.querySelectorAll('.leaflet-tile-pane img').length);
+      }
+    }catch(err){ log('cross-origin access blocked (expected):', err.name); }
+  }, 3000);
+}
+const src='https://map.boxnow.bg/iframe.html?partnerId=18248&countryCode=bg&language=bg&gps=no&zip=1000&autoselect=yes&autoclose=no';
+log('mounting', src);
+mount(src);
+</script>
+</body></html>

@@ -1,0 +1,1 @@
+export function scheduleAddMarkers(e,n,t=200){return new Promise((i=>{const o=()=>{n(),e&&"function"==typeof e.invalidateSize&&e.invalidateSize(),i()},a=()=>{t>0?setTimeout(o,t):o()};e&&"function"==typeof e.whenReady?e.whenReady(a):a()}))}

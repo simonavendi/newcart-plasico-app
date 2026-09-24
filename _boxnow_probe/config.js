@@ -1,0 +1,1 @@
+const config={env:"PROD",url:"https://globallockersprod.z28.web.core.windows.net",arcgis_blob_url:"https://starcgiskey.blob.core.windows.net/secrets/arcgis/apikey.json",ipstack_access_key:"0c689f9b561e28a24e3d2d261fcf45e6"};export default config;

@@ -342,10 +342,11 @@
 		var agreeTerms = document.getElementById('pl-leasing-agree-terms');
 		var agreeApply = document.getElementById('pl-leasing-agree-apply');
 		var agreePrivacy = document.getElementById('pl-leasing-agree-privacy');
-		if (nameInput) nameInput.value = data.fullName || '';
-		if (phoneInput) phoneInput.value = data.phone || '';
-		if (egnInput) egnInput.value = data.egn || '';
-		if (emailInput) emailInput.value = data.email || '';
+		/* Restore only non-empty saved values so empty leftovers do not wipe fields. */
+		if (nameInput && data.fullName) nameInput.value = data.fullName;
+		if (phoneInput && data.phone) phoneInput.value = data.phone;
+		if (egnInput && data.egn) egnInput.value = data.egn;
+		if (emailInput && data.email) emailInput.value = data.email;
 		if (agreeTerms) agreeTerms.checked = true;
 		if (agreeApply) agreeApply.checked = true;
 		if (agreePrivacy) agreePrivacy.checked = true;
@@ -353,11 +354,69 @@
 
 	/** Prefill empty apply fields from checkout/auth; never overwrite typed values. */
 	function fillApplyFormFromCustomer() {
+		var apply = document.getElementById('pl-leasing-apply');
+		if (!apply) return;
 		var data = readCheckoutCustomerData();
 		setApplyFieldIfEmpty(document.getElementById('pl-leasing-name'), data.fullName);
 		setApplyFieldIfEmpty(document.getElementById('pl-leasing-phone'), data.phone);
 		setApplyFieldIfEmpty(document.getElementById('pl-leasing-email'), data.email);
 		setApplyFieldIfEmpty(document.getElementById('pl-leasing-egn'), data.egn);
+	}
+
+	/** Saved first, then checkout — safe to call whenever apply becomes visible. */
+	function autofillApplyForm() {
+		fillApplyFormFromSaved();
+		fillApplyFormFromCustomer();
+	}
+
+	function isLeasingOverlayOpen() {
+		var overlay = document.getElementById('pl-leasing-overlay');
+		return !!(overlay && !overlay.hidden);
+	}
+
+	function bindApplyAutofillWatchers(overlay) {
+		if (overlay.__plApplyAutofillBound) return;
+		overlay.__plApplyAutofillBound = true;
+
+		var apply = overlay.querySelector('#pl-leasing-apply');
+		var body = overlay.querySelector('.pl-leasing-body');
+
+		/* When the user scrolls the apply block into view, refill empty fields. */
+		if (apply && typeof IntersectionObserver === 'function') {
+			var io = new IntersectionObserver(
+				function (entries) {
+					entries.forEach(function (entry) {
+						if (entry.isIntersecting && isLeasingOverlayOpen()) {
+							autofillApplyForm();
+						}
+					});
+				},
+				{ root: body || null, threshold: 0.05 }
+			);
+			io.observe(apply);
+		}
+
+		/* If checkout fields change while the modal is open, backfill empties. */
+		var checkoutSels = [
+			'#field-name',
+			'#field-phone',
+			'#field-email',
+			'#person-egn',
+			'#person-names',
+			'#field-address-person',
+			'#field-address-person-phone',
+		];
+		checkoutSels.forEach(function (sel) {
+			var el = document.querySelector(sel);
+			if (!el || el.__plLeasingAutofillBound) return;
+			el.__plLeasingAutofillBound = true;
+			el.addEventListener('input', function () {
+				if (isLeasingOverlayOpen()) autofillApplyForm();
+			});
+			el.addEventListener('change', function () {
+				if (isLeasingOverlayOpen()) autofillApplyForm();
+			});
+		});
 	}
 
 	function parsePrice() {
@@ -589,6 +648,7 @@
 		});
 
 		overlay.querySelector('#pl-leasing-apply').addEventListener('submit', handleApplySubmit);
+		bindApplyAutofillWatchers(overlay);
 
 		document.addEventListener('keydown', function (e) {
 			if (e.key === 'Escape' && !overlay.hidden) {
@@ -848,6 +908,9 @@
 		var selected = getSelectedTerm();
 		document.getElementById('pl-leasing-summary').textContent = summaryText(selected);
 		renderGrid();
+		if (isLeasingOverlayOpen()) {
+			autofillApplyForm();
+		}
 	}
 
 	function syncLeasingControls() {
@@ -918,14 +981,19 @@
 		}
 
 		syncCheckoutPaymentInstallments();
+		var overlay = ensureModal();
 		renderModal();
 		clearApplyFeedback();
-		fillApplyFormFromSaved();
-		fillApplyFormFromCustomer();
-		var overlay = ensureModal();
+		/* Fill after DOM exists and overlay is shown — apply may be below the fold. */
 		overlay.hidden = false;
 		overlay.removeAttribute('hidden');
 		document.body.style.overflow = 'hidden';
+		bindApplyAutofillWatchers(overlay);
+		autofillApplyForm();
+		/* Second pass after layout/scroll so late checkout values still land. */
+		window.setTimeout(function () {
+			if (isLeasingOverlayOpen()) autofillApplyForm();
+		}, 0);
 	}
 
 	function closeModal() {

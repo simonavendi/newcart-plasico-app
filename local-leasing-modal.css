@@ -705,10 +705,14 @@
 		min-width: 0;
 	}
 
+	/* Plan cards: 2 columns under each section header (incl. ~390px) */
 	.pl-leasing-grid {
-		display: flex;
-		flex-direction: column;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 8px;
 		min-width: 0;
+		padding: 8px;
+		background: var(--pl-soft);
 	}
 
 	.pl-leasing-grid-row {
@@ -720,17 +724,20 @@
 	}
 
 	.pl-leasing-grid-colhead {
+		grid-column: 1 / -1;
 		order: 0;
+		border: 0;
 		border-right: 0;
+		border-radius: var(--pl-radius-sm);
 		text-align: left;
-		padding: 12px 14px;
-		background: var(--pl-soft);
+		padding: 10px 12px;
+		background: var(--pl-card);
 	}
 
 	.pl-leasing-grid-colhead--postbank {
 		order: 50;
-		margin-top: 8px;
-		border-top: 1px solid var(--pl-border);
+		margin-top: 4px;
+		border-top: 0;
 	}
 
 	.pl-leasing-grid-month {
@@ -742,8 +749,15 @@
 	}
 
 	.pl-leasing-cell {
-		border-right: 0;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 4px;
+		padding: 8px;
+		border: 1px solid var(--pl-border);
+		border-right: 1px solid var(--pl-border);
+		border-radius: var(--pl-radius-sm);
 		min-height: 0;
+		background: var(--pl-card);
 	}
 
 	.pl-leasing-cell[data-column="personal"] {
@@ -754,18 +768,36 @@
 		order: 51;
 	}
 
+	.pl-leasing-radio {
+		margin: 0;
+	}
+
+	.pl-leasing-cell-body {
+		gap: 3px;
+		width: 100%;
+	}
+
 	.pl-leasing-cell-months {
 		display: block;
-		margin-bottom: 2px;
-		font-size: 12px;
+		margin-bottom: 0;
+		font-size: 11px;
 		font-weight: 700;
 		color: var(--pl-muted);
+	}
+
+	.pl-leasing-cell-monthly {
+		font-size: 15px;
+	}
+
+	.pl-leasing-cell-meta {
+		font-size: 10px;
+		line-height: 1.35;
 	}
 }
 
 @media (max-width: 480px) {
 	.pl-leasing-overlay {
-		padding: 14px;
+		padding: 10px;
 	}
 
 	.pl-leasing-close {
@@ -778,14 +810,39 @@
 	}
 
 	.pl-leasing-body {
-		padding: 12px;
+		padding: 10px;
 	}
 
 	.pl-leasing-summary {
-		font-size: 16px;
+		font-size: 15px;
+		padding: 10px 12px;
+	}
+
+	.pl-leasing-grid {
+		gap: 6px;
+		padding: 6px;
+	}
+
+	.pl-leasing-grid-colhead {
+		padding: 8px 10px;
+		font-size: 12px;
+	}
+
+	.pl-leasing-cell {
+		padding: 7px 6px;
+		gap: 3px;
+	}
+
+	.pl-leasing-cell-months {
+		font-size: 10px;
 	}
 
 	.pl-leasing-cell-monthly {
-		font-size: 18px;
+		font-size: 14px;
+	}
+
+	.pl-leasing-cell-meta {
+		font-size: 9.5px;
+		line-height: 1.3;
 	}
 }

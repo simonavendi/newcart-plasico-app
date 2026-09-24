@@ -148,6 +148,8 @@ html.boxnow-locator-open,html.boxnow-locator-open body{
 #checkout .checkout-layout__aside #cart-table tbody td:nth-child(4){order:5;width:34%!important;-webkit-box-flex:0;-ms-flex:0 0 34%;flex:0 0 34%;text-align:left;padding-top:8px!important}
 #checkout .checkout-layout__aside #cart-table tbody td:nth-child(5){order:6;width:32%!important;-webkit-box-flex:0;-ms-flex:0 0 32%;flex:0 0 32%;text-align:center;padding-top:8px!important;white-space:nowrap}
 #checkout .checkout-layout__aside #cart-table tbody td:nth-child(6){order:7;width:34%!important;-webkit-box-flex:0;-ms-flex:0 0 34%;flex:0 0 34%;text-align:right;padding-top:8px!important;white-space:nowrap}
+/* Hide per-line unit/subtotal prices (td.r); keep image/title/qty + footer total */
+#checkout .checkout-layout__aside #cart-table tbody td.r{display:none!important}
 #checkout .checkout-layout__aside #cart-table .img{width:56px;display:block}
 #checkout .checkout-layout__aside #cart-table .img img{max-width:100%;height:auto;display:block}
 #checkout .checkout-layout__aside #cart-table td.l a{font-size:13px;line-height:1.35;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;word-break:normal;overflow-wrap:break-word;max-width:100%}

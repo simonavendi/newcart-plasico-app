@@ -31,4 +31,4 @@ Green Transpress already on `main` @ `3c2c6de` (`assets/transpress-logo.png` + `
 
 ## Git
 
-On `main` — *Add Postbank logo on payment and leasing column.*
+Landed on `main` @ `b7445eb` (*Hide all checkout radios…* — includes PostBank logo markup + `assets/postbank-logo.png`). Docs/screenshots follow-up on this commit.

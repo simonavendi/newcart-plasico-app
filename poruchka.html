@@ -245,9 +245,15 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
 /* Visually hide ship-method radios; keep in DOM for form submit; selection via card/label */
 #checkout #step-ship-method > .co-option-stack > .co-option-row > input[type=radio][name="ship_to_id[2]"]{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;opacity:0}
 #checkout .co-option-row__body{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;width:100%}
-#checkout .co-option-row__title{display:block;font-weight:bold;color:#000}
+#checkout .co-option-row__title{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-weight:bold;color:#000}
+#checkout .co-option-row__logo{display:block;height:28px;width:auto;max-width:min(96px,42vw);object-fit:contain}
+#checkout .co-option-row__logo--boxnow{height:30px;max-width:min(110px,46vw)}
+@media (min-width:768px){
+#checkout .co-option-row__logo{height:32px;max-width:120px}
+#checkout .co-option-row__logo--boxnow{height:36px;max-width:140px}
+}
 #checkout .co-option-row__hint{display:block;font-size:13px;color:#666;margin-top:2px}
-#checkout .co-option-row__badge{font-style:normal;font-size:12px;color:#ff6100;margin-left:6px}
+#checkout .co-option-row__badge{font-style:normal;font-size:12px;color:#ff6100;margin-left:0}
 #checkout .co-option-row__price{white-space:nowrap;font-weight:bold;color:#000}
 #checkout .co-info-banner{margin:0;padding:10px 12px;background:#e8f6ec;border:1px solid #c5e6cf;border-radius:6px;font-size:14px;color:#2e7d32}
 /* Invoice checkbox accent (poruchka behavior, Plasico colors) */
@@ -1607,7 +1613,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <input type=radio name="ship_to_id[2]" value=boxnow autocomplete=off checked>
 <span class="co-option-row__body">
 <span class="co-option-row__copy">
-<span class="co-option-row__title">BOX NOW <em class="co-option-row__badge">Безплатно</em></span>
+<span class="co-option-row__title"><img class="co-option-row__logo co-option-row__logo--boxnow" src="assets/boxnow-logo.png" width="70" height="51" alt="BOX NOW"><em class="co-option-row__badge">Безплатно</em></span>
 <span class="co-option-row__hint">Доставка до автомат · достъп 24/7</span>
 </span>
 <span class="co-option-row__price">0 €</span>

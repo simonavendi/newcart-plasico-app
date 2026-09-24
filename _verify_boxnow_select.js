@@ -83,8 +83,8 @@ function startServer() {
     process.exit(1);
   }
 
-  // 2) Re-open and simulate real postMessage from map.boxnow.bg
-  await page.click("#boxnow-open-locator");
+  // 2) Re-open via Смени and simulate real postMessage from map.boxnow.bg
+  await page.click("#boxnow-change-locker");
   await page.waitForSelector("#boxnow-fullscreen-root", { timeout: 10000 });
 
   await page.evaluate(() => {
@@ -111,14 +111,14 @@ function startServer() {
   }));
   console.log("postMessage path:", JSON.stringify(afterPost, null, 2));
 
-  // 3) Confirm iframe URL carries autoclose=yes when opened
-  await page.click("#boxnow-open-locator");
+  // 3) Confirm iframe URL carries popup.html + autoclose=yes when opened
+  await page.click("#boxnow-change-locker");
   await page.waitForSelector("#boxnow-fullscreen-root iframe", { timeout: 10000 });
   const src = await page.getAttribute("#boxnow-fullscreen-root iframe", "src");
   console.log("iframe src:", src);
   const srcOk =
     src &&
-    src.includes("iframe.html") &&
+    src.includes("popup.html") &&
     src.includes("partnerId=18248") &&
     src.includes("autoclose=yes");
 

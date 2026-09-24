@@ -1,6 +1,8 @@
 # plasico cart notes
 
+- Auth modal: Facebook OAuth removed (Google + Apple kept) — `internal/remove-facebook-oauth.md` (main clear since `c949930`; WIP race cleaned)
 - Aside cart Ozone rows: delivery from `api/delivery-eta.json`, FLASH 10% promo lines, restored qty line totals — `internal/cart-delivery-flash-promo.md`
+- BOX NOW mega-gamma/megamag flow: use `popup.html` so Izbor postMessages → locker summary + Смени — `internal/boxnow-mega-gamma-flow.md`
 - BOX NOW locker name autofill + Смени summary: see `internal/boxnow-autofill-locker-name.md`
 - Box Now row: “Автомат” text before logo — see `internal/boxnow-avtomat-before-logo.md`
 - Terms required label: `(задължително)` on `#step-confirm label.conditions` — index `a3e1619`, poruchka `d7d8f36`; see `internal/terms-required-label.md`
@@ -8,3 +10,4 @@
 - User preference: always commit to **main**
 - Localhost: http://127.0.0.1:8780/index.html
 - Partner ID: **18248**
+- Auth modal: circle Google/Apple + thank-you + top-bar profile (`a71bfa8`) — see `internal/auth-thanks-profile.md`; Facebook stays omitted

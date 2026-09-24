@@ -74,14 +74,14 @@
 #checkout .boxnow-selected__change-icon{display:block;width:16px;height:16px;flex:0 0 auto}
 #checkout .boxnow-locker-error{margin:8px 0 0;padding:10px 12px;background:#fff5f5;border:1px solid #dc2626;border-radius:6px;font-size:14px;line-height:1.4;color:#dc2626}
 #checkout .boxnow-locker-error[hidden]{display:none!important}
-/* Host overlay: iframe.html fills 100vw/100vh (main.css) — not popup.css card */
+/* Host overlay for megamag-style popup.html (mapType=popup → Izbor postMessage). */
 .boxnow-fullscreen{
   position:fixed;inset:0;width:100%;height:100%;margin:0;padding:0;
-  z-index:2147483000;background:#fff;box-sizing:border-box
+  z-index:2147483000;background:rgba(0,0,0,.55);box-sizing:border-box
 }
 .boxnow-fullscreen iframe{
   display:block;border:0;width:100%;height:100%;margin:0;padding:0;
-  background:#fff
+  background:transparent
 }
 .boxnow-fullscreen__close{
   position:absolute;top:10px;right:10px;z-index:2;
@@ -3558,16 +3558,15 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 </script>
 <script>
 (function () {
-  // BOX NOW Global Widget — edge-to-edge fullscreen locator
-  // Uses iframe.html (100vw/100vh) inside a host fixed overlay.
-  // popup.html intentionally renders a centered card via popup.css — avoided here.
+  // BOX NOW Global Widget — megamag-aligned popup locator
+  // popup.html sets mapType=popup so Izbor calls parent.postMessage (setupSidebar.js).
+  // iframe.html sets mapType=iframe and does NOT postMessage on Izbor — broken select.
   // Docs: https://map-docs.boxnow.bg/configuration
+  // Ref: megamag.bg/checkout (mega-gamma.com/checkout is 404)
   var BOXNOW_ERR = "Моля изберете BOX NOW автомат.";
-  // iframe.html = edge-to-edge 100vw/100vh (main.css).
-  // popup.html loads popup.css which shrinks #boxnow_widget to a centered
-  // rounded card (68vw/60vh desktop, 90vw/80vh mobile) — modal-in-modal UX.
-  var BOXNOW_MAP_BASE = "https://map.boxnow.bg/iframe.html";
-  var BOXNOW_MAP_FALLBACK = "https://widget-v5.boxnow.bg/iframe.html";
+  // popup.html + popup.css = centered card with dim shadow (same as megamag CDN type:popup).
+  var BOXNOW_MAP_BASE = "https://map.boxnow.bg/popup.html";
+  var BOXNOW_MAP_FALLBACK = "https://widget-v5.boxnow.bg/popup.html";
   function resolvePartnerId() {
     var raw =
       (window._bn_map_widget_config && window._bn_map_widget_config.partnerId) ||
@@ -3727,8 +3726,12 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
       if (!isBoxnowAllowedOrigin(event.origin)) return;
       var data = normalizeBoxnowPayload(event.data);
       if (data == null) return;
-      // popup.html / widget close control
+      // popup.html / widget close control (string or {boxnowClose:"yes"})
       if (data === "closeIframe" || data === "close") {
+        closeBoxnowLocator();
+        return;
+      }
+      if (data && typeof data === "object" && data.boxnowClose === "yes") {
         closeBoxnowLocator();
         return;
       }
@@ -3928,7 +3931,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
   window._bn_map_widget_config = {
     partnerId: resolvePartnerId(),
     parentElement: "body",
-    type: "iframe",
+    type: "popup",
     autoshow: false,
     autoclose: true,
     autoselect: false,

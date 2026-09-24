@@ -26,3 +26,6 @@ Covers: ship methods, address couriers, office Speedy/Econt, payment, invoice pe
 ## Related
 - Earlier ship-method-only hide: `internal/hide-shipping-radios.md`
 - Address courier hints: `internal/courier-rows-no-radio-subtext.md`
+
+## Git
+- Landed on main @ 7445eb.

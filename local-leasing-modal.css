@@ -508,6 +508,80 @@
 	color: #1b5e20;
 }
 
+.pl-leasing-saved {
+	margin: 0 0 10px;
+	padding: 12px 14px;
+	border: 1px solid #e6e6e6;
+	border-radius: 6px;
+	background: #fafafa;
+}
+
+.pl-leasing-saved[hidden] {
+	display: none !important;
+}
+
+.pl-leasing-saved__title {
+	margin: 0 0 10px;
+	font-family: "exo2b", sans-serif;
+	font-size: 15px;
+	font-weight: 700;
+	color: #222;
+}
+
+.pl-leasing-saved__list {
+	margin: 0;
+	padding: 0;
+}
+
+.pl-leasing-saved__row {
+	display: grid;
+	grid-template-columns: 88px 1fr;
+	gap: 6px 10px;
+	margin: 0 0 6px;
+	font-size: 14px;
+	line-height: 1.35;
+}
+
+.pl-leasing-saved__row dt {
+	margin: 0;
+	color: #666;
+	font-weight: 500;
+}
+
+.pl-leasing-saved__row dd {
+	margin: 0;
+	color: #222;
+	word-break: break-word;
+}
+
+.pl-leasing-saved__scheme {
+	margin: 10px 0 0;
+	padding-top: 10px;
+	border-top: 1px solid #e6e6e6;
+	font-size: 13px;
+	line-height: 1.4;
+	color: #333;
+}
+
+.pl-leasing-saved__edit {
+	display: inline-flex;
+	align-items: center;
+	margin-top: 10px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: #ff6100;
+	font: inherit;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.pl-leasing-saved__edit:hover {
+	color: #e55700;
+}
+
 .pl-leasing-apply-submit {
 	/* Own centered row — not beside product-info link */
 	display: flex;

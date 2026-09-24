@@ -1,5 +1,6 @@
 # plasico cart notes
 
+- BOX NOW locker name autofill + Смени summary: see `internal/boxnow-autofill-locker-name.md`
 - Box Now row: “Автомат” text before logo — see `internal/boxnow-avtomat-before-logo.md`
 - Terms consent: native `required` checkbox on `main` @ `296fb53` — no decorative `*`; see `internal/terms-consent-required.md`
 - User preference: always commit to **main**

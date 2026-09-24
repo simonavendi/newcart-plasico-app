@@ -342,6 +342,14 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
 #checkout .co-option-stack{display:flex;flex-direction:column;gap:8px;margin:0 0 12px}
 #checkout .co-option-row{display:block;border:1px solid #e0e0e0;border-radius:6px;padding:10px 12px;cursor:pointer;background:#fff;margin:0;position:relative}
 #checkout .co-option-row.clicked,#checkout .co-option-row:has(input:checked){border-color:#ff6100;background:#fff8f3}
+#checkout .co-option-row.is-disabled,#checkout .co-option-row:has(input:disabled){
+cursor:not-allowed;opacity:.48;background:#f5f5f5;border-color:#e8e8e8;pointer-events:none;color:#888}
+#checkout .co-option-row.is-disabled.clicked,#checkout .co-option-row:has(input:disabled:checked),
+#checkout .co-option-row.is-disabled:has(input:checked){border-color:#e8e8e8;background:#f5f5f5}
+#checkout .co-option-row.is-disabled .co-option-row__title,
+#checkout .co-option-row:has(input:disabled) .co-option-row__title{color:#888}
+#checkout .co-option-row.is-disabled .co-option-row__hint,
+#checkout .co-option-row:has(input:disabled) .co-option-row__hint{color:#999}
 #checkout .co-option-row input[type=radio]{margin-right:8px;vertical-align:top}
 /* Visually hide ship-method radios; keep in DOM for form submit; selection via card/label */
 #checkout #step-ship-method .co-option-stack .co-option-row > input[type=radio]{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;opacity:0}
@@ -386,9 +394,9 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
 #checkout #step-data #checkout-data:before{content:"01"}
 #checkout #step-ship-method #checkout-ship-method:before{content:"02";display:inline-block;margin-right:10px;padding:2px 8px;border-radius:6px;background:#e8f6ec;color:#2e7d32;font-size:14px;font-family:"exo2b",sans-serif;vertical-align:middle;position:relative;top:-2px}
 #checkout #step-ship-details .checkout-step__title-plain:before{content:"03";display:inline-block;margin-right:10px;padding:2px 8px;border-radius:6px;background:#e8f6ec;color:#2e7d32;font-size:14px;font-family:"exo2b",sans-serif;vertical-align:middle;position:relative;top:-2px}
-/* Hide recipient-phone toggle (keep inputs in DOM, unchecked) */
-#checkout #step-ship-details label[for=want-recipient-phone],
-#checkout #step-ship-details #recipient-phone-field{display:none!important}
+/* Alternate recipient: fields hidden until checkbox is checked */
+#checkout #step-ship-details #alternate-recipient-fields[hidden],
+#checkout #step-ship-details #alternate-recipient-fields.hide{display:none!important}
 #checkout #step-payment h2:before{content:"04";display:inline-block;margin-right:10px;padding:2px 8px;border-radius:6px;background:#e8f6ec;color:#2e7d32;font-size:14px;font-family:"exo2b",sans-serif;vertical-align:middle;position:relative;top:-2px}
 /* Terms consent: native required checkbox (visible tick; no fake toggle / no decorative *) */
 #checkout #step-confirm > .cl label.conditions > .fbox{position:relative;display:inline-flex;align-items:flex-start;gap:6px;padding-top:0}
@@ -558,7 +566,7 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
     }
   }
 
-  /** BOX NOW lockers: no cash-on-delivery option */
+  /** BOX NOW lockers: COD visible but greyed out / not selectable */
   function syncCodForShipMethod(shipVal) {
     var val = shipVal;
     if (val == null) {
@@ -569,21 +577,25 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
     if (!cod) return;
     var row = cod.closest("label") || cod;
     var blockCod = val === "boxnow";
+    /* Always keep COD in the list — never hide it */
+    showEl(row);
+    row.removeAttribute("hidden");
+    row.classList.remove("hide", "sf-hidden");
     if (blockCod) {
-      hideEl(row);
-      row.setAttribute("hidden", "");
       cod.disabled = true;
+      row.classList.add("is-disabled");
+      row.setAttribute("aria-disabled", "true");
       if (cod.checked) {
         cod.checked = false;
         var fallback =
-          document.querySelector('input[name="payment_id"][value="7"]') ||
+          document.querySelector('input[name="payment_id"][value="7"]:not([disabled])') ||
           document.querySelector('input[name="payment_id"]:not([disabled])');
         if (fallback) fallback.checked = true;
       }
     } else {
-      showEl(row);
-      row.removeAttribute("hidden");
       cod.disabled = false;
+      row.classList.remove("is-disabled");
+      row.removeAttribute("aria-disabled");
     }
     setClickedForRadios("payment_id");
     syncPayment();
@@ -637,10 +649,16 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
     syncInvoice();
   }
 
-  function syncRecipientPhone() {
-    var cb = document.getElementById("want-recipient-phone");
-    var field = document.getElementById("recipient-phone-field");
-    if (cb && cb.checked) showEl(field); else hideEl(field);
+  function syncAlternateRecipient() {
+    var cb = document.getElementById("want-alternate-recipient");
+    var fields = document.getElementById("alternate-recipient-fields");
+    var label = document.querySelector("label.co-invoice-check[for=want-alternate-recipient]");
+    var wanted = !!(cb && cb.checked);
+    if (label) {
+      if (wanted) label.classList.add("is-checked");
+      else label.classList.remove("is-checked");
+    }
+    if (wanted) showEl(fields); else hideEl(fields);
   }
 
   function syncPayment() {
@@ -700,6 +718,198 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
       } else {
         applyMap({});
       }
+    })();
+
+    /* Local demo: aside cart qty (+/−/del) updates line totals, FLASH discount, grand total, leasing teaser */
+    (function wireCartQtySelectors() {
+      var table = document.querySelector("#checkout #cart-table") || document.getElementById("cart-table");
+      if (!table || table.getAttribute("data-plasico-qty-wired") === "1") return;
+      table.setAttribute("data-plasico-qty-wired", "1");
+
+      function round2(n) {
+        return Math.round((Number(n) || 0) * 100) / 100;
+      }
+
+      function parseEuro(text) {
+        if (!text) return 0;
+        var normalized = String(text).replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+        var match = normalized.match(/(\d[\d\s]*)([.,])(\d{2})/);
+        if (!match) {
+          var loose = parseFloat(normalized.replace(/[^\d.]/g, ""));
+          return isFinite(loose) ? loose : 0;
+        }
+        return parseFloat(match[1].replace(/\s/g, "") + "." + match[3]) || 0;
+      }
+
+      function formatLineTotalHtml(amount) {
+        var parts = round2(amount).toFixed(2).split(".");
+        return parts[0] + "<span class=precision>." + parts[1] + "</span>&nbsp;€";
+      }
+
+      function formatPromoSaveHtml(amount) {
+        var parts = round2(amount).toFixed(2).split(".");
+        return parts[0] + "<span class=precision>," + parts[1] + "</span>&nbsp;€";
+      }
+
+      function productRows() {
+        var rows = table.querySelectorAll("tbody > tr");
+        var out = [];
+        for (var i = 0; i < rows.length; i++) {
+          if (rows[i].querySelector("span.quan")) out.push(rows[i]);
+        }
+        return out;
+      }
+
+      function isFlashActive() {
+        var input = table.querySelector("form#code input[name=code]");
+        var code = input ? String(input.value || "").trim().toUpperCase() : "";
+        if (code === "FLASH") return true;
+        return !!table.querySelector("tr.totals.discount");
+      }
+
+      function flashRate() {
+        return isFlashActive() ? 0.1 : 0;
+      }
+
+      function getUnitPrice(tr) {
+        var el = tr.querySelector("td.r:not(.nw) span.price");
+        return parseEuro(el ? el.textContent : "");
+      }
+
+      function getQty(tr) {
+        var q = tr.querySelector("span.quan");
+        var n = parseInt(q && q.textContent, 10);
+        return isFinite(n) && n > 0 ? n : 1;
+      }
+
+      function cartIdFromHref(href) {
+        var m = String(href || "").match(/cart_id=(\d+)/);
+        return m ? m[1] : "";
+      }
+
+      function setActionHrefs(tr, qty) {
+        var del = tr.querySelector("a.del");
+        var dec = tr.querySelector("a.dec");
+        var inc = tr.querySelector("a.inc");
+        var base = del || dec || inc;
+        var id = cartIdFromHref(base && base.getAttribute("href"));
+        if (!id) return;
+        var root = "https://plasico.bg/%D0%BF%D0%BE%D1%80%D1%8A%D1%87%D0%BA%D0%B0?cart_id=";
+        if (del) del.setAttribute("href", root + id + "&quantity=0");
+        if (dec) dec.setAttribute("href", root + id + "&quantity=" + Math.max(0, qty - 1));
+        if (inc) inc.setAttribute("href", root + id + "&quantity=" + (qty + 1));
+      }
+
+      function updateRow(tr, qty) {
+        var unit = getUnitPrice(tr);
+        var rate = flashRate();
+        var unitAfter = round2(unit * (1 - rate));
+        var saveUnit = round2(unit * rate);
+        var lineTotal = round2(unitAfter * qty);
+        var lineSave = round2(saveUnit * qty);
+
+        var quan = tr.querySelector("span.quan");
+        if (quan) quan.textContent = String(qty);
+
+        var totalEl = tr.querySelector("td.r.nw .line-total, td.r.nw .subtotal");
+        if (totalEl) totalEl.innerHTML = formatLineTotalHtml(lineTotal);
+
+        var promo = tr.querySelector(".line-promo");
+        if (promo) {
+          if (rate > 0 && lineSave > 0) {
+            var pct = Math.round(rate * 100);
+            promo.innerHTML =
+              "Приложен е код за -" +
+              pct +
+              "% от оферта (-<b><span class=price>" +
+              formatPromoSaveHtml(lineSave) +
+              "</span></b>)";
+            promo.removeAttribute("hidden");
+            promo.style.display = "";
+          } else {
+            promo.setAttribute("hidden", "");
+            promo.style.display = "none";
+          }
+        }
+
+        setActionHrefs(tr, qty);
+      }
+
+      function recalcFooter() {
+        var rows = productRows();
+        var rate = flashRate();
+        var sumAfter = 0;
+        var sumSave = 0;
+        var sumGross = 0;
+        for (var i = 0; i < rows.length; i++) {
+          var tr = rows[i];
+          var unit = getUnitPrice(tr);
+          var qty = getQty(tr);
+          var unitAfter = round2(unit * (1 - rate));
+          var saveUnit = round2(unit * rate);
+          sumAfter = round2(sumAfter + round2(unitAfter * qty));
+          sumSave = round2(sumSave + round2(saveUnit * qty));
+          sumGross = round2(sumGross + round2(unit * qty));
+        }
+
+        var discountRow = table.querySelector("tr.totals.discount");
+        var discountSpan = discountRow ? discountRow.querySelector("td + td span") : null;
+        if (discountRow) {
+          if (rate > 0 && rows.length) {
+            discountRow.removeAttribute("hidden");
+            discountRow.style.display = "";
+            if (discountSpan) discountSpan.textContent = "−" + sumSave.toFixed(2);
+          } else {
+            discountRow.setAttribute("hidden", "");
+            discountRow.style.display = "none";
+          }
+        }
+
+        var grandSpan = table.querySelector("tr.totals.grand td + td span");
+        if (grandSpan) {
+          var grand = rate > 0 ? sumAfter : sumGross;
+          grandSpan.textContent = grand.toFixed(2);
+        }
+
+        try {
+          document.dispatchEvent(
+            new CustomEvent("plasico:cart-updated", {
+              detail: { total: rate > 0 ? sumAfter : sumGross, discount: sumSave },
+            })
+          );
+        } catch (err) {
+          /* ignore */
+        }
+      }
+
+      function setQty(tr, qty) {
+        if (qty < 1) {
+          if (tr && tr.parentNode) tr.parentNode.removeChild(tr);
+          recalcFooter();
+          return;
+        }
+        updateRow(tr, qty);
+        recalcFooter();
+      }
+
+      table.addEventListener(
+        "click",
+        function (e) {
+          var t = e.target;
+          if (!t || !t.closest) return;
+          var a = t.closest("a.inc, a.dec, a.del");
+          if (!a || !table.contains(a)) return;
+          var tr = a.closest("tbody tr");
+          if (!tr || !tr.querySelector("span.quan")) return;
+          e.preventDefault();
+          e.stopPropagation();
+          var qty = getQty(tr);
+          if (a.classList.contains("inc")) setQty(tr, qty + 1);
+          else if (a.classList.contains("dec")) setQty(tr, qty - 1);
+          else setQty(tr, 0);
+        },
+        true
+      );
     })();
 
     var promoBtn = document.getElementById("promo-code-toggle");
@@ -961,7 +1171,7 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
     syncShipPanels();
     syncPerson();
     syncInvoice();
-    syncRecipientPhone();
+    syncAlternateRecipient();
     syncPayment();
 
     document.addEventListener("change", function (e) {
@@ -996,8 +1206,8 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
         setClickedForRadios("phonecall_confirm");
         return;
       }
-      if (t.name === "want_recipient_phone") {
-        syncRecipientPhone();
+      if (t.name === "want_alternate_recipient") {
+        syncAlternateRecipient();
         return;
       }
     });
@@ -1913,7 +2123,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <input type=radio name="ship_to_id[2]" value=boxnow autocomplete=off checked>
 <span class="co-option-row__body">
 <span class="co-option-row__copy">
-<span class="co-option-row__title">Автомат <img class="co-option-row__logo co-option-row__logo--boxnow" src="assets/boxnow-logo.png" width="70" height="51" alt="BOX NOW"><em class="co-option-row__badge">Безплатно</em></span>
+<span class="co-option-row__title"><img class="co-option-row__logo co-option-row__logo--boxnow" src="assets/boxnow-logo.png" width="70" height="51" alt="BOX NOW"> Автомат <em class="co-option-row__badge">Безплатно</em></span>
 <span class="co-option-row__hint">Доставка до автомат · достъп 24/7</span>
 </span>
 <span class="co-option-row__price">0 €</span>
@@ -2235,21 +2445,21 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <label for=field-address>Адрес</label>
 <textarea id=field-address name="address_address[2]" style=height:99px placeholder="Квартал, улица, номер..."></textarea>
 </div>
+<label class="co-invoice-check co-invoice-check--compact" for=want-alternate-recipient>
+<input type=checkbox name=want_alternate_recipient id=want-alternate-recipient value=1 aria-controls=alternate-recipient-fields>
+<span class="co-invoice-check__copy">
+<strong class="co-invoice-check__title">Друг ще получи пратката ми</strong>
+</span>
+</label>
+<div id=alternate-recipient-fields class="hide sf-hidden" hidden>
 <div class="checkout-guest-field">
 <label for=field-address-person>Получател</label>
 <input id=field-address-person type=text name=address_person value placeholder="Име на получателя">
 </div>
-
-<label class="co-invoice-check co-invoice-check--compact" for=want-recipient-phone>
-<input type=checkbox name=want_recipient_phone id=want-recipient-phone value=1 aria-controls=recipient-phone-field>
-<span class="co-invoice-check__copy">
-<strong class="co-invoice-check__title">Тел номер на получателя е различен</strong>
-<span class="co-invoice-check__hint">По подразбиране се използва телефонът от контактните данни.</span>
-</span>
-</label>
-<div class="checkout-guest-field hide sf-hidden" id=recipient-phone-field hidden>
+<div class="checkout-guest-field">
 <label for=field-address-person-phone>Телефон на получателя</label>
 <input id=field-address-person-phone type=tel name=address_person_phone autocomplete=tel placeholder=08xxxxxxxx>
+</div>
 </div>
 
 </div>
@@ -2362,8 +2572,8 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 
 
 <div class="co-option-stack" role=radiogroup aria-label="Метод на плащане">
-<label class="co-option-row" data-payment=cod>
-<input type=radio name=payment_id value=1 autocomplete=off>
+<label class="co-option-row is-disabled" data-payment=cod aria-disabled=true>
+<input type=radio name=payment_id value=1 autocomplete=off disabled>
 <span class="co-option-row__body">
 <span class="co-option-row__copy">
 <span class="co-option-row__title">Наложен платеж</span>

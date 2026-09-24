@@ -1,7 +1,7 @@
 # BOX NOW — autofill locker name after select
 
 **Date:** 2026-09-24  
-**Landed on:** `main` (index already had summary UI in `4689370`; this change mirrors `poruchka.html` + docs/media)  
+**Landed on:** `main` @ `662a049` (index summary UI already in `4689370`; this commit mirrors `poruchka.html` + docs/media)  
 **Partner ID:** `18248`  
 **Local:** http://127.0.0.1:8780/index.html
 

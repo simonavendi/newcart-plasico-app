@@ -21,3 +21,4 @@
 - Speedy + Econt logos like BOX NOW (option rows + office CTA/summary) — `internal/econt-logo-like-boxnow.md`
 - Transpress address courier: green Plasico `#39B54A` logo like Speedy/Econt — `internal/transpress-green-logo.md`
 - Address courier rows (Спиди/Транспрес): no radio circles + no hint subtext — `internal/courier-rows-no-radio-subtext.md`
+- Hide ALL checkout radios (ship/payment/person/phone/leasing); cards stay clickable — internal/hide-all-checkout-radios.md

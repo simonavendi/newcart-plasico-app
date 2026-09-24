@@ -21,3 +21,5 @@ On `#step-ship-details` `.co-ship-panel[data-ship-panel=address]` `.co-option-st
 
 ## Git
 - Landed on `main` @ `70acbcb` (hint removal + notes/media; radio-hide CSS already present).
+## Follow-up
+- Expanded to hide **all** checkout radios — see internal/hide-all-checkout-radios.md.

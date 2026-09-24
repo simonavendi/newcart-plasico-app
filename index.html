@@ -148,13 +148,25 @@ html.boxnow-locator-open,html.boxnow-locator-open body{
 #checkout .checkout-layout__aside #cart-table tbody td:nth-child(4){order:5;width:34%!important;-webkit-box-flex:0;-ms-flex:0 0 34%;flex:0 0 34%;text-align:left;padding-top:8px!important}
 #checkout .checkout-layout__aside #cart-table tbody td:nth-child(5){order:6;width:32%!important;-webkit-box-flex:0;-ms-flex:0 0 32%;flex:0 0 32%;text-align:center;padding-top:8px!important;white-space:nowrap}
 #checkout .checkout-layout__aside #cart-table tbody td:nth-child(6){order:7;width:34%!important;-webkit-box-flex:0;-ms-flex:0 0 34%;flex:0 0 34%;text-align:right;padding-top:8px!important;white-space:nowrap}
-/* Hide per-line unit/subtotal prices (td.r); keep image/title/qty + footer total */
-#checkout .checkout-layout__aside #cart-table tbody td.r{display:none!important}
+/* Hide unit prices only; show line subtotal (qty total) Ozone-style */
+#checkout .checkout-layout__aside #cart-table tbody td.r:not(.nw){display:none!important}
+#checkout .checkout-layout__aside #cart-table tbody td.r.nw{display:block!important;order:7;width:50%!important;-webkit-box-flex:0;-ms-flex:0 0 50%;flex:0 0 50%;text-align:right;padding-top:8px!important;white-space:nowrap;margin-left:auto}
+#checkout .checkout-layout__aside #cart-table tbody td:nth-child(5){order:6;width:50%!important;-webkit-box-flex:0;-ms-flex:0 0 50%;flex:0 0 50%;text-align:left;padding-top:8px!important;white-space:nowrap}
+#checkout .checkout-layout__aside #cart-table .line-total{font-family:"exo2b",sans-serif;font-size:16px;font-weight:700;color:#000;letter-spacing:0}
+#checkout .checkout-layout__aside #cart-table .line-total .precision{font-size:0.7em;vertical-align:super;line-height:0}
 #checkout .checkout-layout__aside #cart-table .img{width:56px;display:block}
 #checkout .checkout-layout__aside #cart-table .img img{max-width:100%;height:auto;display:block}
 #checkout .checkout-layout__aside #cart-table td.l a{font-size:13px;line-height:1.35;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;word-break:normal;overflow-wrap:break-word;max-width:100%}
 #checkout .checkout-layout__aside #cart-table .cat{font-size:11px;margin-top:3px}
+#checkout .checkout-layout__aside #cart-table .line-delivery{display:block;margin-top:6px;font-size:12px;line-height:1.35;color:#888}
+#checkout .checkout-layout__aside #cart-table .line-delivery strong{color:#222;font-weight:700}
+#checkout .checkout-layout__aside #cart-table .line-promo{display:block;margin-top:2px;font-size:11px;line-height:1.3;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+#checkout .checkout-layout__aside #cart-table .line-promo b,
+#checkout .checkout-layout__aside #cart-table .line-promo .price,
+#checkout .checkout-layout__aside #cart-table .line-promo .precision{display:inline!important;font-size:inherit;color:inherit;font-family:inherit;font-weight:inherit;letter-spacing:0}
 #checkout .checkout-layout__aside #cart-table .oldprice{font-size:11px;margin-bottom:2px}
+#checkout .checkout-layout__aside #cart-table .totals.discount td{text-transform:none;font-size:13px;color:#555}
+#checkout .checkout-layout__aside #cart-table .totals.discount td+td{color:#c0392b}
 #checkout .checkout-layout__aside #cart-table .price{font-size:13px}
 #checkout .checkout-layout__aside #cart-table .subtotal{font-size:16px;letter-spacing:0}
 #checkout .checkout-layout__aside #cart-table .quan{font-size:15px}
@@ -246,7 +258,6 @@ html.boxnow-locator-open,html.boxnow-locator-open body{
 .auth-modal__social-icon{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;width:48px;-ms-flex-negative:0;flex-shrink:0;height:100%;border-right:1px solid rgba(255,255,255,.4);font-family:Arial,Helvetica,sans-serif;font-size:20px;font-weight:700;line-height:1}
 .auth-modal__social-icon svg{display:block;width:18px;height:18px;fill:currentColor}
 .auth-modal__social-label{-webkit-box-flex:1;-ms-flex:1 1 auto;flex:1 1 auto;text-align:center;font-family:"exo2b",sans-serif;font-size:15px;letter-spacing:.01em}
-.auth-modal__social--facebook{background:#3b5998}
 .auth-modal__social--google{background:#dd4b39}
 .auth-modal__social--apple{background:#111}
 .auth-modal__help{display:block;margin:16px 0 0;font-size:14px;line-height:1.3;color:#55a630;text-decoration:none;text-align:center}
@@ -616,7 +627,51 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
     }
   }
 
+
   ready(function () {
+    /* Ozone-style: fill "Доставка от <date>" from cart ETA API (lead_days → DD.MM.YYYY) */
+    (function fillDeliveryDates() {
+      function pad(n) { return n < 10 ? "0" + n : String(n); }
+      function formatBg(d) {
+        return pad(d.getDate()) + "." + pad(d.getMonth() + 1) + "." + d.getFullYear();
+      }
+      function addLeadDays(from, lead) {
+        var d = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+        var left = Math.max(0, Number(lead) || 0);
+        while (left > 0) {
+          d.setDate(d.getDate() + 1);
+          var day = d.getDay();
+          if (day !== 0 && day !== 6) left--;
+        }
+        return d;
+      }
+      function applyMap(map) {
+        var nodes = document.querySelectorAll("#cart-table .line-delivery[data-product-id]");
+        for (var i = 0; i < nodes.length; i++) {
+          var el = nodes[i];
+          var pid = el.getAttribute("data-product-id");
+          var strong = el.querySelector("strong");
+          if (!strong || !pid) continue;
+          var meta = map[pid];
+          var lead = meta && typeof meta.lead_days !== "undefined" ? meta.lead_days : 0;
+          if (meta && meta.delivery_from) {
+            strong.textContent = meta.delivery_from;
+          } else {
+            strong.textContent = formatBg(addLeadDays(new Date(), lead));
+          }
+        }
+      }
+      var url = "api/delivery-eta.json";
+      if (typeof fetch === "function") {
+        fetch(url, { credentials: "same-origin" })
+          .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+          .then(function (data) { applyMap((data && data.items) || {}); })
+          .catch(function () { applyMap({}); });
+      } else {
+        applyMap({});
+      }
+    })();
+
     var promoBtn = document.getElementById("promo-code-toggle");
     var promoRow = document.getElementById("promo-code-row");
     if (promoBtn && promoRow) {
@@ -2322,7 +2377,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
  <td class=c>
  <a href=https://plasico.bg/kompyutyr-officeg-intel-celeron-g5905-8gb256gb-ssd-12775255.html class=img><img src="data:image/png;base64,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" alt="Компютър OfficeG (Intel Celeron G5905, 8GB,256GB SSD)"></a> </td>
  <td class=l>
- <a href=https://plasico.bg/kompyutyr-officeg-intel-celeron-g5905-8gb256gb-ssd-12775255.html>Компютър OfficeG (Intel Celeron G5905, 8GB,256GB SSD)</a><span class=cat>Настолни Компютри</span> </td>
+ <a href=https://plasico.bg/kompyutyr-officeg-intel-celeron-g5905-8gb256gb-ssd-12775255.html>Компютър OfficeG (Intel Celeron G5905, 8GB,256GB SSD)</a><span class=cat>Настолни Компютри</span><div class=line-delivery data-product-id=12775255>Доставка от <strong>—</strong></div><div class=line-promo>Приложен е код за -10% от оферта (-<b><span class=price>41<span class=precision>,00</span>&nbsp;€</span></b>)</div> </td>
  <td class=c>
  <a class="act spr del" href="https://plasico.bg/%D0%BF%D0%BE%D1%80%D1%8A%D1%87%D0%BA%D0%B0?cart_id=1643415&amp;quantity=0"></a>
  </td>
@@ -2334,13 +2389,13 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
  <a class="act spr inc" href="https://plasico.bg/%D0%BF%D0%BE%D1%80%D1%8A%D1%87%D0%BA%D0%B0?cart_id=1643415&amp;quantity=2"></a>
  </td>
  <td class="r nw">
- <span class=subtotal>409.99</span> €&nbsp;&nbsp;&nbsp; </td>
+ <span class="subtotal line-total">368<span class=precision>.99</span>&nbsp;€</span> </td>
  </tr>
  <tr>
  <td class=c>
  <a href=https://plasico.bg/acer-aspire-lite-15-al15-32p-c49x-156-fhd-ips-intel-celeron-prozessor-n4500-8gb-256gb-ssd-silver-nxdhfex001-13151228.html class=img><img src="data:image/webp;base64,UklGRmwRAABXRUJQVlA4IGARAACQPgCdASpeAEEAAAAAJbADPYXFdvjZ93/FD9dP7p8sdF/nn2u/ZH/G5ePx9/dPyZ/oH//+LXqK/Ef959wD9Kv6h/G/2A/sX//7zP7JeoD+bfzb/Tf5HsAegB/Mf7j1gH9Z/2fsAfrf6rP+j/6/+a+BX9hf+7/mfgD/ln9j++fuAPQA1of4Z/uB6o/h3xv9G/Gb9v/8j7MHjB5u/yvoH/F/rL9e/rP67ftb/tvhP+4/oB5g+9f9Z/Fr8dPsI/Gf4x/Vvxo/dH/RfO/73/bu+eqb/kvyA+AX1Z+Wf1j+1fsL/gv+r/r/bK/S/yV9wPqn/bvyA+gL+M/yL+4f2P9o/6/8k/53/AeOx9f/uP+i/qvwAfyH+af4n+x/s1/ffpU/ef9t/ff25/wHtr+T/89/if8F/0P799gf8a/ln9z/tf+Q/0f9//93+x+4z12frp7EH6oncJOxjzQPd0U3vfju6CnzlY8A2n1k3K3XA3JVW3kaeIh8vZP3oPV4BbqgFEHNY8m84d99uUAfLQ0yaGaTI0P+9DzKYg7fYtHz9pOk+6kHMi0FY4mB4wX+a01Zq+K945uimxjYvexsSJnGUdHQFr4VCM18EmyyTnqc1rpR3cIsz0E06D//tb7JbK0Tu0U5/RGHzVN0zjR5vMjyCAHje17fFN1z3seJpZ79DefZkAD+//+9bSexn8dVLalAsRPh+s6BB9fk8InrnMxlkPZwPHiHO6wYuotXfgs1XBZmCUlemKg2/2HUwbSGrTLpHXniqvAh+Z996ifDh8QAjEGFObmtlgSC+fJVK5ctyZ1cAvHetD/5VzCxyLi3gBj1IJBT01opGLDKFbddyEvLHQ6KFNZBw3PtUzZ5IqC5q38Jw0k18VcBH29frPkSQFcEHjYo7WXMxQd4NGS4fVLjsOiVMds6qxMwOKn9zgInuUJy2QpNh/BkQ+u+df1dBM7NJaRLGMgzuvaH7OcRh61cxS/Yr0RSjIHJzullKAT25EGwRVOBWevrleQ3vHpytyNwR14wQ6nME7IVe+BOMa/rAdHIt+3FPFzUo+udI+CODDMgZ5SaXU4YcXbbyFETaHWujoYI70YCn3FAlcUoZR5dGQhPIyL1ENmkIVXNwZbbcAdytvnhkvbv0N1f8Kw+ip3PjN0V+CM8kAGWSOwUd0MdBx3NtdbGR6dH20VDook+hJqatvEN6Qu8+DeSpN8UQrDMLSdNxu1iiWZJm+Bwd9iMzBdgYtnGqlnPYEnwSNxgSzYhBCc9YTn7T7KYKH5puKFvEBYK0d0hyoTxen7IgNwSf50TWZ8rB9Z1uOdQbLyWTqWtPyI7JERhWtb0DewAW4zJLoXz10NUmO5tFNu2MPx/UBL2iN5+5Laliaj39+W+oDpA19wrEHLF7FrN5hwzt3eAT961uJATDTfHHwFqyI262LedBxI5tCFkaVQeTvNTBzBJX86ny+lXXUXOhQCGWZRccuY6ibzUP5qqrozeYd9UWwgTreCOOp2SuItSbCL0mWSI9hjBXLavW6FsXhRXdR2AGBwpYPAtEnX0sqrUm2aLxeAfSEyt4oybLt327QptHU/r1DnrWxNO5+B1f3cPJNOzH/7PhtSJb/8gDnM4xlF//fzvsDAJlzOr26wlgPVmI2KQOTAQNFJy6T4YARVbSz7zwHXW+N/Uar40528L1A/cZ2v2z5j2yYiDdbzY1lXxqWg8yEkINJQhgAAL2ZxfeluO5EMAJcZ6ePsDYhHCaX/z1Fqz/1q/kx5Bl3Iag5/M3VXjv5E8s5b3KPpQ3n40IZG+uV5LjiLCjus2cHIepYKt02pAKLs8FkdjCG5mVRglMGKWrCCi8hZYL/n60gmDr+B2OehzBi7B0XIkn5SMv7N3CD1oXRkiVkZYD67kGy/baBSX6y5NM5aAh8vdDPMp8oRk+C5MawlGDP5ODA/RSJ8UtsdFJLyC77QprPqwFa4Qvzux+7z1ShzRqmPuHIYtc4N8FsGWqQg+nCz50xxxVCVJ2KsJV9qEG3uuGGFYIS+eAuQaTUMqDe7iedvPKFkZPuDIJyWd4SJjQfxE7/sWnJyuXYUq91CSzU7nhFymsBNT+MA/97wc3/iaCKalovnT99312GTBSffw4idIv8+Bvz0fj8jvMs44Ikt52g4BkGX3j5ZmpihIdewD25L1KnAjensCsFSH9cNmy9VPbbvoad+j1N8hEVVhj0MEkr3r5xt45wHt6tLVxWkjbbotUsaHbTtR65jVacP40eWiJcdMq4qCBawpGhr0N9x0qqOWXlSpLZx3IJ/OOU4StdVssLJV2aCdeJp81kj1OvpuqVb9a61PN1JH9z9jDLh9e8axueugYreVoxpQSZH3D4AtS5EtqdQgZ/He+J3AiquAYKNUoHJXllsuyqud1Ep94Et7lFF46LLRqO/nOfVt5Tb5b6DLtg27vjQf54I78QAUVgmdtA+ByJQEA4ccmU7aJM4RODdfpaq3jXz/L3tLGZUT+rOFwbtnWPomTVn9GZeJE5eHa89ecCtB/fCHe916mCNAfYrqCHOou3w8LdH5rHFpRXFTXeMXa8sc+vEntBLuuAq1R2IOHJDfbGsefsaDI94mg93YfyMumoh5tkC/38VnfIywk//cWIwtf67yAo3g8Yl6BlJH8K0/R703wE/AVmx+Vag+++zkeVO7oAESWVNXqosbUzDFd90v+rvBPtQkTd248NLFpLcBbEyWeJjX6LFb2a66/673DeleC++coYxjODjJqlODPGYAOibJUzD9uYUmZwstD+jvxO806o3RvRFdzOBbj1JcmqFyWe6K5w9QKguu3hf6M32VAKNZVADNEHVEkFcsCWybFe49IO6dv8ALLE+nvUcnlR4AFo2ZXaVCO4WcYbvpPYhz1T9iN1eVxz2t6g/07p2Fx43iVsv8mUR1jr5vP2J+KJPTS5/7bOP+nyoAy1+BtMpfM3pbDb6XIbcTnLAMGpx941bpnCNWb8fzow/PiJcVCYKZ6tDH/YQnclpwQZ/qL0OveNESNNUSFw5jvY7mgitiZp3Xo7mPPnXBaxE4PKy/q+GZFajeh/k7BuXhBUJFoV0zj/fFSZWlvdonoB9hnDmspWDDh3Ukck2//U5RnTWwPUwSq9UkqP3c/RHudup29gjq19LRF1RYQcWwdHXPt0HYCxjsIfaivFV+Dl2X2PKWY9Zi1l2xGqnklWEsRgFJVbGIwHzHobHRfYK5ZLM2if8/2zbBxT6kPU7PrfHIm5h2TklBtkZclV9f0exD63kx3CnzCWuqmcSeRSVNr2Jl7a+Pn0GHc5Q41eITQiIXT4H7j9++i9Z8Olv01EXDgwxORZU0gWb8JBACWOS/q1u2yP3juHp4Od2m9HtvW1WLV/Vdggs6w+tGEPTslpYwLY0A9+34/HYnnAWQ7ALqHhVsQ/nde2p3MEfGDyI3hNmsPWst86ZTeuRRNo+f7xi+HijFPCm2SBW7y7xK6a6AIbXjr82Az7G0hfmSPrCPMGrGjFeT+YTJ+Ru5ZaNp+HcnLd9WQrfbL70SLHrHTZkDsOZeP8OtnVEUYFNNQ6aSDP/BeFjLxA+NJPSopCi7M2iInnH1XRLu4U6mI5l1Cwb4NEotTfnABH81HEK9BwCCe7dqiiYa0JW0KrDu10q6vmXA86TaP1Ksdsudc1SaSG7Nn2hGfRRk6tMnGfw6gEir+ccu7d2QAntEU2m9gKlTkd1422eC65Zl0Gy3RKNeGxfvUqxKSwawZMBk67bBaQXLW3X+Pp4H9liJ2Qck1TQfjnNZCgN1RAqlsXqa2l/qZ1RWclF8q0rODaEqmUMhVxVBOLWekr9lbwuilVCZ+Y7L4JcmG14iTdFFoSNxmVCD+BBTkgjw132xm0+K/gq/WELzCdDfQpsmkhZzM9r2fq+dJuwsGxX1ZuP7W9MtdyVjGMgz/t2/tePmvzQA654n7TUcLpTKkN9yJGDg6K5VBvMIJH++0wDl4jt27HBJImBYWMHB01gyp3Qan8CYo3NLZbY9Tfo3ND6obLDQAKbDf4Ah17LN+GegAVFNqJsWGWzSz+XpA64UVVGlCZnqY5bwySLQw2bI6dYBI980MOM39mgPeQQFdt/3h1Ur5Byk0rflYe9T4HP5lprjVQf5uuKPGOo5E//5aytMpJ606U3ql2PBo1TV9r/KK/gSzrV75ql3jjbvu/+iGK5NHzptt+q2v5JQ3ec2Pe55XPiP+hA/QHbZSzGEWXiL5wkf/JMFn2GlOwYK/F5dt+78giZAAnUBmuwdElghopA4rygl2HQZJW7s7v1/3AeROE8GtNY22WTt5uydqxRezwjvxAf1CaFRheVnibeyHKlUgv2gI+xXBTaeL1Q0rNqLsrHKFIEVj+Mn/H3x0uylY8HwSXG4fxLmwrM+a4sxfw+LKfTUWW/6lMfHYqRFg3n3/NbSeK227PZ81KOyarnHo4K+fbkYuc7Y4Xv39zqkRr8rmfbbyxsfGfZewjAxsZEZ1ci01APSTDAatjCR7y+XUjqTa4lmROIXuBkgp6gAP166VsdDfZaAC5VFsuICJF6fIieBOvw0tf4Q0pVKgSOruzVegIyPtKyiSoeEEl2CBJr7OAj9/Wv36k/eGHxjTGmWot5ujzzXEBhgP/RUnAorePrEJVRhlPFohNOIEBiD5wZbA8oWLyT58LPF+h+YYPi0ZUxl6fgcmqeXnzvqFWJamDIpaEPtXREz+LRwa6xVb+GiFVMi4BIaPTCt0mrllSNCKwamif+E19kL/NSFTHcWJ01OHOdAu9ZbEH0vWuwCTgHlI5CmoT527tZyb23onn7z+La+LlKroDpxeylwx7dPIX8+aGQ3bJ5KcoShiWjn4YmaC98K4Rw5J2fKXb9LpvL6rEZK+YT2v6RUC0mtLe/nLrO0YCesu/1btdMSwpSztx6Cgxy4nQRDcS56HfZMaDsQXabCJ+5Nm7NbOqA+IE2F3nxe6Ycvcu0zYatS+9PwSBZvRErea6UAYDWQzm0FsUYq1lfQKNoBS7GtUZ2uwTwqiz7Jkx1NQX0becjJWB+c3egK7ULbn663td2n8gauHrAMe3BchZ/QSWZxWlb6GIHRkfxbk18KmbhWn71Swp78Hdu9HOGTxlEtern0Syxt5bCXsAt/lZZvl5VkRPkY1eVjOzK2Y830ORtpDDsbhVX+qro5hr8bivFnqeubr8fliKyb/ccPS0lhcqESyjpet5RqUsNpg3DwHuLYz0GVXxCfDi8uLx1/vjEO5h+DkiNvfUbXFt5QfuX1dChAxJlk3DobDsC0QeRnmK6zZyH+CueeoIFKLqVL2cg2TRIcAR3baqD9XaINi9xY1GGCxCgs8Vlobdnn0Ai4rsIlgZ5GXIG9Bidu50B9kLdTiAJBQ/hZ0Kn0FQHBK8dGXKYbyaTb52NC1N9R6DSx7j0OYUvigKOIhrT3FJ4xsxawW7U8KA8B12l3NRP0/UkElmUVpJdZoO1a0wxmws4PIUhloKHo6T9CRskHp4fWCTv46rwIEAYqH6p3zVrhvb2BbBYh+hzDSd57sHytNiJUhtEYImjPYKisvYnReOtrPaTcrz6HIX9Qp331uQPmXE1XJO/mhMEVL6gbFfzv0Mak2qfdUonWInwhEFF1SpYEWYsG/1lY2fnCX+jhkzdMfKwp8uwXpE7uafaOUfdL8oHSNwyBMmlstYzTtrNZuY87Jok5KE0xy/583YXhdNnOIzjXRvo5xqSIu1KAmQ2KZEQezMUF1K3hxqN8iN/q1vJcBpiuN/VWcD2hx/Lx45S4qpMmNuqy39sKnX+iDMrmZtqCdvVbClupF8PiDyFB7hZ45TU851NU7VMnCb84RB4PAlqz5zHZDc+6sqtzKO1Ze823ORnSjEsZCv5EGwIMCPXawdxG4ImkGM9rAAzvDHFKENUZuI13zoAOrWwDOIAtHKaGMtPtnHM3OkmlmwA4ghVgAA==" alt='Acer Aspire Lite 15 AL15-32P-C49X, 15.6" FHD IPS, Intel Celeron Prozessor N4500, 8GB, 256GB SSD, Silver | NX.DHFEX.001'></a> </td>
  <td class=l>
- <a href=https://plasico.bg/acer-aspire-lite-15-al15-32p-c49x-156-fhd-ips-intel-celeron-prozessor-n4500-8gb-256gb-ssd-silver-nxdhfex001-13151228.html>Acer Aspire Lite 15 AL15-32P-C49X, 15.6" FHD IPS, Intel Celeron Prozessor N4500, 8GB, 256GB SSD, Silver | NX.DHFEX.001</a><span class=cat>Лаптопи</span> </td>
+ <a href=https://plasico.bg/acer-aspire-lite-15-al15-32p-c49x-156-fhd-ips-intel-celeron-prozessor-n4500-8gb-256gb-ssd-silver-nxdhfex001-13151228.html>Acer Aspire Lite 15 AL15-32P-C49X, 15.6" FHD IPS, Intel Celeron Prozessor N4500, 8GB, 256GB SSD, Silver | NX.DHFEX.001</a><span class=cat>Лаптопи</span><div class=line-delivery data-product-id=13151228>Доставка от <strong>—</strong></div><div class=line-promo>Приложен е код за -10% от оферта (-<b><span class=price>28<span class=precision>,00</span>&nbsp;€</span></b>)</div> </td>
  <td class=c>
  <a class="act spr del" href="https://plasico.bg/%D0%BF%D0%BE%D1%80%D1%8A%D1%87%D0%BA%D0%B0?cart_id=1648393&amp;quantity=0"></a>
  </td>
@@ -2352,27 +2407,32 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
  <a class="act spr inc" href="https://plasico.bg/%D0%BF%D0%BE%D1%80%D1%8A%D1%87%D0%BA%D0%B0?cart_id=1648393&amp;quantity=2"></a>
  </td>
  <td class="r nw">
- <span class=subtotal>279.99</span> €&nbsp;&nbsp;&nbsp; </td>
+ <span class="subtotal line-total">251<span class=precision>.99</span>&nbsp;€</span> </td>
  </tr>
  <tfoot>
  <tr class="totals promo-ask">
  <td class="l nw nb" colspan=6>
- <button type=button id=promo-code-toggle class=promo-code-toggle aria-expanded=false aria-controls=promo-code-row>Имаш промо код?</button>
+ <button type=button id=promo-code-toggle class=promo-code-toggle aria-expanded=true aria-controls=promo-code-row>Имаш промо код?</button>
  </td>
  </tr>
- <tr class="totals code is-collapsed" id=promo-code-row hidden>
+ <tr class="totals code" id=promo-code-row>
  <td class="r nw nb" colspan=5>Промо код</td>
  <td class="r nw nb">
  <form id=code method=post action=https://plasico.bg/%D0%BF%D0%BE%D1%80%D1%8A%D1%87%D0%BA%D0%B0>
- <input type=text value name=code>
+ <input type=text value=FLASH name=code autocomplete=off>
  <input type=image src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==" width=20 height=20 class="spr reload" value>
  </form>
  </td>
  </tr>
+ <tr class="totals discount">
+ <td class="r nw" colspan=5>Отстъпка FLASH (−10%)</td>
+ <td class="r nw">
+ <span>−69.00</span> €&nbsp;&nbsp;&nbsp; </td>
+ </tr>
  <tr class="totals grand">
  <td class="r nw" colspan=5>Сума за плащане с ДДС</td>
  <td class="r nw">
- <span>689.98</span> €&nbsp;&nbsp;&nbsp; </td>
+ <span>620.98</span> €&nbsp;&nbsp;&nbsp; </td>
  </tr>
  </tfoot>
  </table>
@@ -3822,10 +3882,6 @@ window.__plasicoEnsureBoxNow = function () {
  </div>
  <p class="auth-modal__social-hint">използвайте твоя социален акаунт</p>
  <div class="auth-modal__oauth">
- <a href=https://plasico.bg/# class="auth-modal__social auth-modal__social--facebook">
- <span class="auth-modal__social-icon" aria-hidden=true>f</span>
- <span class="auth-modal__social-label">Facebook</span>
- </a>
  <a href=https://plasico.bg/# class="auth-modal__social auth-modal__social--google">
  <span class="auth-modal__social-icon" aria-hidden=true>G</span>
  <span class="auth-modal__social-label">Google</span>

@@ -1,0 +1,16 @@
+{
+  "source": "cart-delivery-eta",
+  "currency": "EUR",
+  "items": {
+    "12775255": {
+      "sku": "12775255",
+      "in_stock": true,
+      "lead_days": 0
+    },
+    "13151228": {
+      "sku": "13151228",
+      "in_stock": true,
+      "lead_days": 0
+    }
+  }
+}

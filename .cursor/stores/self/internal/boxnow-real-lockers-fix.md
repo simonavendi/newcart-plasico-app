@@ -1,7 +1,7 @@
 # BOX NOW — real lockers + Back closes overlay
 
 **Date:** 2026-09-24  
-**Branch:** `main`  
+**Branch:** `main` @ `df7d9f5`  
 **Partner ID:** `18248`  
 **Local:** http://127.0.0.1:8780/index.html  
 

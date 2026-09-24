@@ -99,10 +99,11 @@
   order:3;margin-left:auto;flex:0 0 auto;align-self:center
 }
 #checkout .office-courier-row__body > .co-option-row__hint{
-  order:4;flex:1 0 100%;margin-top:0
+  order:5;flex:1 0 100%;margin-top:0
 }
 #checkout .office-widget-panel{display:contents}
-#checkout .office-widget-panel.is-selected .office-widget-launch{display:none!important}
+#checkout .office-widget-panel.is-selected .office-widget-launch,
+#checkout .office-widget-panel.is-selected .office-search{display:none!important}
 #checkout .office-widget-launch{
   order:2;display:inline-flex;align-items:center;justify-content:center;
   width:auto;max-width:100%;margin:0;padding:6px 12px;text-align:center;cursor:pointer;
@@ -113,7 +114,34 @@
 #checkout .office-widget-launch:hover{border-color:#bbb;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 #checkout .office-widget-launch:focus-visible{outline:2px solid #000;outline-offset:2px}
 #checkout .office-widget-launch.is-error{border-color:#dc2626}
-#checkout .office-selected{order:5;flex:1 0 100%;margin-top:6px}
+#checkout .office-search{
+  order:4;flex:1 0 100%;position:relative;margin:4px 0 0;box-sizing:border-box
+}
+#checkout .office-search__label{
+  display:block;font-size:12px;font-weight:600;color:#444;margin:0 0 4px
+}
+#checkout .office-search__input{
+  display:block;width:100%;box-sizing:border-box;padding:8px 10px;margin:0;
+  border:1px solid #ccc;border-radius:6px;font:inherit;font-size:14px;line-height:1.35;
+  background:#fff;color:#111
+}
+#checkout .office-search__input:focus{outline:2px solid #000;outline-offset:1px;border-color:#111}
+#checkout .office-search__input.is-error{border-color:#dc2626}
+#checkout .office-search__list{
+  position:absolute;left:0;right:0;top:100%;z-index:40;margin:2px 0 0;padding:4px 0;
+  list-style:none;max-height:240px;overflow:auto;background:#fff;border:1px solid #ccc;
+  border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.12)
+}
+#checkout .office-search__item{
+  display:block;width:100%;padding:8px 10px;border:0;background:transparent;text-align:left;
+  cursor:pointer;font:inherit;color:#111;box-sizing:border-box
+}
+#checkout .office-search__item:hover,
+#checkout .office-search__item.is-active{background:#f3f4f6}
+#checkout .office-search__item-name{display:block;font-size:13px;font-weight:600;line-height:1.3}
+#checkout .office-search__item-addr{display:block;font-size:12px;color:#666;line-height:1.3;margin-top:2px}
+#checkout .office-search__empty{padding:10px;font-size:13px;color:#666}
+#checkout .office-selected{order:6;flex:1 0 100%;margin-top:6px}
 #checkout [data-ship-panel=office] .co-option-row__select > input[type=radio]{margin-right:8px;vertical-align:top}
 .office-fullscreen{
   position:fixed;inset:0;width:100%;height:100%;margin:0;padding:0;
@@ -1452,8 +1480,13 @@ position:absolute!important;width:1px!important;height:1px!important;padding:0!i
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	padding: 16px;
+	padding: max(16px, env(safe-area-inset-top, 0px))
+		max(16px, env(safe-area-inset-right, 0px))
+		max(16px, env(safe-area-inset-bottom, 0px))
+		max(16px, env(safe-area-inset-left, 0px));
 	box-sizing: border-box;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
 }
 
 .pl-leasing-overlay[hidden] {
@@ -1467,6 +1500,7 @@ position:absolute!important;width:1px!important;height:1px!important;padding:0!i
 	width: 100%;
 	max-width: 760px;
 	max-height: calc(100vh - 32px);
+	max-height: calc(100dvh - 32px);
 	overflow: visible;
 	border-radius: 14px;
 	border: 1px solid var(--pl-border);
@@ -2035,8 +2069,32 @@ position:absolute!important;width:1px!important;height:1px!important;padding:0!i
 }
 
 @media (max-width: 700px) {
+	.pl-leasing-overlay {
+		align-items: flex-start;
+		justify-content: center;
+		padding: max(12px, env(safe-area-inset-top, 0px))
+			max(12px, env(safe-area-inset-right, 0px))
+			max(12px, env(safe-area-inset-bottom, 0px))
+			max(12px, env(safe-area-inset-left, 0px));
+	}
+
 	.pl-leasing-modal {
 		max-width: 100%;
+		width: 100%;
+		max-height: calc(100vh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+		max-height: calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+		margin: 0 auto;
+		overflow: hidden;
+	}
+
+	/* Keep close X fully inside the modal — negative offsets clip under status bar */
+	.pl-leasing-close {
+		top: 10px;
+		right: 10px;
+	}
+
+	.pl-leasing-head {
+		padding-right: 52px;
 	}
 
 	.pl-leasing-title {
@@ -2158,16 +2216,19 @@ position:absolute!important;width:1px!important;height:1px!important;padding:0!i
 
 @media (max-width: 480px) {
 	.pl-leasing-overlay {
-		padding: 10px;
+		padding: max(12px, env(safe-area-inset-top, 0px))
+			max(12px, env(safe-area-inset-right, 0px))
+			max(12px, env(safe-area-inset-bottom, 0px))
+			max(12px, env(safe-area-inset-left, 0px));
 	}
 
 	.pl-leasing-close {
-		top: -10px;
-		right: -10px;
+		top: 8px;
+		right: 8px;
 	}
 
 	.pl-leasing-head {
-		padding: 14px 14px 12px;
+		padding: 14px 48px 12px 14px;
 	}
 
 	.pl-leasing-body {
@@ -2744,6 +2805,11 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <span class="co-option-row__title"><img class="co-option-row__logo co-option-row__logo--speedy" src="assets/speedy-logo.png" width="31" height="36" alt="Speedy"> Спиди офис</span>
 </label>
 <div class="office-widget-panel" id=office-widget-wrap>
+<div class="office-search" id=office-search-wrap>
+<label class="office-search__label" for=office-search-input>Търсене на офис</label>
+<input id=office-search-input class="office-search__input" type=text name=office_search_q value autocomplete=off placeholder="Град, име или код на офис" role=combobox aria-autocomplete=list aria-controls=office-search-list aria-expanded=false>
+<ul class="office-search__list" id=office-search-list role=listbox hidden></ul>
+</div>
 <button type=button class="office-widget-launch" id=office-open-locator>Избери офис от карта</button>
 <div class="boxnow-selected office-selected" id=office-selected hidden>
 <p class="boxnow-selected__heading" id=office-selected-heading><img class="co-option-row__logo co-option-row__logo--speedy boxnow-selected__heading-logo" id=office-selected-logo-speedy src="assets/speedy-logo.png" width="31" height="36" alt=""><img class="co-option-row__logo co-option-row__logo--econt boxnow-selected__heading-logo" id=office-selected-logo-econt src="assets/econt-logo.png" width="36" height="36" alt="" hidden> <span class="boxnow-selected__heading-text" id=office-selected-heading-text>ОФИС — АДРЕС ЗА ДОСТАВКА</span></p>
@@ -2782,7 +2848,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <input type=hidden name=office_code id=office-selected-code value>
 <input type=hidden name=office_courier_selected id=office-selected-courier value>
 <input type=hidden id=field-office name="courier_address[2]" value=0>
-<p class="boxnow-locker-error office-locator-error" id=office-locator-error hidden role=alert>Моля изберете офис от картата.</p>
+<p class="boxnow-locker-error office-locator-error" id=office-locator-error hidden role=alert>Моля изберете офис (от списъка или от картата).</p>
 </div>
 
 <div class="co-ship-panel hide sf-hidden" data-ship-panel=store hidden>
@@ -3568,10 +3634,10 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			'    <form class="pl-leasing-apply" id="pl-leasing-apply" novalidate>' +
 			'      <h3 class="pl-leasing-apply-title">Кандидатствай за лизинг:</h3>' +
 			'      <div class="pl-leasing-apply-fields">' +
-			'        <input type="text" name="full_name" id="pl-leasing-name" class="pl-leasing-apply-input" placeholder="Име и фамилия ... (задължително на кирилица)" autocomplete="name" />' +
-			'        <input type="tel" name="phone" id="pl-leasing-phone" class="pl-leasing-apply-input" placeholder="Телефон за контакти ... (започващ с нула)" autocomplete="tel" inputmode="tel" />' +
-			'        <input type="text" name="egn" id="pl-leasing-egn" class="pl-leasing-apply-input" placeholder="ЕГН ..." autocomplete="off" inputmode="numeric" />' +
-			'        <input type="email" name="email" id="pl-leasing-email" class="pl-leasing-apply-input" placeholder="Ел. поща ..." autocomplete="email" />' +
+			'        <input type="text" name="full_name" id="pl-leasing-name" class="pl-leasing-apply-input" placeholder="Име и фамилия... (задължително на кирилица)" autocomplete="name" />' +
+			'        <input type="tel" name="phone" id="pl-leasing-phone" class="pl-leasing-apply-input" placeholder="Телефон за контакти... (започващ с нула)" autocomplete="tel" inputmode="tel" />' +
+			'        <input type="text" name="egn" id="pl-leasing-egn" class="pl-leasing-apply-input" placeholder="ЕГН..." autocomplete="off" inputmode="numeric" />' +
+			'        <input type="email" name="email" id="pl-leasing-email" class="pl-leasing-apply-input" placeholder="Ел. поща..." autocomplete="email" />' +
 			'      </div>' +
 			'      <p class="pl-leasing-apply-help">Моля въведете коректна ел. поща. На нея ще получите инструкции за завършване на Вашата кандидатура за кредитиране.</p>' +
 			'      <div class="pl-leasing-apply-checks">' +
@@ -3973,9 +4039,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 
 	function fillApplyFormFromCustomer() {
 		var data = readCheckoutCustomerData();
-		if (isCyrillicName(data.fullName)) {
-			setApplyFieldIfEmpty(document.getElementById('pl-leasing-name'), data.fullName);
-		}
+		setApplyFieldIfEmpty(document.getElementById('pl-leasing-name'), data.fullName);
 		setApplyFieldIfEmpty(document.getElementById('pl-leasing-phone'), data.phone);
 		setApplyFieldIfEmpty(document.getElementById('pl-leasing-email'), data.email);
 		setApplyFieldIfEmpty(document.getElementById('pl-leasing-egn'), data.egn);
@@ -4622,7 +4686,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
   // Speedy + Econt office locators — same open/select/summary pattern as BOX NOW.
   // Speedy: https://services.speedy.bg/office_locator_widget_v3/ (postMessage office object)
   // Econt:  https://officelocator.econt.com (postMessage { office: {...} })
-  var OFFICE_ERR = "Моля изберете офис от картата.";
+  var OFFICE_ERR = "Моля изберете офис (от списъка или от картата).";
   var SPEEDY_MAP_BASE = "https://services.speedy.bg/office_locator_widget_v3/office_locator.php";
   var ECONT_MAP_BASE = "https://officelocator.econt.com/";
   var ECONT_MAP_FALLBACK = "https://offices.econt.com/";
@@ -4685,6 +4749,8 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
     err.hidden = true;
     var btn = document.getElementById("office-open-locator");
     if (btn) btn.classList.remove("is-error");
+    var inp = document.getElementById("office-search-input");
+    if (inp) inp.classList.remove("is-error");
   }
   function showOfficeError() {
     var err = getErrorEl();
@@ -4694,6 +4760,8 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
     err.hidden = false;
     var btn = document.getElementById("office-open-locator");
     if (btn) btn.classList.add("is-error");
+    var inp = document.getElementById("office-search-input");
+    if (inp) inp.classList.add("is-error");
   }
   function hasOfficeSelection() {
     var idEl = document.getElementById("office-selected-id");
@@ -4976,6 +5044,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
   }
 
   function clearOfficeSelection() {
+    resetOfficeSearchUI();
     fillOfficeFields({
       courier: getCourier(),
       id: "",
@@ -5160,6 +5229,341 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
     return true;
   }
 
+  // --- Office typeahead (Speedy local JSON + Econt nomenclatures API) ---
+  var SPEEDY_OFFICES_URL = "assets/speedy-offices.json";
+  var ECONT_OFFICES_URL =
+    "https://ee.econt.com/services/Nomenclatures/NomenclaturesService.getOffices.json";
+  var __officeCache = { speedy: null, econt: null };
+  var __officeLoad = { speedy: null, econt: null };
+  var __officeSearchTimer = null;
+  var __officeActiveIdx = -1;
+  var __officeResults = [];
+
+  function normalizeOfficeQuery(s) {
+    return String(s || "")
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function resetOfficeSearchUI() {
+    var inp = document.getElementById("office-search-input");
+    var list = document.getElementById("office-search-list");
+    if (inp) {
+      inp.value = "";
+      inp.setAttribute("aria-expanded", "false");
+      inp.classList.remove("is-error");
+    }
+    if (list) {
+      list.innerHTML = "";
+      list.setAttribute("hidden", "");
+      list.hidden = true;
+    }
+    __officeActiveIdx = -1;
+    __officeResults = [];
+  }
+
+  function loadSpeedyOffices() {
+    if (__officeCache.speedy) return Promise.resolve(__officeCache.speedy);
+    if (__officeLoad.speedy) return __officeLoad.speedy;
+    __officeLoad.speedy = fetch(SPEEDY_OFFICES_URL, {
+      credentials: "omit",
+      cache: "force-cache"
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error("speedy offices " + r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        var list = Array.isArray(data) ? data : [];
+        __officeCache.speedy = list
+          .map(function (o) {
+            var id = o && o.id != null ? String(o.id) : "";
+            var name = o && o.name != null ? String(o.name).trim() : "";
+            var address = o && o.address != null ? String(o.address).trim() : "";
+            if (!id && !name) return null;
+            return {
+              courier: "speedy",
+              id: id,
+              code: id,
+              name: name || "Speedy офис #" + id,
+              address: address,
+              _q: normalizeOfficeQuery(name + " " + address + " " + id)
+            };
+          })
+          .filter(Boolean);
+        return __officeCache.speedy;
+      })
+      .catch(function (err) {
+        __officeLoad.speedy = null;
+        console.warn("[office-search] Speedy list failed", err);
+        return [];
+      });
+    return __officeLoad.speedy;
+  }
+
+  function formatEcontOfficeRow(o) {
+    if (!o || typeof o !== "object") return null;
+    // Match map widget officeType=office — skip APS automats.
+    if (o.isAPS) return null;
+    var id = o.id != null ? String(o.id) : "";
+    var code = o.code != null ? String(o.code) : id;
+    var name = o.name != null ? String(o.name).trim() : "";
+    var address = formatEcontAddress(o.address);
+    if (!id && !code && !name) return null;
+    return {
+      courier: "econt",
+      id: id || code,
+      code: code || id,
+      name: name || (code ? "Еконт офис " + code : "Еконт офис"),
+      address: address,
+      _q: normalizeOfficeQuery(
+        name + " " + address + " " + code + " " + id
+      )
+    };
+  }
+
+  function loadEcontOffices() {
+    if (__officeCache.econt) return Promise.resolve(__officeCache.econt);
+    if (__officeLoad.econt) return __officeLoad.econt;
+    __officeLoad.econt = fetch(ECONT_OFFICES_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ countryCode: "BGR" }),
+      mode: "cors",
+      credentials: "omit"
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error("econt offices " + r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        var raw = (data && data.offices) || [];
+        __officeCache.econt = raw.map(formatEcontOfficeRow).filter(Boolean);
+        return __officeCache.econt;
+      })
+      .catch(function (err) {
+        __officeLoad.econt = null;
+        console.warn("[office-search] Econt list failed", err);
+        return [];
+      });
+    return __officeLoad.econt;
+  }
+
+  function loadOfficesForCourier(courier) {
+    return courier === "econt" ? loadEcontOffices() : loadSpeedyOffices();
+  }
+
+  function filterOffices(list, query, limit) {
+    limit = limit || 12;
+    var q = normalizeOfficeQuery(query);
+    if (!q || q.length < 1) return [];
+    var parts = q.split(" ").filter(Boolean);
+    var out = [];
+    for (var i = 0; i < list.length; i++) {
+      var row = list[i];
+      var hay = row._q || "";
+      var ok = true;
+      for (var p = 0; p < parts.length; p++) {
+        if (hay.indexOf(parts[p]) === -1) {
+          ok = false;
+          break;
+        }
+      }
+      if (ok) {
+        out.push(row);
+        if (out.length >= limit) break;
+      }
+    }
+    return out;
+  }
+
+  function hideOfficeSearchList() {
+    var list = document.getElementById("office-search-list");
+    var inp = document.getElementById("office-search-input");
+    if (list) {
+      list.setAttribute("hidden", "");
+      list.hidden = true;
+      list.innerHTML = "";
+    }
+    if (inp) inp.setAttribute("aria-expanded", "false");
+    __officeActiveIdx = -1;
+    __officeResults = [];
+  }
+
+  function renderOfficeSearchList(results, query) {
+    var list = document.getElementById("office-search-list");
+    var inp = document.getElementById("office-search-input");
+    if (!list) return;
+    __officeResults = results || [];
+    __officeActiveIdx = __officeResults.length ? 0 : -1;
+    list.innerHTML = "";
+    if (!normalizeOfficeQuery(query)) {
+      hideOfficeSearchList();
+      return;
+    }
+    if (!__officeResults.length) {
+      var empty = document.createElement("li");
+      empty.className = "office-search__empty";
+      empty.textContent = "Няма намерени офиси";
+      list.appendChild(empty);
+      list.removeAttribute("hidden");
+      list.hidden = false;
+      if (inp) inp.setAttribute("aria-expanded", "true");
+      return;
+    }
+    for (var i = 0; i < __officeResults.length; i++) {
+      (function (idx, row) {
+        var li = document.createElement("li");
+        li.setAttribute("role", "option");
+        li.id = "office-search-opt-" + idx;
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className =
+          "office-search__item" + (idx === 0 ? " is-active" : "");
+        btn.setAttribute("data-office-idx", String(idx));
+        var nameEl = document.createElement("span");
+        nameEl.className = "office-search__item-name";
+        nameEl.textContent = row.name + (row.code ? " [" + row.code + "]" : "");
+        btn.appendChild(nameEl);
+        if (row.address) {
+          var addrEl = document.createElement("span");
+          addrEl.className = "office-search__item-addr";
+          addrEl.textContent = row.address;
+          btn.appendChild(addrEl);
+        }
+        btn.addEventListener("mousedown", function (ev) {
+          ev.preventDefault();
+          pickOfficeSearchResult(idx);
+        });
+        li.appendChild(btn);
+        list.appendChild(li);
+      })(i, __officeResults[i]);
+    }
+    list.removeAttribute("hidden");
+    list.hidden = false;
+    if (inp) inp.setAttribute("aria-expanded", "true");
+  }
+
+  function setOfficeActiveIdx(idx) {
+    var list = document.getElementById("office-search-list");
+    if (!list || !__officeResults.length) return;
+    if (idx < 0) idx = __officeResults.length - 1;
+    if (idx >= __officeResults.length) idx = 0;
+    __officeActiveIdx = idx;
+    var items = list.querySelectorAll(".office-search__item");
+    for (var i = 0; i < items.length; i++) {
+      if (i === idx) items[i].classList.add("is-active");
+      else items[i].classList.remove("is-active");
+    }
+    if (items[idx] && items[idx].scrollIntoView) {
+      try {
+        items[idx].scrollIntoView({ block: "nearest" });
+      } catch (err) {}
+    }
+  }
+
+  function pickOfficeSearchResult(idx) {
+    var row = __officeResults[idx];
+    if (!row) return;
+    fillOfficeFields({
+      courier: row.courier || getCourier(),
+      id: row.id,
+      code: row.code,
+      name: row.name,
+      address: row.address
+    });
+    hideOfficeSearchList();
+    var inp = document.getElementById("office-search-input");
+    if (inp) inp.value = "";
+    setTimeout(focusOfficeSelection, 0);
+  }
+
+  function runOfficeSearch(query) {
+    var courier = getCourier();
+    loadOfficesForCourier(courier).then(function (list) {
+      // Ignore stale responses if courier changed mid-flight.
+      if (getCourier() !== courier) return;
+      renderOfficeSearchList(filterOffices(list, query, 12), query);
+    });
+  }
+
+  function bindOfficeTypeahead() {
+    if (window.__plasicoOfficeTypeaheadBound) return;
+    window.__plasicoOfficeTypeaheadBound = true;
+    document.addEventListener(
+      "input",
+      function (ev) {
+        var t = ev.target;
+        if (!t || t.id !== "office-search-input") return;
+        clearOfficeError();
+        var q = t.value;
+        if (__officeSearchTimer) clearTimeout(__officeSearchTimer);
+        __officeSearchTimer = setTimeout(function () {
+          runOfficeSearch(q);
+        }, 140);
+      },
+      true
+    );
+    document.addEventListener(
+      "keydown",
+      function (ev) {
+        var t = ev.target;
+        if (!t || t.id !== "office-search-input") return;
+        var list = document.getElementById("office-search-list");
+        var open = list && !list.hidden;
+        if (ev.key === "ArrowDown") {
+          if (!open) {
+            runOfficeSearch(t.value);
+            return;
+          }
+          ev.preventDefault();
+          setOfficeActiveIdx(__officeActiveIdx + 1);
+        } else if (ev.key === "ArrowUp") {
+          if (!open) return;
+          ev.preventDefault();
+          setOfficeActiveIdx(__officeActiveIdx - 1);
+        } else if (ev.key === "Enter") {
+          if (open && __officeActiveIdx >= 0 && __officeResults.length) {
+            ev.preventDefault();
+            pickOfficeSearchResult(__officeActiveIdx);
+          }
+        } else if (ev.key === "Escape") {
+          if (open) {
+            ev.preventDefault();
+            hideOfficeSearchList();
+          }
+        }
+      },
+      true
+    );
+    document.addEventListener(
+      "focusin",
+      function (ev) {
+        var t = ev.target;
+        if (!t || t.id !== "office-search-input") return;
+        // Prefetch office list for the active courier.
+        loadOfficesForCourier(getCourier());
+        if (normalizeOfficeQuery(t.value)) runOfficeSearch(t.value);
+      },
+      true
+    );
+    document.addEventListener(
+      "focusout",
+      function (ev) {
+        var t = ev.target;
+        if (!t || t.id !== "office-search-input") return;
+        setTimeout(function () {
+          var active = document.activeElement;
+          var wrap = document.getElementById("office-search-wrap");
+          if (wrap && active && wrap.contains(active)) return;
+          hideOfficeSearchList();
+        }, 120);
+      },
+      true
+    );
+  }
+
   function bindOfficeLaunch() {
     // Capture-phase delegation: survives remounts into Speedy/Econt rows and
     // avoids <label> swallowing / data-bound races on #office-open-locator.
@@ -5251,11 +5655,14 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
   function boot() {
     mountOfficeWidget();
     syncOfficeCarrierMarks();
+    bindOfficeTypeahead();
     bindOfficeLaunch();
     bindOfficeCourierChange();
     bindOfficeSubmitGuard();
     bindOfficeMessage();
     bindOfficeHistory();
+    // Prefetch Speedy list (same-origin); Econt loads on first Econt search.
+    loadSpeedyOffices();
   }
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", boot);

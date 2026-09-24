@@ -23,8 +23,13 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	padding: 16px;
+	padding: max(16px, env(safe-area-inset-top, 0px))
+		max(16px, env(safe-area-inset-right, 0px))
+		max(16px, env(safe-area-inset-bottom, 0px))
+		max(16px, env(safe-area-inset-left, 0px));
 	box-sizing: border-box;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
 }
 
 .pl-leasing-overlay[hidden] {
@@ -38,6 +43,7 @@
 	width: 100%;
 	max-width: 760px;
 	max-height: calc(100vh - 32px);
+	max-height: calc(100dvh - 32px);
 	overflow: visible;
 	border-radius: 14px;
 	border: 1px solid var(--pl-border);
@@ -680,8 +686,32 @@
 }
 
 @media (max-width: 700px) {
+	.pl-leasing-overlay {
+		align-items: flex-start;
+		justify-content: center;
+		padding: max(16px, env(safe-area-inset-top, 0px))
+			max(16px, env(safe-area-inset-right, 0px))
+			max(16px, env(safe-area-inset-bottom, 0px))
+			max(16px, env(safe-area-inset-left, 0px));
+	}
+
 	.pl-leasing-modal {
 		max-width: 100%;
+		width: 100%;
+		max-height: calc(100vh - 32px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+		max-height: calc(100dvh - 32px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+		margin: 0 auto;
+		overflow: hidden;
+	}
+
+	/* Keep close X fully inside the modal — negative offsets clip under status bar */
+	.pl-leasing-close {
+		top: 10px;
+		right: 10px;
+	}
+
+	.pl-leasing-head {
+		padding-right: 52px;
 	}
 
 	.pl-leasing-title {
@@ -803,16 +833,19 @@
 
 @media (max-width: 480px) {
 	.pl-leasing-overlay {
-		padding: 10px;
+		padding: max(16px, env(safe-area-inset-top, 0px))
+			max(16px, env(safe-area-inset-right, 0px))
+			max(16px, env(safe-area-inset-bottom, 0px))
+			max(16px, env(safe-area-inset-left, 0px));
 	}
 
 	.pl-leasing-close {
-		top: -10px;
-		right: -10px;
+		top: 8px;
+		right: 8px;
 	}
 
 	.pl-leasing-head {
-		padding: 14px 14px 12px;
+		padding: 14px 48px 12px 14px;
 	}
 
 	.pl-leasing-body {

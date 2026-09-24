@@ -26,9 +26,14 @@
 		return false;
 	}
 
+	function isDemoLoggedIn() {
+		return !!(document.body && document.body.classList.contains('is-demo-logged-in'));
+	}
+
 	function isRequiredField(input) {
 		if (!input) return false;
-		if (input.id === 'field-phone') return true;
+		// Guest #field-phone is hidden when logged in — do not require it
+		if (input.id === 'field-phone') return !isDemoLoggedIn();
 		if (input.hasAttribute('required')) return true;
 		if (input.id === 'field-address-person-phone') {
 			var cb = document.getElementById('want-alternate-recipient');
@@ -198,7 +203,11 @@
 
 		var phone = document.getElementById('field-phone');
 		if (phone) {
-			phone.setAttribute('required', '');
+			if (isDemoLoggedIn()) {
+				phone.removeAttribute('required');
+			} else {
+				phone.setAttribute('required', '');
+			}
 			if (!phone.classList.contains('telephone')) phone.classList.add('telephone');
 			phone.setAttribute('inputmode', 'tel');
 			phone.setAttribute('autocomplete', phone.getAttribute('autocomplete') || 'tel');

@@ -88,13 +88,21 @@
 #checkout .boxnow-locker-error{margin:8px 0 0;padding:10px 12px;background:#fff5f5;border:1px solid #dc2626;border-radius:6px;font-size:14px;line-height:1.4;color:#dc2626}
 #checkout .boxnow-locker-error[hidden]{display:none!important}
 /* Office locators (Speedy / Econt) — CTA inline with title, no logo in button */
-#checkout .co-option-row[data-office-courier-row]{cursor:default}
+#checkout .co-option-row[data-office-courier-row]{cursor:pointer}
 #checkout .office-courier-row__body{
   display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;width:100%
 }
 #checkout .office-courier-row__body > .co-option-row__select{
-  order:1;display:inline-flex;align-items:center;gap:8px;cursor:pointer;min-width:0;flex:0 1 auto
+  order:1;display:inline-flex;align-items:center;gap:8px;cursor:pointer;min-width:0;flex:1 1 auto
 }
+#checkout .office-courier-row__body > .co-option-row__select .co-option-row__title{
+  pointer-events:none
+}
+#checkout .office-search,
+#checkout .office-widget-launch,
+#checkout .office-selected,
+#checkout .office-search__list{cursor:auto}
+#checkout .office-search__list[hidden]{display:none!important;pointer-events:none!important}
 #checkout .office-courier-row__body > .co-option-row__price{
   order:3;margin-left:auto;flex:0 0 auto;align-self:center
 }
@@ -2880,7 +2888,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <div class="office-widget-panel" id=office-widget-wrap>
 <div class="office-search" id=office-search-wrap>
 <label class="office-search__label" for=office-search-input>Търсене на офис</label>
-<input id=office-search-input class="office-search__input" type=text name=office_search_q value autocomplete=off placeholder="Град, име или код на офис" role=combobox aria-autocomplete=list aria-controls=office-search-list aria-expanded=false>
+<input id=office-search-input class="office-search__input" type=text name=office_search_q value autocomplete=off placeholder="Град, име или адрес на офис" role=combobox aria-autocomplete=list aria-controls=office-search-list aria-expanded=false>
 <ul class="office-search__list" id=office-search-list role=listbox hidden></ul>
 </div>
 <button type=button class="office-widget-launch" id=office-open-locator>Избери офис от карта</button>
@@ -5666,6 +5674,69 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
     window.__plasicoOpenOfficeLocator = openOfficeLocator;
   }
 
+  function selectOfficeCourierRow(row, opts) {
+    opts = opts || {};
+    if (!row) return false;
+    var radio = row.querySelector('input[name="office_courier"]');
+    if (!radio || radio.disabled) return false;
+    syncOfficeCourierClicked();
+    if (radio.checked && !opts.force) return true;
+    radio.checked = true;
+    try {
+      radio.dispatchEvent(new Event("input", { bubbles: true }));
+    } catch (err1) {}
+    try {
+      radio.dispatchEvent(new Event("change", { bubbles: true }));
+    } catch (err2) {}
+    syncOfficeCourierClicked();
+    return true;
+  }
+
+  function syncOfficeCourierClicked() {
+    var radios = document.querySelectorAll('input[type=radio][name="office_courier"]');
+    for (var i = 0; i < radios.length; i++) {
+      var r = radios[i];
+      var row = r.closest(".co-option-row[data-office-courier-row]") || r.closest(".co-option-row");
+      if (!row) continue;
+      if (r.checked) row.classList.add("clicked");
+      else row.classList.remove("clicked");
+    }
+  }
+
+  function isOfficeRowInteractiveTarget(t) {
+    if (!t || !t.closest) return false;
+    // Keep map CTA, typeahead, Смени, and real form controls fully clickable.
+    return !!(
+      t.closest(
+        "button, textarea, select, a, .office-search, .office-search__list, .office-widget-launch, .office-selected, .boxnow-selected__change, input:not([name='office_courier'])"
+      ) ||
+      (t.matches && t.matches("input:not([type='radio'])"))
+    );
+  }
+
+  function bindOfficeCourierRowClick() {
+    if (window.__plasicoOfficeRowClickBound) return;
+    window.__plasicoOfficeRowClickBound = true;
+    document.addEventListener(
+      "click",
+      function (e) {
+        var t = e.target;
+        if (!t || !t.closest) return;
+        var row = t.closest(".co-option-row[data-office-courier-row]");
+        if (!row) return;
+        if (isOfficeRowInteractiveTarget(t)) return;
+        // Native <label class="co-option-row__select"> already toggles the radio.
+        if (t.closest("label.co-option-row__select")) {
+          setTimeout(syncOfficeCourierClicked, 0);
+          return;
+        }
+        selectOfficeCourierRow(row);
+        if (typeof hideOfficeSearchList === "function") hideOfficeSearchList();
+      },
+      false
+    );
+  }
+
   function bindOfficeCourierChange() {
     if (window.__plasicoOfficeCourierBound) return;
     window.__plasicoOfficeCourierBound = true;
@@ -5678,6 +5749,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
         clearOfficeSelection();
         closeOfficeLocator();
         syncOfficeCarrierMarks(next);
+        syncOfficeCourierClicked();
       }
       if (t.name === "ship_to_id[2]" && t.value !== "office") {
         clearOfficeError();
@@ -5732,6 +5804,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
     syncOfficeCarrierMarks();
     bindOfficeTypeahead();
     bindOfficeLaunch();
+    bindOfficeCourierRowClick();
     bindOfficeCourierChange();
     bindOfficeSubmitGuard();
     bindOfficeMessage();

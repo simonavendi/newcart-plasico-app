@@ -1,35 +1,30 @@
-# Speedy / Econt office typeahead
+# Speedy / Econt office typeahead + row click
 
 ## Goal
-Simona: **Спиди офис** and **Еконт офис** each get a searchable free-text field with an office dropdown (typeahead), in addition to **Избери офис от карта**. Selecting from the list fills the same summary card (+ **Смени**) as a map pick.
+Simona: **Спиди офис** / **Еконт офис** searchable office field + map CTA; selecting fills the same summary (+ **Смени**). Econt/Speedy rows must be clickable like other ship options.
 
-## Behavior
-- Typeahead input `#office-search-input` inside `#office-widget-wrap` (moves with Speedy ↔ Еконт remount).
-- Dropdown `#office-search-list` filters by city / name / code; keyboard ↑↓ / Enter / Esc.
-- Pick → `fillOfficeFields` → same `#office-selected` summary + **Смени** as map `postMessage`.
-- When selected, search + map CTA hide (`is-selected`); **Смени** still opens the map.
-- Map CTA label unchanged: **Избери офис от карта**.
+## Placeholder
+`#office-search-input` placeholder exactly: **Град, име или адрес на офис**
 
-## Data sources
-| Courier | Source | Notes |
-| --- | --- | --- |
-| Speedy | `assets/speedy-offices.json` (~1305 offices) | Built from Speedy map widget embed (`speedy_offices`) + addresses via `getOfficeDetails.php`. Browser CORS blocks live `searchOffices.php`. |
-| Econt | `POST https://ee.econt.com/services/Nomenclatures/NomenclaturesService.getOffices.json` `{countryCode:"BGR"}` | CORS `*`. APS automats excluded (`isAPS`) to match map `officeType=office`. Cached in memory after first fetch. |
+## Row selection fix
+Office courier rows are `<div class="co-option-row">` (not a full-row `<label>`) with visually hidden radios. Clicks on price/hint/padding previously did nothing; `cursor:default` also hid affordance.
+
+- Row click → checks `office_courier` radio, `.clicked`, remounts widget (skips search / map CTA / Смени / inputs)
+- `cursor:pointer` on rows; `pointer-events:none` on title contents so the select label receives clicks
+- Hidden typeahead list: `pointer-events:none` so it can’t block the other row
+
+## Data
+| Courier | Source |
+| --- | --- |
+| Speedy | `assets/speedy-offices.json` |
+| Econt | `ee.econt.com` `NomenclaturesService.getOffices.json` (skip `isAPS`) |
 
 ## Verify (`http://127.0.0.1:8780`)
-`python _verify_office_typeahead.py` → **PASS**
-
-- Speedy: type “Младост” / “Варна” → dropdown → summary + Смени
-- Econt: type “Младост” / “София” → dropdown → summary
-- Map CTA / Смени still opens fullscreen locator
+`python _verify_office_row_click.py` → **PASS**
 
 ## Media
-- `.cursor/stores/self/media/office-typeahead-speedy.png`
-- `.cursor/stores/self/media/office-typeahead-speedy-selected.png`
-- `.cursor/stores/self/media/office-typeahead-econt.png`
-- `.cursor/stores/self/media/office-typeahead-econt-selected.png`
+- `.cursor/stores/self/media/office-econt-row-selected.png`
 
 ## Files
-- `index.html`, `poruchka.html` — CSS + search markup + typeahead JS
-- `assets/speedy-offices.json`
-- `_patch_office_typeahead.py`, `_verify_office_typeahead.py`, `_extract_speedy_offices.py`
+- `index.html`, `poruchka.html`
+- `_patch_office_row_click.py`, `_verify_office_row_click.py`

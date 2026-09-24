@@ -17,6 +17,7 @@
 - Partner ID: **18248**
 - Auth modal: circle Google/Apple + thank-you + top-bar profile (`a71bfa8`) — see `internal/auth-thanks-profile.md`; Facebook stays omitted
 - Speedy/Econt office map locators + „Избери офис от карта“ — `internal/speedy-econt-office-locators.md`
+- Speedy/Econt office map: browser Back closes overlay (like BOX NOW) — `internal/speedy-econt-back-button.md`
 - Office map CTA nested in Speedy/Еконт `co-option-row` (`main` @ `9b7bd2d`) — `internal/office-map-cta-in-option.md`
 - `#office-open-locator` wire fix (CTA outside `<label>`, capture delegation) — `main` @ `70acbcb` / docs `a541115`; see `internal/office-open-locator-wire.md`
 - Speedy + Econt logos like BOX NOW (option rows + office CTA/summary) — `internal/econt-logo-like-boxnow.md`

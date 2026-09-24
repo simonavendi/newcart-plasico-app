@@ -318,6 +318,9 @@ html.boxnow-locator-open,html.boxnow-locator-open body{
 #user .top-profile-btn svg{display:block;width:18px;height:18px;fill:currentColor}
 #user .user-guest[hidden],#user .user-logged[hidden]{display:none!important}
 body.is-demo-logged-in #btn-account-auth{border-color:#55a630;background:#e8f6ec;color:#2e7d32}
+/* Logged-in: hide guest checkout (title + name/phone/email); keep profile CTA */
+body.is-demo-logged-in #checkout-register .checkout-guest-title,
+body.is-demo-logged-in #checkout-register .checkout-guest-fields{display:none!important}
 .auth-modal__help[hidden]{display:none!important}
 body.auth-modal-open{overflow:hidden}
 @media (max-width:480px){
@@ -393,14 +396,12 @@ position:absolute!important;width:1px!important;height:1px!important;padding:0!i
 #checkout .co-option-row__logo--econt{height:30px;max-width:min(110px,46vw)}
 #checkout .co-option-row__logo--speedy{height:30px;max-width:min(96px,42vw)}
 #checkout .co-option-row__logo--transpress{height:20px;max-width:min(168px,58vw)}
-#checkout .co-option-row__logo--postbank{height:22px;max-width:min(140px,52vw)}
 @media (min-width:768px){
 #checkout .co-option-row__logo{height:32px;max-width:120px}
 #checkout .co-option-row__logo--boxnow{height:36px;max-width:140px}
 #checkout .co-option-row__logo--econt{height:36px;max-width:140px}
 #checkout .co-option-row__logo--speedy{height:36px;max-width:110px}
 #checkout .co-option-row__logo--transpress{height:24px;max-width:190px}
-#checkout .co-option-row__logo--postbank{height:26px;max-width:160px}
 }
 #checkout .office-widget-launch__logo[hidden],
 #checkout .boxnow-selected__heading-logo[hidden]{display:none!important}
@@ -1106,6 +1107,16 @@ position:absolute!important;width:1px!important;height:1px!important;padding:0!i
         if (logged) el.removeAttribute("hidden");
         else el.setAttribute("hidden", "");
       });
+      // Guest name/phone/email: hide when logged in; drop required so hidden inputs don't block submit
+      document.querySelectorAll("#checkout-register .checkout-guest-fields input").forEach(function (el) {
+        if (logged) {
+          if (el.hasAttribute("required")) el.setAttribute("data-guest-required", "1");
+          el.removeAttribute("required");
+        } else if (el.getAttribute("data-guest-required") === "1") {
+          el.setAttribute("required", "");
+          el.removeAttribute("data-guest-required");
+        }
+      });
       if (openBtn) {
         if (logged) {
           openBtn.textContent = "Профил";
@@ -1653,16 +1664,6 @@ position:absolute!important;width:1px!important;height:1px!important;padding:0!i
 	color: var(--pl-text);
 	text-align: center;
 }
-.pl-leasing-grid-colhead--postbank{
-	display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;
-}
-.pl-leasing-colhead-logo{
-	display:block;height:22px;width:auto;max-width:min(120px,42vw);object-fit:contain;
-}
-@media (min-width:768px){
-.pl-leasing-colhead-logo{height:26px;max-width:140px}
-}
-
 .pl-leasing-grid-month {
 	display: flex;
 	align-items: center;
@@ -2877,7 +2878,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <input type=radio name=payment_id value=8 autocomplete=off>
 <span class="co-option-row__body">
 <span class="co-option-row__copy">
-<span class="co-option-row__title"><img class="co-option-row__logo co-option-row__logo--postbank" src="assets/postbank-logo.png" width="280" height="86" alt="PostBank"> На изплащане с PostBank</span>
+<span class="co-option-row__title">На изплащане с PostBank</span>
 <span class="co-option-row__hint">Избери схема след избор на метода</span>
 </span>
 </span>
@@ -3803,8 +3804,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			COLUMNS.personal.title +
 			'</div>' +
 			'<div class="pl-leasing-grid-colhead pl-leasing-grid-colhead--postbank" role="columnheader">' +
-			'<img class="pl-leasing-colhead-logo" src="assets/postbank-logo.png" width="280" height="86" alt="PostBank"> ' +
-			'<span>' + COLUMNS.postbank.title + '</span>' +
+			COLUMNS.postbank.title +
 			'</div>' +
 			'</div>';
 
@@ -4719,7 +4719,11 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
     return ECONT_MAP_FALLBACK + "?" + params.join("&");
   }
 
-  function closeOfficeLocator() {
+  // Browser Back must close the office map and return to checkout (same as BOX NOW).
+  var OFFICE_HIST_KEY = "plasicoOfficeLocator";
+
+  function closeOfficeLocator(opts) {
+    opts = opts || {};
     var root = document.getElementById("office-fullscreen-root");
     if (root && root.parentNode) root.parentNode.removeChild(root);
     document.documentElement.classList.remove("office-locator-open");
@@ -4729,6 +4733,36 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
       window.__plasicoOfficeEscBound = null;
     }
     window.__plasicoOfficeLocatorKind = null;
+    // Pop our overlay history entry when closed via × / Esc / select (not via Back itself).
+    if (window.__plasicoOfficeHistPushed && !opts.fromPopstate) {
+      window.__plasicoOfficeHistPushed = false;
+      // Ignore the matching popstate so a quick re-open isn't torn down.
+      window.__plasicoOfficeIgnorePop = true;
+      try {
+        history.back();
+      } catch (errHist) {
+        window.__plasicoOfficeIgnorePop = false;
+      }
+    } else {
+      window.__plasicoOfficeHistPushed = false;
+    }
+  }
+
+  function bindOfficeHistory() {
+    if (window.__plasicoOfficeHistBound) return;
+    window.__plasicoOfficeHistBound = true;
+    window.addEventListener("popstate", function () {
+      if (window.__plasicoOfficeIgnorePop) {
+        window.__plasicoOfficeIgnorePop = false;
+        return;
+      }
+      if (
+        window.__plasicoOfficeHistPushed ||
+        document.getElementById("office-fullscreen-root")
+      ) {
+        closeOfficeLocator({ fromPopstate: true });
+      }
+    });
   }
 
   function isSpeedyOrigin(origin) {
@@ -5028,6 +5062,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
     }
     closeOfficeLocator();
     bindOfficeMessage();
+    bindOfficeHistory();
 
     var courier = getCourier();
     var kind = courier === "econt" ? "econt" : "speedy";
@@ -5074,6 +5109,18 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
     document.body.appendChild(root);
     document.documentElement.classList.add("office-locator-open");
     document.body.classList.add("office-locator-open");
+
+    // History entry so browser Back closes the overlay and returns to cart.
+    if (!window.__plasicoOfficeHistPushed) {
+      try {
+        var st = {};
+        st[OFFICE_HIST_KEY] = true;
+        history.pushState(st, "", window.location.href);
+        window.__plasicoOfficeHistPushed = true;
+      } catch (errPush) {
+        window.__plasicoOfficeHistPushed = false;
+      }
+    }
 
     window.__plasicoOfficeEscBound = function (ev) {
       if (ev.key === "Escape" || ev.keyCode === 27) {
@@ -5183,6 +5230,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
     bindOfficeCourierChange();
     bindOfficeSubmitGuard();
     bindOfficeMessage();
+    bindOfficeHistory();
   }
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", boot);

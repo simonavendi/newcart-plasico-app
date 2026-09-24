@@ -861,8 +861,7 @@
 			COLUMNS.personal.title +
 			'</div>' +
 			'<div class="pl-leasing-grid-colhead pl-leasing-grid-colhead--postbank" role="columnheader">' +
-			'<img class="pl-leasing-colhead-logo" src="assets/postbank-logo.png" width="280" height="86" alt="PostBank"> ' +
-			'<span>' + COLUMNS.postbank.title + '</span>' +
+			COLUMNS.postbank.title +
 			'</div>' +
 			'</div>';
 

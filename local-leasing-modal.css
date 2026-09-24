@@ -260,16 +260,6 @@
 	color: var(--pl-text);
 	text-align: center;
 }
-.pl-leasing-grid-colhead--postbank{
-	display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;
-}
-.pl-leasing-colhead-logo{
-	display:block;height:22px;width:auto;max-width:min(120px,42vw);object-fit:contain;
-}
-@media (min-width:768px){
-.pl-leasing-colhead-logo{height:26px;max-width:140px}
-}
-
 .pl-leasing-grid-month {
 	display: flex;
 	align-items: center;

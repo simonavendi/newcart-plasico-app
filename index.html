@@ -1112,6 +1112,11 @@ position:absolute!important;width:1px!important;height:1px!important;padding:0!i
         if (logged) {
           if (el.hasAttribute("required")) el.setAttribute("data-guest-required", "1");
           el.removeAttribute("required");
+          el.classList.remove("is-invalid");
+          el.removeAttribute("aria-invalid");
+          if (typeof el.setCustomValidity === "function") el.setCustomValidity("");
+          var err = document.getElementById((el.id || "phone") + "-error");
+          if (err) { err.hidden = true; err.textContent = ""; }
         } else if (el.getAttribute("data-guest-required") === "1") {
           el.setAttribute("required", "");
           el.removeAttribute("data-guest-required");

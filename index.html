@@ -312,9 +312,11 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
 #checkout #step-ship-details label[for=want-recipient-phone],
 #checkout #step-ship-details #recipient-phone-field{display:none!important}
 #checkout #step-payment h2:before{content:"04";display:inline-block;margin-right:10px;padding:2px 8px;border-radius:6px;background:#e8f6ec;color:#2e7d32;font-size:14px;font-family:"exo2b",sans-serif;vertical-align:middle;position:relative;top:-2px}
-/* Required asterisk at top-right of terms checkbox */
-#checkout #step-confirm > .cl label.conditions > .fbox{position:relative;display:inline-flex;align-items:flex-start;padding-top:0}
-#checkout #step-confirm > .cl label.conditions > .fbox::before{content:"*";position:absolute;left:0;top:-8px;width:13px;text-align:right;z-index:1;color:#e53935;font-size:12px;line-height:1;font-weight:700;pointer-events:none}
+/* Terms consent: native required checkbox (visible tick; no fake toggle / no decorative *) */
+#checkout #step-confirm > .cl label.conditions > .fbox{position:relative;display:inline-flex;align-items:flex-start;gap:6px;padding-top:0}
+#checkout #step-confirm label.conditions input[type=checkbox][name=approve_conditions]{position:relative!important;visibility:visible!important;opacity:1!important;width:auto!important;height:auto!important;margin:2px 0 0 0;flex-shrink:0;cursor:pointer;accent-color:#679F08}
+#checkout #step-confirm label.conditions .lb{padding-left:0;min-height:0}
+#checkout #step-confirm label.conditions .lb:before{content:none!important;display:none!important;width:0!important;height:0!important;border:0!important;background:none!important}
 
 /* Phone confirm: grey text (override Plasico .conditions.phonecall .lb {color:red}) */
 #checkout #step-confirm label.conditions.phonecall,
@@ -2180,7 +2182,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
  <label class=conditions>
  <span class="er sf-hidden">Моля изберете!</span>
  <span class=fbox>
- <input type=checkbox name=approve_conditions autocomplete=off value=1>
+ <input type=checkbox name=approve_conditions autocomplete=off value=1 required>
  <span class=lb>Имам навършени 18 години и съм съгласен с <span data-url="help?info=52" class=cbox>общите условия и начина на обработка на личните ми данни</span></span>
  </span>
  </label>

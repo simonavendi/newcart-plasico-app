@@ -76,11 +76,13 @@
 #checkout .boxnow-selected__change-icon{display:block;width:16px;height:16px;flex:0 0 auto}
 #checkout .boxnow-locker-error{margin:8px 0 0;padding:10px 12px;background:#fff5f5;border:1px solid #dc2626;border-radius:6px;font-size:14px;line-height:1.4;color:#dc2626}
 #checkout .boxnow-locker-error[hidden]{display:none!important}
-/* Office locators (Speedy / Econt) — map CTA lives inside the checked courier option row */
+/* Office locators (Speedy / Econt) — map CTA inside courier row, outside <label> */
 #checkout .office-widget-panel{width:100%;margin:12px 0;box-sizing:border-box}
 #checkout .co-option-row > .office-widget-panel{display:block;margin:10px 0 0;clear:both}
 #checkout .office-widget-panel.is-selected .office-widget-launch{display:none!important}
 #checkout .co-option-row > .office-widget-panel .boxnow-selected{margin-top:0}
+#checkout [data-ship-panel=office] .co-option-row__select{display:block;cursor:pointer}
+#checkout [data-ship-panel=office] .co-option-row__select > input[type=radio]{margin-right:8px;vertical-align:top}
 .office-fullscreen{
   position:fixed;inset:0;width:100%;height:100%;margin:0;padding:0;
   z-index:2147483000;background:#000;box-sizing:border-box
@@ -545,10 +547,10 @@ cursor:not-allowed;opacity:.48;background:#f5f5f5;border-color:#e8e8e8;pointer-e
     var radios = document.querySelectorAll('input[type=radio][name="' + name + '"]');
     for (var i = 0; i < radios.length; i++) {
       var r = radios[i];
-      var label = r.closest("label");
-      if (!label) continue;
-      if (r.checked) label.classList.add("clicked");
-      else label.classList.remove("clicked");
+      var row = r.closest(".co-option-row") || r.closest("label");
+      if (!row) continue;
+      if (r.checked) row.classList.add("clicked");
+      else row.classList.remove("clicked");
     }
   }
 
@@ -2629,7 +2631,6 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <span class="co-option-row__body">
 <span class="co-option-row__copy">
 <span class="co-option-row__title"><img class="co-option-row__logo co-option-row__logo--speedy" src="assets/speedy-logo.png" width="31" height="36" alt="Speedy"> Спиди <em class="co-option-row__badge">Препоръчан</em></span>
-<span class="co-option-row__hint">Стандартна куриерска доставка</span>
 </span>
 <span class="co-option-row__price">3.57 €</span>
 </span>
@@ -2639,7 +2640,6 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <span class="co-option-row__body">
 <span class="co-option-row__copy">
 <span class="co-option-row__title"><img class="co-option-row__logo co-option-row__logo--transpress" src="assets/transpress-logo.png" width="276" height="38" alt="Транспрес"> Транспрес</span>
-<span class="co-option-row__hint">Алтернативен куриер до адрес</span>
 </span>
 <span class="co-option-row__price">3.57 €</span>
 </span>
@@ -2675,7 +2675,8 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <div class="co-ship-panel hide sf-hidden" data-ship-panel=office hidden>
 <h3 class="checkout-subhead">Куриер</h3>
 <div class="co-option-stack" role=radiogroup aria-label="Куриер за офис">
-<label class="co-option-row clicked" data-office-courier-row=speedy>
+<div class="co-option-row clicked" data-office-courier-row=speedy>
+<label class="co-option-row__select">
 <input type=radio name=office_courier value=speedy autocomplete=off checked>
 <span class="co-option-row__body">
 <span class="co-option-row__copy">
@@ -2684,6 +2685,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 </span>
 <span class="co-option-row__price">3.57 €</span>
 </span>
+</label>
 <div class="office-widget-panel" id=office-widget-wrap>
 <button type=button class="boxnow-widget-launch office-widget-launch" id=office-open-locator>
 <span class="boxnow-widget-launch__title"><img class="co-option-row__logo co-option-row__logo--speedy office-widget-launch__logo" id=office-launch-logo-speedy src="assets/speedy-logo.png" width="31" height="36" alt=""><img class="co-option-row__logo co-option-row__logo--econt office-widget-launch__logo" id=office-launch-logo-econt src="assets/econt-logo.png" width="36" height="36" alt="" hidden> <span>Избери офис от карта</span></span>
@@ -2704,8 +2706,9 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 </div>
 </div>
 </div>
-</label>
-<label class="co-option-row" data-office-courier-row=econt>
+</div>
+<div class="co-option-row" data-office-courier-row=econt>
+<label class="co-option-row__select">
 <input type=radio name=office_courier value=econt autocomplete=off>
 <span class="co-option-row__body">
 <span class="co-option-row__copy">
@@ -2715,6 +2718,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <span class="co-option-row__price">4.60 €</span>
 </span>
 </label>
+</div>
 </div>
 <input type=hidden name=office_id id=office-selected-id value>
 <input type=hidden name=office_name id=office-selected-name-value value>
@@ -4930,7 +4934,17 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
   }
 
   function openOfficeLocator() {
-    if (!isOfficeShip()) return false;
+    // Button only exists in the office panel — do not silently no-op on ship gate.
+    // Still prefer syncing to office when the panel is visible.
+    if (!isOfficeShip()) {
+      var officePanel = document.querySelector('[data-ship-panel="office"]');
+      var officeVisible =
+        officePanel &&
+        !officePanel.hidden &&
+        !officePanel.classList.contains("hide") &&
+        officePanel.getAttribute("hidden") == null;
+      if (!officeVisible) return false;
+    }
     closeOfficeLocator();
     bindOfficeMessage();
 
@@ -4994,24 +5008,30 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
   }
 
   function bindOfficeLaunch() {
+    // Capture-phase delegation: survives remounts into Speedy/Econt rows and
+    // avoids <label> swallowing / data-bound races on #office-open-locator.
+    if (!window.__plasicoOfficeLaunchBound) {
+      window.__plasicoOfficeLaunchBound = true;
+      document.addEventListener(
+        "click",
+        function (e) {
+          var t = e.target;
+          if (!t || !t.closest) return;
+          var launch = t.closest("#office-open-locator, #office-change-locator");
+          if (!launch) return;
+          e.preventDefault();
+          e.stopPropagation();
+          if (typeof e.stopImmediatePropagation === "function") e.stopImmediatePropagation();
+          openOfficeLocator();
+        },
+        true
+      );
+    }
     var btn = document.getElementById("office-open-locator");
-    if (btn && btn.getAttribute("data-bound") !== "1") {
-      btn.setAttribute("data-bound", "1");
-      btn.addEventListener("click", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        openOfficeLocator();
-      });
-    }
+    if (btn) btn.setAttribute("data-bound", "1");
     var changeBtn = document.getElementById("office-change-locator");
-    if (changeBtn && changeBtn.getAttribute("data-bound") !== "1") {
-      changeBtn.setAttribute("data-bound", "1");
-      changeBtn.addEventListener("click", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        openOfficeLocator();
-      });
-    }
+    if (changeBtn) changeBtn.setAttribute("data-bound", "1");
+    window.__plasicoOpenOfficeLocator = openOfficeLocator;
   }
 
   function bindOfficeCourierChange() {

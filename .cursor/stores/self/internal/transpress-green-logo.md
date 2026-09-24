@@ -28,5 +28,5 @@ Files: `index.html`, `poruchka.html`.
 
 ## Git
 
-- Markup/CSS landed on `main` with `9b7bd2d` (office row layout commit also included Transpress img).
-- Assets + notes: this commit — *Add green Transpress logo assets.*
+- Markup/CSS on `main` @ `9b7bd2d` (office row layout also included Transpress img).
+- Assets + notes on `main` @ `3c2c6de` — *Add green Transpress logo assets for address courier.*

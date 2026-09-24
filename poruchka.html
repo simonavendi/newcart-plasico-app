@@ -245,6 +245,13 @@ html.boxnow-locator-open,html.boxnow-locator-open body{
 #checkout .co-ac__empty{padding:8px 10px;font-size:13px;color:#999}
 
 #checkout .checkout-field-hint{margin:-4px 0 12px;font-size:13px;line-height:1.4;color:#999}
+/* BG phone validator */
+#checkout .checkout-guest-field input.telephone.is-invalid,
+#checkout .checkout-guest-field input#field-phone.is-invalid,
+#checkout .checkout-guest-field input#field-address-person-phone.is-invalid{border-color:#dc2626;outline-color:#dc2626}
+#checkout .field-error.telephone-error{margin:-6px 0 10px;padding:8px 10px;background:#fff5f5;border:1px solid #dc2626;border-radius:6px;font-size:13px;line-height:1.4;color:#dc2626}
+#checkout .field-error.telephone-error[hidden]{display:none!important}
+
 /* Auth modal */
 .auth-modal[hidden]{display:none!important}
 .auth-modal{position:fixed;inset:0;z-index:10050;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;padding:16px;box-sizing:border-box}
@@ -2296,7 +2303,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
  </div>
  <div class="checkout-guest-field">
  <label for=field-phone>Телефон *</label>
- <input id=field-phone type=text name=address_phone class=telephone value placeholder="08xxxxxxxx" autocomplete=tel>
+ <input id=field-phone type=text name=address_phone class=telephone value placeholder="08xxxxxxxx" autocomplete=tel inputmode=tel required>
  </div>
  </div>
  <div class="checkout-guest-field checkout-guest-field--full">
@@ -2652,7 +2659,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 </div>
 <div class="checkout-guest-field">
 <label for=field-address-person-phone>Телефон на получателя</label>
-<input id=field-address-person-phone type=tel name=address_person_phone autocomplete=tel placeholder=08xxxxxxxx>
+<input id=field-address-person-phone type=tel name=address_person_phone class=telephone autocomplete=tel placeholder=08xxxxxxxx inputmode=tel>
 </div>
 </div>
 
@@ -3181,6 +3188,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
  </div>
  </footer>
  
+<script src="local-bg-phone-validator.js"></script>
 <script src="local-leasing-modal.js"></script>
 <script id="local-leasing-modal-inline">
 (function () {

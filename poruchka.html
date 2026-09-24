@@ -645,7 +645,7 @@ cursor:not-allowed;opacity:.48;background:#f5f5f5;border-color:#e8e8e8;pointer-e
       var firms = document.getElementById("checkout-firms");
       var indiv = document.getElementById("checkout-person-individual");
       if (isFirm) { showEl(firms); hideEl(indiv); }
-      else { hideEl(firms); showEl(indiv); }
+      else { hideEl(firms); showEl(indiv); syncCopyPersonFromAbove(); }
       setClickedForRadios("invoice_person_type");
     } else {
       setPersonValue("1");
@@ -667,6 +667,93 @@ cursor:not-allowed;opacity:.48;background:#f5f5f5;border-color:#e8e8e8;pointer-e
       else label.classList.remove("is-checked");
     }
     if (wanted) showEl(fields); else hideEl(fields);
+  }
+
+  function readCheckoutFieldVal(id) {
+    var el = document.getElementById(id);
+    if (!el) return "";
+    return String(el.value || "").replace(/^\s+|\s+$/g, "");
+  }
+
+  function joinAddressParts(parts) {
+    var out = [];
+    for (var i = 0; i < parts.length; i++) {
+      var p = String(parts[i] || "").replace(/^\s+|\s+$/g, "");
+      if (p) out.push(p);
+    }
+    return out.join(", ");
+  }
+
+  function getInvoiceSourceName() {
+    var guest = readCheckoutFieldVal("field-name");
+    var altCb = document.getElementById("want-alternate-recipient");
+    var altName = readCheckoutFieldVal("field-address-person");
+    if (altCb && altCb.checked && altName) return altName;
+    return guest || altName;
+  }
+
+  function getActiveShipPanelKey() {
+    var mode = document.querySelector('input[name="ship_to_id[2]"]:checked');
+    var val = mode ? mode.value : "boxnow";
+    var map = { "1": "address", "boxnow": "boxnow", "office": "office", "store": "store" };
+    return map[val] || "boxnow";
+  }
+
+  function getInvoiceSourceAddress() {
+    var key = getActiveShipPanelKey();
+    if (key === "address") {
+      return joinAddressParts([readCheckoutFieldVal("field-city"), readCheckoutFieldVal("field-address")]);
+    }
+    if (key === "office") {
+      var office = joinAddressParts([
+        readCheckoutFieldVal("office-selected-name-value"),
+        readCheckoutFieldVal("office-selected-address-value")
+      ]);
+      if (office) return office;
+      var officeTxt = document.getElementById("office-selected-text");
+      return officeTxt ? String(officeTxt.textContent || "").replace(/^\s+|\s+$/g, "") : "";
+    }
+    if (key === "boxnow") {
+      var locker = joinAddressParts([
+        readCheckoutFieldVal("boxnow-locker-name"),
+        readCheckoutFieldVal("boxnow-locker-address"),
+        readCheckoutFieldVal("boxnow-locker-address2")
+      ]);
+      if (locker) return locker;
+      var boxTxt = document.getElementById("boxnow-selected-text");
+      return boxTxt ? String(boxTxt.textContent || "").replace(/^\s+|\s+$/g, "") : "";
+    }
+    if (key === "store") {
+      var sel = document.getElementById("field-store");
+      if (!sel || !sel.value) return "";
+      var opt = sel.options[sel.selectedIndex];
+      return opt ? String(opt.text || "").replace(/^\s+|\s+$/g, "") : "";
+    }
+    return "";
+  }
+
+  function applyCopyPersonFromAbove() {
+    var names = document.getElementById("person-names");
+    var addr = document.getElementById("person-address");
+    if (names) names.value = getInvoiceSourceName();
+    if (addr) addr.value = getInvoiceSourceAddress();
+  }
+
+  function syncCopyPersonFromAbove() {
+    var cb = document.getElementById("copy-person-from-above");
+    var label = document.querySelector("label.co-invoice-check[for=copy-person-from-above]");
+    var wanted = !!(cb && cb.checked);
+    if (label) {
+      if (wanted) label.classList.add("is-checked");
+      else label.classList.remove("is-checked");
+    }
+    /* Checked: fill names+address from guest/ship data. Unchecked: leave fields as-is. */
+    if (wanted) applyCopyPersonFromAbove();
+  }
+
+  function maybeRecopyPersonFromAbove() {
+    var cb = document.getElementById("copy-person-from-above");
+    if (cb && cb.checked) applyCopyPersonFromAbove();
   }
 
   function syncPayment() {
@@ -1180,6 +1267,7 @@ cursor:not-allowed;opacity:.48;background:#f5f5f5;border-color:#e8e8e8;pointer-e
     syncPerson();
     syncInvoice();
     syncAlternateRecipient();
+    syncCopyPersonFromAbove();
     syncPayment();
 
     document.addEventListener("change", function (e) {
@@ -1216,7 +1304,35 @@ cursor:not-allowed;opacity:.48;background:#f5f5f5;border-color:#e8e8e8;pointer-e
       }
       if (t.name === "want_alternate_recipient") {
         syncAlternateRecipient();
+        maybeRecopyPersonFromAbove();
         return;
+      }
+      if (t.name === "copy_person_from_above") {
+        syncCopyPersonFromAbove();
+        return;
+      }
+      if (
+        t.name === "name" ||
+        t.name === "address_city[2]" ||
+        t.name === "address_address[2]" ||
+        t.name === "address_person" ||
+        t.name === "store_pickup" ||
+        t.name === "ship_to_id[2]"
+      ) {
+        maybeRecopyPersonFromAbove();
+      }
+    });
+
+    document.addEventListener("input", function (e) {
+      var t = e.target;
+      if (!t || !t.name) return;
+      if (
+        t.name === "name" ||
+        t.name === "address_city[2]" ||
+        t.name === "address_address[2]" ||
+        t.name === "address_person"
+      ) {
+        maybeRecopyPersonFromAbove();
       }
     });
   });

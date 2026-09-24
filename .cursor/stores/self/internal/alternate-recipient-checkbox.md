@@ -1,6 +1,6 @@
 # Alternate recipient checkbox
 
-- Landed on: `main`
+- Landed on: `main` @ `f776adf` (HTML in that push; docs/verify this commit)
 - Files: `index.html`, `poruchka.html` (mirrored)
 - Target: `#step-ship-details` / `#checkout-addresses` / `.co-ship-panel[data-ship-panel=address]`
 

@@ -25,3 +25,5 @@ Files: `local-leasing-modal.css` + mirrored inline `#pl-leasing-plasico-override
 | 2-col grid | `158px 158px`, personal 2 rows |
 
 Screens: `media/leasing-modal-mobile-top-before.png`, `media/leasing-modal-mobile-top-after.png`, `media/leasing-modal-mobile-top-modal.png`
+
+Landed on `main`: `ea699ff`, `1bea24e`

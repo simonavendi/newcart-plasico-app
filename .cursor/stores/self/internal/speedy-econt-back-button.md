@@ -1,7 +1,7 @@
 # Speedy / Econt office locators — Back closes overlay
 
 **Date:** 2026-09-24  
-**Branch:** `main` — wiring @ `e858e32`, docs/verify @ `b6b897a`  
+**Branch:** `main` — wiring @ `e858e32`, docs/verify @ `bf00c50`  
 **Local:** http://127.0.0.1:8780/index.html  
 **Mirrors:** Box Now Back fix @ `df7d9f5`
 

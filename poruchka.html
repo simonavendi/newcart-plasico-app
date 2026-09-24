@@ -172,14 +172,6 @@ html.boxnow-locator-open,html.boxnow-locator-open body{
 #checkout .checkout-guest-field select,
 #checkout .checkout-guest-field input[type=text],
 #checkout .checkout-guest-field input[type=tel],
-#checkout .co-ac{display:block;width:100%;max-width:100%;box-sizing:border-box}
-#checkout .co-ac{position:relative;margin-bottom:10px}
-#checkout .co-ac > input[type=text]{width:100%!important;max-width:100%;box-sizing:border-box;padding:8px 5px;margin-bottom:0}
-#checkout .co-ac__list{position:absolute;left:0;right:0;top:100%;z-index:40;margin:0;padding:4px 0;list-style:none;background:#fff;border:1px solid #ccc;border-top:0;box-shadow:0 6px 16px rgba(0,0,0,.08);max-height:220px;overflow:auto}
-#checkout .co-ac__list[hidden]{display:none!important}
-#checkout .co-ac__option{display:block;width:100%;padding:8px 10px;border:0;background:transparent;text-align:left;font:inherit;font-size:14px;color:#000;cursor:pointer;box-sizing:border-box}
-#checkout .co-ac__option:hover,#checkout .co-ac__option.is-active{background:#fff8f3;color:#ff6100}
-#checkout .co-ac__empty{padding:8px 10px;font-size:13px;color:#999}
 
 #checkout .checkout-field-hint{margin:-4px 0 12px;font-size:13px;line-height:1.4;color:#999}
 /* Auth modal */
@@ -2025,12 +2017,6 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 </div>
 
 <div class="co-ship-panel" data-ship-panel=boxnow>
-<label for=field-boxnow-city>Град</label>
-<div class="co-ac" data-co-ac=boxnow-city>
-<input type=hidden name=boxnow_city id=field-boxnow-city-value value>
-<input id=field-boxnow-city type=text value autocomplete=off placeholder="Въведете град" role=combobox aria-autocomplete=list aria-expanded=false aria-controls=boxnow-city-results>
-<ul class="co-ac__list" id=boxnow-city-results role=listbox hidden></ul>
-</div>
 <input type=hidden name=boxnow_locker_id id=boxnow-locker-id value>
 <input type=hidden name=boxnow_locker_address id=boxnow-locker-address value>
 <input type=hidden name=boxnow_locker_postal id=boxnow-locker-postal value>
@@ -3302,38 +3288,6 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
   // rounded card (68vw/60vh desktop, 90vw/80vh mobile) — modal-in-modal UX.
   var BOXNOW_MAP_BASE = "https://map.boxnow.bg/iframe.html";
   var BOXNOW_MAP_FALLBACK = "https://widget-v5.boxnow.bg/iframe.html";
-  var CITIES = [
-    "София", "Пловдив", "Варна", "Бургас", "Русе", "Стара Загора", "Плевен",
-    "Добрич", "Сливен", "Шумен", "Перник", "Ямбол", "Хасково", "Пазарджик",
-    "Благоевград", "Велико Търново", "Видин", "Враца", "Габрово", "Кърджали",
-    "Кюстендил", "Ловеч", "Монтана", "Разград", "Силистра", "Смолян",
-    "Търговище", "Асеновград", "Казанлък", "Димитровград", "Свищов",
-    "Горна Оряховица", "Дупница", "Петрич", "Сандански", "Карлово", "Ботевград"
-  ];
-  var SLUGS = {
-    "софия": "sofia", "пловдив": "plovdiv", "варна": "varna", "бургас": "burgas",
-    "русе": "ruse", "стара загора": "stara-zagora", "плевен": "pleven",
-    "добрич": "dobrich", "сливен": "sliven", "шумен": "shumen",
-    "перник": "pernik", "ямбол": "yambol", "хасково": "haskovo",
-    "пазарджик": "pazardzhik", "благоевград": "blagoevgrad",
-    "велико търново": "veliko-tarnovo", "видин": "vidin", "враца": "vratsa",
-    "габрово": "gabrovo", "кърджали": "kardzhali", "кюстендил": "kyustendil",
-    "ловеч": "lovech", "монтана": "montana", "разград": "razgrad",
-    "силистра": "silistra", "смолян": "smolyan", "търговище": "targovishte",
-    "асеновград": "asenovgrad", "казанлък": "kazanlak", "димитровград": "dimitrovgrad",
-    "свищов": "svishtov", "горна оряховица": "gorna-oryahovitsa",
-    "дупница": "dupnitsa", "петрич": "petrich", "сандански": "sandanski",
-    "карлово": "karlovo", "ботевград": "botevgrad",
-    sofia: "sofia", plovdiv: "plovdiv", varna: "varna", burgas: "burgas"
-  };
-  var ZIPS = {
-    sofia: "1000", plovdiv: "4000", varna: "9000", burgas: "8000",
-    ruse: "7000", "stara-zagora": "6000", pleven: "5800", dobrich: "9300",
-    sliven: "8800", shumen: "9700", pernik: "2300", yambol: "8600",
-    haskovo: "6300", pazardzhik: "4400", blagoevgrad: "2700",
-    "veliko-tarnovo": "5000", vidin: "3700", vratsa: "3000", gabrovo: "5300"
-  };
-
   function resolvePartnerId() {
     var raw =
       (window._bn_map_widget_config && window._bn_map_widget_config.partnerId) ||
@@ -3373,15 +3327,6 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
     var idEl = document.getElementById("boxnow-locker-id");
     return !!(idEl && String(idEl.value || "").trim());
   }
-  function slugFor(label) {
-    var k = String(label || "").trim().toLowerCase();
-    if (SLUGS[k]) return SLUGS[k];
-    return k;
-  }
-  function zipForSlug(slug) {
-    return ZIPS[slug] || "";
-  }
-
   function buildBoxnowSrc(zip) {
     var partnerId = resolvePartnerId();
     var params = [
@@ -3575,13 +3520,6 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
     return true;
   }
 
-  function applyBoxnowZip(zip) {
-    var cfg = window._bn_map_widget_config;
-    if (!cfg) return;
-    if (zip) cfg.zip = String(zip);
-    else delete cfg.zip;
-  }
-
   function fillBoxnowFields(selected) {
     if (!selected) return;
     var idEl = document.getElementById("boxnow-locker-id");
@@ -3612,119 +3550,6 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
       }
     }
     if (id) clearBoxnowLockerError();
-  }
-
-  function syncHiddenFromInput() {
-    var input = document.getElementById("field-boxnow-city");
-    var hidden = document.getElementById("field-boxnow-city-value");
-    if (!input || !hidden) return;
-    var raw = String(input.value || "").trim();
-    if (!raw) {
-      hidden.value = "";
-      return;
-    }
-    hidden.value = slugFor(raw);
-  }
-
-  function initBoxnowCityAc() {
-    var wrap = document.querySelector('[data-co-ac="boxnow-city"]');
-    var input = document.getElementById("field-boxnow-city");
-    var list = document.getElementById("boxnow-city-results");
-    var hidden = document.getElementById("field-boxnow-city-value");
-    if (!wrap || !input || !list) return;
-    if (wrap.getAttribute("data-ready") === "1") return;
-    wrap.setAttribute("data-ready", "1");
-    var active = -1;
-
-    function close() {
-      list.hidden = true;
-      list.setAttribute("hidden", "");
-      input.setAttribute("aria-expanded", "false");
-      active = -1;
-    }
-    function open() {
-      list.hidden = false;
-      list.removeAttribute("hidden");
-      input.setAttribute("aria-expanded", "true");
-    }
-    function choose(label) {
-      input.value = label;
-      var slug = slugFor(label);
-      if (hidden) hidden.value = slug;
-      close();
-      applyBoxnowZip(zipForSlug(slug));
-      try { input.dispatchEvent(new Event("change", { bubbles: true })); } catch (e) {}
-      try { if (hidden) hidden.dispatchEvent(new Event("change", { bubbles: true })); } catch (e2) {}
-    }
-    function render(q) {
-      var query = String(q || "").trim().toLowerCase();
-      var filtered = CITIES.filter(function (c) {
-        return !query || c.toLowerCase().indexOf(query) !== -1;
-      });
-      list.innerHTML = "";
-      if (!filtered.length) {
-        var empty = document.createElement("li");
-        empty.className = "co-ac__empty";
-        empty.textContent = "Няма резултати";
-        list.appendChild(empty);
-        open();
-        return;
-      }
-      filtered.slice(0, 10).forEach(function (label, index) {
-        var li = document.createElement("li");
-        li.setAttribute("role", "option");
-        var btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "co-ac__option";
-        btn.textContent = label;
-        btn.dataset.index = String(index);
-        btn.addEventListener("mousedown", function (e) {
-          e.preventDefault();
-          choose(label);
-        });
-        li.appendChild(btn);
-        list.appendChild(li);
-      });
-      active = -1;
-      open();
-    }
-
-    input.addEventListener("focus", function () { render(input.value); });
-    input.addEventListener("input", function () {
-      syncHiddenFromInput();
-      render(input.value);
-    });
-    input.addEventListener("blur", function () {
-      setTimeout(function () {
-        syncHiddenFromInput();
-        close();
-      }, 120);
-    });
-    input.addEventListener("keydown", function (e) {
-      var opts = list.querySelectorAll(".co-ac__option");
-      if (e.key === "ArrowDown") {
-        if (!opts.length) return;
-        e.preventDefault();
-        active = Math.min(opts.length - 1, active + 1);
-      } else if (e.key === "ArrowUp") {
-        if (!opts.length) return;
-        e.preventDefault();
-        active = Math.max(0, active - 1);
-      } else if (e.key === "Enter" && active >= 0 && opts[active]) {
-        e.preventDefault();
-        choose(opts[active].textContent);
-        return;
-      } else if (e.key === "Escape") {
-        close();
-        return;
-      } else {
-        return;
-      }
-      for (var i = 0; i < opts.length; i++) {
-        if (i === active) opts[i].classList.add("is-active");
-        else opts[i].classList.remove("is-active");
-      }
-    });
   }
 
   function bindBoxnowLaunch() {
@@ -3802,7 +3627,6 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
   };
 
   function boot() {
-    initBoxnowCityAc();
     bindBoxnowLaunch();
     bindBoxnowSubmitGuard();
     bindBoxnowMessage();

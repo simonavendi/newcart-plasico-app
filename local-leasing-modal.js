@@ -283,6 +283,55 @@
 		}
 	}
 
+	function readInputValue(sel) {
+		var el = typeof sel === 'string' ? document.querySelector(sel) : sel;
+		if (!el) return '';
+		return String(el.value || '').trim();
+	}
+
+	function readAuthEmail() {
+		try {
+			var raw = localStorage.getItem('plasico_demo_auth');
+			if (!raw) return '';
+			var parsed = JSON.parse(raw);
+			if (parsed && parsed.loggedIn && parsed.email) {
+				return String(parsed.email).trim();
+			}
+		} catch (e) {
+			/* ignore */
+		}
+		return '';
+	}
+
+	/** Pull name/phone/email/egn from checkout guest fields, invoice person, auth. */
+	function readCheckoutCustomerData() {
+		var fullName =
+			readInputValue('#field-name') ||
+			readInputValue('#person-names') ||
+			readInputValue('#field-address-person') ||
+			readInputValue('#register-name') ||
+			'';
+		var phone =
+			readInputValue('#field-phone') ||
+			readInputValue('#field-address-person-phone') ||
+			'';
+		var email =
+			readInputValue('#field-email') ||
+			readAuthEmail() ||
+			readInputValue('#auth-email') ||
+			readInputValue('#login-email') ||
+			readInputValue('#register-email') ||
+			'';
+		var egn = readInputValue('#person-egn') || '';
+		return { fullName: fullName, phone: phone, email: email, egn: egn };
+	}
+
+	function setApplyFieldIfEmpty(input, value) {
+		if (!input || !value) return;
+		if (String(input.value || '').trim()) return;
+		input.value = value;
+	}
+
 	function fillApplyFormFromSaved() {
 		var data = readSavedApply();
 		if (!data) return;
@@ -300,6 +349,15 @@
 		if (agreeTerms) agreeTerms.checked = true;
 		if (agreeApply) agreeApply.checked = true;
 		if (agreePrivacy) agreePrivacy.checked = true;
+	}
+
+	/** Prefill empty apply fields from checkout/auth; never overwrite typed values. */
+	function fillApplyFormFromCustomer() {
+		var data = readCheckoutCustomerData();
+		setApplyFieldIfEmpty(document.getElementById('pl-leasing-name'), data.fullName);
+		setApplyFieldIfEmpty(document.getElementById('pl-leasing-phone'), data.phone);
+		setApplyFieldIfEmpty(document.getElementById('pl-leasing-email'), data.email);
+		setApplyFieldIfEmpty(document.getElementById('pl-leasing-egn'), data.egn);
 	}
 
 	function parsePrice() {
@@ -863,6 +921,7 @@
 		renderModal();
 		clearApplyFeedback();
 		fillApplyFormFromSaved();
+		fillApplyFormFromCustomer();
 		var overlay = ensureModal();
 		overlay.hidden = false;
 		overlay.removeAttribute('hidden');

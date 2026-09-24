@@ -252,16 +252,26 @@ html.boxnow-locator-open,html.boxnow-locator-open body{
 .auth-modal__divider-line{-webkit-box-flex:1;-ms-flex:1 1 auto;flex:1 1 auto;height:1px;background:#e6e6e6}
 .auth-modal__divider-or{font-size:13px;color:#999;text-transform:lowercase;white-space:nowrap}
 .auth-modal__social-hint{margin:0 0 12px;font-size:13px;line-height:1.35;text-align:center;color:#888}
-.auth-modal__oauth{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;gap:10px}
-.auth-modal__social{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;width:100%;height:44px;border-radius:999px;color:#fff;text-decoration:none;overflow:hidden;box-sizing:border-box}
+.auth-modal__oauth{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;gap:14px}
+.auth-modal__social{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;width:44px;height:44px;border-radius:50%;color:#fff;text-decoration:none;overflow:hidden;box-sizing:border-box;-ms-flex-negative:0;flex-shrink:0}
 .auth-modal__social:hover{opacity:.92;color:#fff}
-.auth-modal__social-icon{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;width:48px;-ms-flex-negative:0;flex-shrink:0;height:100%;border-right:1px solid rgba(255,255,255,.4);font-family:Arial,Helvetica,sans-serif;font-size:20px;font-weight:700;line-height:1}
+.auth-modal__social-icon{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;width:100%;height:100%;font-family:Arial,Helvetica,sans-serif;font-size:20px;font-weight:700;line-height:1}
 .auth-modal__social-icon svg{display:block;width:18px;height:18px;fill:currentColor}
-.auth-modal__social-label{-webkit-box-flex:1;-ms-flex:1 1 auto;flex:1 1 auto;text-align:center;font-family:"exo2b",sans-serif;font-size:15px;letter-spacing:.01em}
+.auth-modal__social-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .auth-modal__social--google{background:#dd4b39}
 .auth-modal__social--apple{background:#111}
 .auth-modal__help{display:block;margin:16px 0 0;font-size:14px;line-height:1.3;color:#55a630;text-decoration:none;text-align:center}
 .auth-modal__help:hover{color:#4a9229;text-decoration:underline}
+.auth-modal__thanks{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;padding:28px 12px 18px;text-align:center;min-height:180px}
+.auth-modal__thanks-smiley{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;width:72px;height:72px;margin:0 0 18px;border-radius:50%;background:#e8f6ec;color:#55a630}
+.auth-modal__thanks-smiley svg{display:block;width:40px;height:40px}
+.auth-modal__thanks-text{margin:0;font-family:"exo2b",sans-serif;font-size:18px;line-height:1.4;color:#222;max-width:280px}
+#user .top-profile-btn{display:-webkit-inline-box;display:-ms-inline-flexbox;display:inline-flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;width:34px;height:34px;padding:0;border:2px solid #55a630;border-radius:50%;background:#fff;color:#55a630;cursor:pointer;vertical-align:middle}
+#user .top-profile-btn:hover{background:#55a630;color:#fff}
+#user .top-profile-btn svg{display:block;width:18px;height:18px;fill:currentColor}
+#user .user-guest[hidden],#user .user-logged[hidden]{display:none!important}
+body.is-demo-logged-in #btn-account-auth{border-color:#55a630;background:#e8f6ec;color:#2e7d32}
+.auth-modal__help[hidden]{display:none!important}
 body.auth-modal-open{overflow:hidden}
 @media (max-width:480px){
 .auth-modal{padding:12px}
@@ -691,24 +701,73 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
 
     var modal = document.getElementById("auth-modal");
     var openBtn = document.getElementById("btn-account-auth");
+    var AUTH_STORAGE_KEY = "plasico_demo_auth";
+    var thanksTimer = null;
+
+    function readAuthState() {
+      try {
+        var raw = localStorage.getItem(AUTH_STORAGE_KEY);
+        if (!raw) return null;
+        var parsed = JSON.parse(raw);
+        if (parsed && parsed.loggedIn) return parsed;
+      } catch (err) {}
+      return null;
+    }
+
+    function writeAuthState(state) {
+      try {
+        if (state) localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(state));
+        else localStorage.removeItem(AUTH_STORAGE_KEY);
+      } catch (err) {}
+    }
+
+    function applyLoggedInUI(state) {
+      var logged = !!(state && state.loggedIn);
+      document.body.classList.toggle("is-demo-logged-in", logged);
+      document.querySelectorAll("#user .user-guest").forEach(function (el) {
+        if (logged) el.setAttribute("hidden", "");
+        else el.removeAttribute("hidden");
+      });
+      document.querySelectorAll("#user .user-logged").forEach(function (el) {
+        if (logged) el.removeAttribute("hidden");
+        else el.setAttribute("hidden", "");
+      });
+      if (openBtn) {
+        if (logged) {
+          openBtn.textContent = "Профил";
+          openBtn.setAttribute("aria-label", "Профил — влезли сте");
+        } else {
+          openBtn.textContent = "Вход/Регистрация";
+          openBtn.setAttribute("aria-label", "Вход/Регистрация");
+        }
+      }
+    }
+
+    applyLoggedInUI(readAuthState());
+
     if (modal && openBtn) {
       var lastFocus = null;
       var stepEmail = document.getElementById("auth-step-email");
       var stepLogin = document.getElementById("auth-step-login");
       var stepRegister = document.getElementById("auth-step-register");
+      var stepThanks = document.getElementById("auth-step-thanks");
       var emailInput = document.getElementById("auth-email");
       var emailForm = document.getElementById("auth-email-form");
+      var loginForm = document.getElementById("auth-login-form");
+      var registerForm = document.getElementById("auth-register-form");
       var loginEmailHidden = document.getElementById("login-email");
       var registerEmailHidden = document.getElementById("register-email");
       var loginEmailChip = document.getElementById("auth-login-email-chip");
       var registerEmailChip = document.getElementById("auth-register-email-chip");
       var dialog = modal.querySelector(".auth-modal__dialog");
+      var helpLink = modal.querySelector(".auth-modal__help");
 
       function setAuthStep(which) {
         var steps = {
           email: stepEmail,
           login: stepLogin,
-          register: stepRegister
+          register: stepRegister,
+          thanks: stepThanks
         };
         Object.keys(steps).forEach(function (key) {
           var el = steps[key];
@@ -716,6 +775,10 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
           if (key === which) el.removeAttribute("hidden");
           else el.setAttribute("hidden", "");
         });
+        if (helpLink) {
+          if (which === "thanks") helpLink.setAttribute("hidden", "");
+          else helpLink.removeAttribute("hidden");
+        }
         if (which === "email" && emailInput) {
           setTimeout(function () { emailInput.focus(); }, 0);
         } else if (which === "login") {
@@ -735,13 +798,29 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
       }
 
       function resetAuthModal() {
+        if (thanksTimer) { clearTimeout(thanksTimer); thanksTimer = null; }
         if (emailForm) emailForm.reset();
-        var loginForm = document.getElementById("auth-login-form");
-        var registerForm = document.getElementById("auth-register-form");
         if (loginForm) loginForm.reset();
         if (registerForm) registerForm.reset();
         syncEmailChips("");
         setAuthStep("email");
+      }
+
+      function completeDemoAuth(email, method) {
+        var state = {
+          loggedIn: true,
+          email: email || "",
+          method: method || "email",
+          at: Date.now()
+        };
+        writeAuthState(state);
+        applyLoggedInUI(state);
+        setAuthStep("thanks");
+        if (thanksTimer) clearTimeout(thanksTimer);
+        thanksTimer = setTimeout(function () {
+          thanksTimer = null;
+          closeModal();
+        }, 2200);
       }
 
       if (emailForm) {
@@ -757,9 +836,41 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
         });
       }
 
+      if (loginForm) {
+        loginForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+          if (!loginForm.checkValidity()) {
+            loginForm.reportValidity();
+            return;
+          }
+          var email = (loginEmailHidden && loginEmailHidden.value) || (emailInput && emailInput.value) || "";
+          completeDemoAuth(String(email).trim(), "login");
+        });
+      }
+
+      if (registerForm) {
+        registerForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+          if (!registerForm.checkValidity()) {
+            registerForm.reportValidity();
+            return;
+          }
+          var email = (registerEmailHidden && registerEmailHidden.value) || (emailInput && emailInput.value) || "";
+          completeDemoAuth(String(email).trim(), "register");
+        });
+      }
+
       modal.addEventListener("click", function (e) {
         var t = e.target;
         if (!t || !t.closest) return;
+        var social = t.closest("[data-auth-social]");
+        if (social) {
+          e.preventDefault();
+          var provider = social.getAttribute("data-auth-social") || "social";
+          var email = (emailInput && emailInput.value) ? String(emailInput.value).trim() : (provider + "@demo.plasico.bg");
+          completeDemoAuth(email, provider);
+          return;
+        }
         var back = t.closest("[data-auth-back]");
         if (back) {
           e.preventDefault();
@@ -775,6 +886,10 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
       });
 
       function openModal() {
+        if (readAuthState()) {
+          // Already logged in — keep profile affordance, no re-auth.
+          return;
+        }
         lastFocus = document.activeElement;
         resetAuthModal();
         modal.removeAttribute("hidden");
@@ -1678,7 +1793,12 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
  </nav>
  <div id=user class=fr>
  <ul>
- <li><span data-url=https://plasico.bg/account class="b pnt cbox">Вход</span><span> или </span><span data-url=https://plasico.bg/account class="b pnt cbox">Регистрация</span><span> или чрез </span><span class="sprp ggl-icon-sm fr" title=Google+></span><span class="sprp fb-icon-sm fr" title=Facebook></span></li>
+ <li class=user-guest><span data-url=https://plasico.bg/account class="b pnt cbox" data-open-auth-modal>Вход</span><span> или </span><span data-url=https://plasico.bg/account class="b pnt cbox" data-open-auth-modal>Регистрация</span><span> или чрез </span><span class="sprp ggl-icon-sm fr" title=Google+ data-open-auth-modal></span><span class="sprp fb-icon-sm fr" title=Facebook data-open-auth-modal></span></li>
+ <li class=user-logged hidden>
+ <button type=button class=top-profile-btn id=btn-top-profile aria-label="Профил — влезли сте" title="Профил">
+ <svg viewBox="0 0 24 24" aria-hidden=true focusable=false><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v1.2c0 .7.5 1.2 1.2 1.2h16.8c.7 0 1.2-.5 1.2-1.2v-1.2c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+ </button>
+ </li>
  </ul>
  </div>
  
@@ -3882,11 +4002,11 @@ window.__plasicoEnsureBoxNow = function () {
  </div>
  <p class="auth-modal__social-hint">използвайте твоя социален акаунт</p>
  <div class="auth-modal__oauth">
- <a href=https://plasico.bg/# class="auth-modal__social auth-modal__social--google">
+ <a href=# class="auth-modal__social auth-modal__social--google" aria-label=Google data-auth-social=google>
  <span class="auth-modal__social-icon" aria-hidden=true>G</span>
  <span class="auth-modal__social-label">Google</span>
  </a>
- <a href=https://plasico.bg/# class="auth-modal__social auth-modal__social--apple">
+ <a href=# class="auth-modal__social auth-modal__social--apple" aria-label=Apple data-auth-social=apple>
  <span class="auth-modal__social-icon" aria-hidden=true>
  <svg viewBox="0 0 16 16" focusable=false><path d="M12.65 8.55c-.02-2.03 1.66-3.01 1.74-3.06-0.95-1.39-2.43-1.58-2.95-1.6-1.25-.13-2.44.74-3.07.74-.64 0-1.62-.72-2.66-.7-1.37.02-2.63.8-3.33 2.02-1.42 2.47-.36 6.12 1.02 8.12.68.98 1.48 2.07 2.54 2.03 1.03-.04 1.42-.66 2.66-.66 1.24 0 1.59.66 2.67.64 1.11-.02 1.8-1 2.47-1.98.78-1.14 1.1-2.24 1.12-2.3-.02-.01-2.14-.82-2.17-3.25zM10.7 2.8c.56-.68.94-1.62.84-2.56-.81.03-1.79.54-2.37 1.22-.52.6-.97 1.56-.85 2.48.9.07 1.82-.46 2.38-1.14z"/></svg>
  </span>
@@ -3931,6 +4051,14 @@ window.__plasicoEnsureBoxNow = function () {
  <button type=submit class="auth-modal__submit">Регистрация</button>
  </form>
  <p class="auth-modal__switch">Имаш акаунт? <button type=button data-auth-goto=login>Вход</button></p>
+ </div>
+
+ <div class="auth-modal__step" id=auth-step-thanks hidden>
+ <div class="auth-modal__thanks">
+ <div class="auth-modal__thanks-smiley" aria-hidden=true>
+ <svg viewBox="0 0 40 40" focusable=false><circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="14" cy="16" r="2.2" fill="currentColor"/><circle cx="26" cy="16" r="2.2" fill="currentColor"/><path d="M13 24c2.2 3.2 11.8 3.2 14 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+ </div>
+ <p class="auth-modal__thanks-text">Благодарим, че станахте част от Plasico</p>
  </div>
  </div>
  <a class="auth-modal__help" href=https://plasico.bg/kontakti>Имаш ли нужда от помощ?</a>

@@ -11,3 +11,4 @@
 - Localhost: http://127.0.0.1:8780/index.html
 - Partner ID: **18248**
 - Auth modal: circle Google/Apple + thank-you + top-bar profile (`a71bfa8`) — see `internal/auth-thanks-profile.md`; Facebook stays omitted
+- Speedy/Econt office map locators + „Избери офис от карта“ — `internal/speedy-econt-office-locators.md`

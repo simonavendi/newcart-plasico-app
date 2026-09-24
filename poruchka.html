@@ -74,6 +74,29 @@
 #checkout .boxnow-selected__change-icon{display:block;width:16px;height:16px;flex:0 0 auto}
 #checkout .boxnow-locker-error{margin:8px 0 0;padding:10px 12px;background:#fff5f5;border:1px solid #dc2626;border-radius:6px;font-size:14px;line-height:1.4;color:#dc2626}
 #checkout .boxnow-locker-error[hidden]{display:none!important}
+/* Office locators (Speedy / Econt) — same launch + summary pattern as BOX NOW */
+#checkout .office-widget-panel{width:100%;margin:12px 0;box-sizing:border-box}
+#checkout .office-widget-panel.is-selected .office-widget-launch{display:none!important}
+.office-fullscreen{
+  position:fixed;inset:0;width:100%;height:100%;margin:0;padding:0;
+  z-index:2147483000;background:#000;box-sizing:border-box
+}
+.office-fullscreen iframe{
+  position:absolute;inset:0;width:100%;height:100%;border:0;margin:0;padding:0;display:block;background:#fff
+}
+.office-fullscreen__close{
+  position:absolute;top:12px;right:12px;z-index:2;width:44px;height:44px;border:0;border-radius:50%;
+  background:#111;color:#fff;font-size:28px;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.35)
+}
+.office-fullscreen__close:hover{background:#333}
+.office-fullscreen__close:focus-visible{outline:2px solid #ff6100;outline-offset:2px}
+@media (max-width:640px){
+  .office-fullscreen__close{top:8px;right:8px;width:40px;height:40px}
+}
+html.office-locator-open,html.office-locator-open body{
+  overflow:hidden!important;overscroll-behavior:none;touch-action:none
+}
 /* Host overlay for megamag-style popup.html (mapType=popup → Izbor postMessage). */
 .boxnow-fullscreen{
   position:fixed;inset:0;width:100%;height:100%;margin:0;padding:0;
@@ -535,6 +558,9 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
     // (https://map-docs.boxnow.bg/configuration — container must be visible first).
     if (typeof window.__plasicoBoxNowOnShipChange === "function") {
       try { window.__plasicoBoxNowOnShipChange(panelKey); } catch (err) {}
+    }
+    if (typeof window.__plasicoOfficeOnShipChange === "function") {
+      try { window.__plasicoOfficeOnShipChange(panelKey); } catch (err) {}
     }
   }
 
@@ -2258,15 +2284,33 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 </span>
 </label>
 </div>
-<div class="checkout-guest-field">
-<label for=field-office-city>Град</label>
-<input id=field-office-city type=text value autocomplete=off placeholder="Въведете град">
-</div>
-<div class="checkout-guest-field">
-<label for=field-office-search>Офис</label>
-<input id=field-office-search type=text value autocomplete=off placeholder="Изберете офис">
+<input type=hidden name=office_id id=office-selected-id value>
+<input type=hidden name=office_name id=office-selected-name-value value>
+<input type=hidden name=office_address id=office-selected-address-value value>
+<input type=hidden name=office_code id=office-selected-code value>
+<input type=hidden name=office_courier_selected id=office-selected-courier value>
 <input type=hidden id=field-office name="courier_address[2]" value=0>
+<div class="office-widget-panel" id=office-widget-wrap>
+<button type=button class="boxnow-widget-launch office-widget-launch" id=office-open-locator>
+<span class="boxnow-widget-launch__title">Избери офис от карта</span>
+</button>
+<div class="boxnow-selected office-selected" id=office-selected hidden>
+<p class="boxnow-selected__heading" id=office-selected-heading>ОФИС — АДРЕС ЗА ДОСТАВКА</p>
+<div class="boxnow-selected__card" id=selectedCourierOfficeAddress>
+<div class="boxnow-selected__body">
+<strong class="boxnow-selected__name" id=office-selected-name></strong>
+<span class="boxnow-selected__addr" id=office-selected-text></span>
 </div>
+<button type=button class="boxnow-selected__change" id=office-change-locator>
+<svg class="boxnow-selected__change-icon" viewBox="0 0 24 24" aria-hidden=true focusable=false>
+<path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.04a1 1 0 0 0 0-1.41l-2.51-2.51a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 2  -1.66z"/>
+</svg>
+Смени
+</button>
+</div>
+</div>
+</div>
+<p class="boxnow-locker-error office-locator-error" id=office-locator-error hidden role=alert>Моля изберете офис от картата.</p>
 </div>
 
 <div class="co-ship-panel hide sf-hidden" data-ship-panel=store hidden>
@@ -3965,6 +4009,541 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
   }
 })();
 </script>
+<script>
+(function () {
+  // Speedy + Econt office locators — same open/select/summary pattern as BOX NOW.
+  // Speedy: https://services.speedy.bg/office_locator_widget_v3/ (postMessage office object)
+  // Econt:  https://officelocator.econt.com (postMessage { office: {...} })
+  var OFFICE_ERR = "Моля изберете офис от картата.";
+  var SPEEDY_MAP_BASE = "https://services.speedy.bg/office_locator_widget_v3/office_locator.php";
+  var ECONT_MAP_BASE = "https://officelocator.econt.com/";
+  var ECONT_MAP_FALLBACK = "https://offices.econt.com/";
+
+  function getCourier() {
+    var el = document.querySelector('input[name="office_courier"]:checked');
+    return el && el.value === "econt" ? "econt" : "speedy";
+  }
+  function isOfficeShip() {
+    var mode = document.querySelector('input[name="ship_to_id[2]"]:checked');
+    return !!(mode && mode.value === "office");
+  }
+  function getErrorEl() {
+    return document.getElementById("office-locator-error");
+  }
+  function clearOfficeError() {
+    var err = getErrorEl();
+    if (!err) return;
+    err.setAttribute("hidden", "");
+    err.hidden = true;
+    var btn = document.getElementById("office-open-locator");
+    if (btn) btn.classList.remove("is-error");
+  }
+  function showOfficeError() {
+    var err = getErrorEl();
+    if (!err) return;
+    err.textContent = OFFICE_ERR;
+    err.removeAttribute("hidden");
+    err.hidden = false;
+    var btn = document.getElementById("office-open-locator");
+    if (btn) btn.classList.add("is-error");
+  }
+  function hasOfficeSelection() {
+    var idEl = document.getElementById("office-selected-id");
+    var codeEl = document.getElementById("office-selected-code");
+    var field = document.getElementById("field-office");
+    var id = idEl && String(idEl.value || "").trim();
+    var code = codeEl && String(codeEl.value || "").trim();
+    var fieldVal = field && String(field.value || "").trim();
+    return !!(id || code || (fieldVal && fieldVal !== "0"));
+  }
+
+  function shopUrl() {
+    try {
+      return window.location.origin || "https://plasico.bg";
+    } catch (err) {
+      return "https://plasico.bg";
+    }
+  }
+
+  function buildSpeedySrc() {
+    var params = [
+      "lang=bg",
+      "showOfficesList=1",
+      "dropOff=1",
+      "pickUp=1",
+      "officeType=ALL",
+      "countryId=100",
+      "selectOfficeButtonCaption=" + encodeURIComponent("Избери този офис")
+    ];
+    return SPEEDY_MAP_BASE + "?" + params.join("&");
+  }
+
+  function buildEcontSrc() {
+    var params = [
+      "shopUrl=" + encodeURIComponent(shopUrl()),
+      "lang=bg",
+      "officeType=office"
+    ];
+    return ECONT_MAP_BASE + "?" + params.join("&");
+  }
+
+  function buildEcontFallbackSrc() {
+    var params = [
+      "lang=bg",
+      "country=BGR",
+      "source_url=" + encodeURIComponent(shopUrl())
+    ];
+    return ECONT_MAP_FALLBACK + "?" + params.join("&");
+  }
+
+  function closeOfficeLocator() {
+    var root = document.getElementById("office-fullscreen-root");
+    if (root && root.parentNode) root.parentNode.removeChild(root);
+    document.documentElement.classList.remove("office-locator-open");
+    document.body.classList.remove("office-locator-open");
+    if (window.__plasicoOfficeEscBound) {
+      document.removeEventListener("keydown", window.__plasicoOfficeEscBound, true);
+      window.__plasicoOfficeEscBound = null;
+    }
+    window.__plasicoOfficeLocatorKind = null;
+  }
+
+  function isSpeedyOrigin(origin) {
+    try {
+      var host = new URL(origin).hostname;
+      return /(^|\.)speedy\.bg$/i.test(host);
+    } catch (err) {
+      return false;
+    }
+  }
+  function isEcontOrigin(origin) {
+    try {
+      var host = new URL(origin).hostname;
+      return /(^|\.)econt\.com$/i.test(host);
+    } catch (err) {
+      return false;
+    }
+  }
+
+  function normalizePayload(raw) {
+    if (raw == null || raw === "") return null;
+    if (typeof raw === "string") {
+      var s = raw.trim();
+      if (s.charAt(0) === "{" || s.charAt(0) === "[") {
+        try {
+          return JSON.parse(s);
+        } catch (err) {
+          return null;
+        }
+      }
+      if (/^\d+$/.test(s)) return { id: s };
+      return null;
+    }
+    if (typeof raw === "number" && isFinite(raw)) return { id: raw };
+    if (typeof raw === "object") return raw;
+    return null;
+  }
+
+  function formatEcontAddress(addr) {
+    if (!addr) return "";
+    if (typeof addr === "string") return addr.trim();
+    if (addr.fullAddress) return String(addr.fullAddress).trim();
+    var parts = [];
+    if (addr.city && addr.city.name) parts.push(String(addr.city.name));
+    else if (addr.city && typeof addr.city === "string") parts.push(String(addr.city));
+    if (addr.quarter) parts.push(String(addr.quarter));
+    var street = "";
+    if (addr.street) street = String(addr.street);
+    if (addr.streetNumber) street = (street ? street + " " : "") + "№" + String(addr.streetNumber);
+    if (street) parts.push(street);
+    return parts.join(", ").replace(/\s+/g, " ").trim();
+  }
+
+  function parseSpeedyOffice(data) {
+    if (!data || typeof data !== "object") return null;
+    // Ignore Speedy siteSelected messages from nested map.
+    if (data.type === "siteSelected") return null;
+    var office = data.office && typeof data.office === "object" ? data.office : data;
+    var id = office.id != null ? office.id : office.officeId != null ? office.officeId : null;
+    var name = office.name != null ? String(office.name).trim() : "";
+    var addrObj = office.address || null;
+    var address = "";
+    if (addrObj && typeof addrObj === "object") {
+      address =
+        (addrObj.fullAddressString ||
+          addrObj.fullAddress ||
+          [addrObj.siteAddressString, addrObj.localAddressString].filter(Boolean).join(" ")) ||
+        "";
+      address = String(address).trim();
+    } else if (typeof office.address === "string") {
+      address = office.address.trim();
+    }
+    if (id == null && !name && !address) return null;
+    return {
+      courier: "speedy",
+      id: id != null ? String(id) : "",
+      code: id != null ? String(id) : "",
+      name: name || (id != null ? "Speedy офис #" + id : "Speedy офис"),
+      address: address
+    };
+  }
+
+  function parseEcontOffice(data) {
+    if (!data || typeof data !== "object") return null;
+    var office = data.office;
+    // Also accept delivery-form style payloads with office_code.
+    if (!office && (data.office_code || data.officeCode)) {
+      office = {
+        id: data.office_code || data.officeCode,
+        code: data.office_code || data.officeCode,
+        name: data.name || data.city_name || "",
+        address: data.address || ""
+      };
+    }
+    if (!office || typeof office !== "object") return null;
+    var id = office.id != null ? String(office.id) : "";
+    var code = office.code != null ? String(office.code) : id;
+    var name = office.name != null ? String(office.name).trim() : "";
+    var address = formatEcontAddress(office.address);
+    if (!id && !code && !name && !address) return null;
+    return {
+      courier: "econt",
+      id: id || code,
+      code: code || id,
+      name: name || (code ? "Еконт офис " + code : "Еконт офис"),
+      address: address
+    };
+  }
+
+  function fetchSpeedyDetails(officeId, cb) {
+    if (!officeId) return;
+    try {
+      fetch("https://services.speedy.bg/officesmap_v2/getOfficeDetails.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ officeId: officeId }),
+        mode: "cors",
+        credentials: "omit"
+      })
+        .then(function (r) {
+          return r.json();
+        })
+        .then(function (data) {
+          var parsed = parseSpeedyOffice(data);
+          if (parsed) cb(parsed);
+        })
+        .catch(function () {});
+    } catch (err) {}
+  }
+
+  function fillOfficeFields(sel) {
+    if (!sel) return;
+    var idEl = document.getElementById("office-selected-id");
+    var nameVal = document.getElementById("office-selected-name-value");
+    var addrVal = document.getElementById("office-selected-address-value");
+    var codeEl = document.getElementById("office-selected-code");
+    var courierEl = document.getElementById("office-selected-courier");
+    var field = document.getElementById("field-office");
+    var wrap = document.getElementById("office-widget-wrap");
+    var heading = document.getElementById("office-selected-heading");
+    var nameTxt = document.getElementById("office-selected-name");
+    var addrTxt = document.getElementById("office-selected-text");
+    var card = document.getElementById("office-selected");
+
+    var id = sel.id != null ? String(sel.id) : "";
+    var code = sel.code != null ? String(sel.code) : id;
+    var name = sel.name != null ? String(sel.name).trim() : "";
+    var address = sel.address != null ? String(sel.address).trim() : "";
+    var courier = sel.courier || getCourier();
+
+    if (idEl) idEl.value = id;
+    if (nameVal) nameVal.value = name;
+    if (addrVal) addrVal.value = address;
+    if (codeEl) codeEl.value = code;
+    if (courierEl) courierEl.value = courier;
+    if (field) field.value = code || id || "0";
+
+    if (heading) {
+      heading.textContent =
+        courier === "econt"
+          ? "ЕКОНТ — ДО ОФИС — АДРЕС ЗА ДОСТАВКА"
+          : "SPEEDY — ДО ОФИС — АДРЕС ЗА ДОСТАВКА";
+    }
+    if (nameTxt) nameTxt.textContent = name || (courier === "econt" ? "Еконт офис" : "Speedy офис");
+    if (addrTxt) addrTxt.textContent = address;
+
+    var hasSelection = !!(id || code || name || address);
+    if (card) {
+      if (hasSelection) {
+        card.removeAttribute("hidden");
+        card.hidden = false;
+      } else {
+        card.setAttribute("hidden", "");
+        card.hidden = true;
+      }
+    }
+    if (wrap) {
+      if (hasSelection) wrap.classList.add("is-selected");
+      else wrap.classList.remove("is-selected");
+    }
+    if (hasSelection) clearOfficeError();
+  }
+
+  function clearOfficeSelection() {
+    fillOfficeFields({
+      courier: getCourier(),
+      id: "",
+      code: "",
+      name: "",
+      address: ""
+    });
+    var wrap = document.getElementById("office-widget-wrap");
+    var card = document.getElementById("office-selected");
+    if (wrap) wrap.classList.remove("is-selected");
+    if (card) {
+      card.setAttribute("hidden", "");
+      card.hidden = true;
+    }
+    var field = document.getElementById("field-office");
+    if (field) field.value = "0";
+    var idEl = document.getElementById("office-selected-id");
+    var nameVal = document.getElementById("office-selected-name-value");
+    var addrVal = document.getElementById("office-selected-address-value");
+    var codeEl = document.getElementById("office-selected-code");
+    var courierEl = document.getElementById("office-selected-courier");
+    if (idEl) idEl.value = "";
+    if (nameVal) nameVal.value = "";
+    if (addrVal) addrVal.value = "";
+    if (codeEl) codeEl.value = "";
+    if (courierEl) courierEl.value = "";
+    clearOfficeError();
+  }
+
+  function focusOfficeSelection() {
+    var target =
+      document.getElementById("office-selected") ||
+      document.getElementById("selectedCourierOfficeAddress") ||
+      document.getElementById("office-widget-wrap") ||
+      document.getElementById("office-open-locator");
+    if (!target) return;
+    try {
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+    } catch (err) {
+      try {
+        target.scrollIntoView(true);
+      } catch (err2) {}
+    }
+    var focusEl =
+      document.getElementById("office-change-locator") ||
+      document.getElementById("office-open-locator");
+    if (focusEl && typeof focusEl.focus === "function") {
+      try {
+        focusEl.focus({ preventScroll: true });
+      } catch (err3) {
+        try {
+          focusEl.focus();
+        } catch (err4) {}
+      }
+    }
+  }
+
+  function onOfficeSelect(sel) {
+    fillOfficeFields(sel);
+    closeOfficeLocator();
+    setTimeout(focusOfficeSelection, 0);
+  }
+
+  function bindOfficeMessage() {
+    if (window.__plasicoOfficeMsgBound) return;
+    window.__plasicoOfficeMsgBound = true;
+    window.addEventListener("message", function (event) {
+      var kind = window.__plasicoOfficeLocatorKind;
+      if (!kind) return;
+      var data = normalizePayload(event.data);
+      if (data == null) return;
+
+      if (kind === "speedy") {
+        if (!isSpeedyOrigin(event.origin)) return;
+        var speedy = parseSpeedyOffice(data);
+        if (!speedy) return;
+        // If we only got a bare id, enrich from Speedy details API.
+        if (speedy.id && !speedy.address) {
+          onOfficeSelect(speedy);
+          fetchSpeedyDetails(speedy.id, function (full) {
+            if (full) fillOfficeFields(full);
+          });
+          return;
+        }
+        onOfficeSelect(speedy);
+        return;
+      }
+
+      if (kind === "econt") {
+        if (!isEcontOrigin(event.origin)) return;
+        var econt = parseEcontOffice(data);
+        if (!econt) return;
+        onOfficeSelect(econt);
+      }
+    });
+  }
+
+  function openOfficeLocator() {
+    if (!isOfficeShip()) return false;
+    closeOfficeLocator();
+    bindOfficeMessage();
+
+    var courier = getCourier();
+    var kind = courier === "econt" ? "econt" : "speedy";
+    window.__plasicoOfficeLocatorKind = kind;
+
+    var root = document.createElement("div");
+    root.id = "office-fullscreen-root";
+    root.className = "office-fullscreen";
+    root.setAttribute("role", "dialog");
+    root.setAttribute("aria-modal", "true");
+    root.setAttribute(
+      "aria-label",
+      kind === "econt" ? "Еконт карта с офиси" : "Speedy карта с офиси"
+    );
+
+    var closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "office-fullscreen__close";
+    closeBtn.setAttribute("aria-label", "Затвори");
+    closeBtn.innerHTML = "&times;";
+    closeBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      closeOfficeLocator();
+    });
+
+    var i = document.createElement("iframe");
+    i.id = "office_map_widget_" + kind;
+    i.title = kind === "econt" ? "Еконт офис локатор" : "Speedy офис локатор";
+    i.setAttribute("allow", "geolocation");
+    i.setAttribute("loading", "eager");
+    if (kind === "econt") {
+      i.src = buildEcontSrc();
+      i.onerror = function () {
+        if (i.getAttribute("data-fallback") === "1") return;
+        i.setAttribute("data-fallback", "1");
+        i.src = buildEcontFallbackSrc();
+      };
+    } else {
+      i.src = buildSpeedySrc();
+    }
+
+    root.appendChild(closeBtn);
+    root.appendChild(i);
+    document.body.appendChild(root);
+    document.documentElement.classList.add("office-locator-open");
+    document.body.classList.add("office-locator-open");
+
+    window.__plasicoOfficeEscBound = function (ev) {
+      if (ev.key === "Escape" || ev.keyCode === 27) {
+        ev.preventDefault();
+        closeOfficeLocator();
+      }
+    };
+    document.addEventListener("keydown", window.__plasicoOfficeEscBound, true);
+    try {
+      closeBtn.focus();
+    } catch (err) {}
+    return true;
+  }
+
+  function bindOfficeLaunch() {
+    var btn = document.getElementById("office-open-locator");
+    if (btn && btn.getAttribute("data-bound") !== "1") {
+      btn.setAttribute("data-bound", "1");
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openOfficeLocator();
+      });
+    }
+    var changeBtn = document.getElementById("office-change-locator");
+    if (changeBtn && changeBtn.getAttribute("data-bound") !== "1") {
+      changeBtn.setAttribute("data-bound", "1");
+      changeBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openOfficeLocator();
+      });
+    }
+  }
+
+  function bindOfficeCourierChange() {
+    if (window.__plasicoOfficeCourierBound) return;
+    window.__plasicoOfficeCourierBound = true;
+    document.addEventListener("change", function (ev) {
+      var t = ev.target;
+      if (!t) return;
+      if (t.name === "office_courier") {
+        clearOfficeSelection();
+        closeOfficeLocator();
+      }
+      if (t.name === "ship_to_id[2]" && t.value !== "office") {
+        clearOfficeError();
+        closeOfficeLocator();
+      }
+    });
+  }
+
+  function bindOfficeSubmitGuard() {
+    var form =
+      document.querySelector("#checkout-new > form") ||
+      document.querySelector("#checkout form.cl");
+    if (!form || form.getAttribute("data-office-guard") === "1") return;
+    form.setAttribute("data-office-guard", "1");
+    form.addEventListener(
+      "submit",
+      function (ev) {
+        if (!isOfficeShip()) {
+          clearOfficeError();
+          return;
+        }
+        if (hasOfficeSelection()) {
+          clearOfficeError();
+          return;
+        }
+        ev.preventDefault();
+        ev.stopPropagation();
+        showOfficeError();
+        var wrap =
+          document.getElementById("office-open-locator") ||
+          document.getElementById("office-widget-wrap");
+        if (wrap && wrap.scrollIntoView) {
+          try {
+            wrap.scrollIntoView({ behavior: "smooth", block: "center" });
+          } catch (e) {
+            wrap.scrollIntoView(true);
+          }
+        }
+      },
+      true
+    );
+  }
+
+  window.__plasicoOfficeOnShipChange = function (panelKey) {
+    if (panelKey !== "office") {
+      closeOfficeLocator();
+    }
+  };
+
+  function boot() {
+    bindOfficeLaunch();
+    bindOfficeCourierChange();
+    bindOfficeSubmitGuard();
+    bindOfficeMessage();
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+
 <script
   src="https://widget-cdn.boxnow.bg/map-widget/client/v5.js"
   defer

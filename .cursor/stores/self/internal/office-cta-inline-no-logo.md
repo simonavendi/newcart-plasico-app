@@ -29,3 +29,6 @@ Applies to both Speedy and Econt office rows. Click → open map unchanged.
 ## Files
 - `index.html`, `poruchka.html`
 - `_patch_office_cta_inline_no_logo.py`, `_verify_office_cta_inline_no_logo.py`
+
+## Git
+On `main` @ `fb0b3f5`.

@@ -4,9 +4,9 @@
 For **До офис** shipping, open an official office map/locator (Speedy or Econt), pick an office, return to checkout with summary + **Смени** — same pattern as BOX NOW. Launch CTA label exactly: **Избери офис от карта**.
 
 ## UI
-- Under Speedy / Еконт office rows: launch button `Избери офис от карта` (`#office-open-locator`).
-- After select: heading + name/address card + **Смени** (`#office-selected`, `#office-change-locator`).
-- Switching Speedy ↔ Еконт clears the selection and restores the CTA.
+- Map CTA `Избери офис от карта` (`#office-open-locator`) lives **inside** the checked Speedy/Еконт `co-option-row` (see `office-map-cta-in-option.md`).
+- After select: heading + name/address card + **Смени** (`#office-selected`, `#office-change-locator`) in the same row.
+- Switching Speedy ↔ Еконт remounts the widget into the new row, clears selection, restores the CTA.
 - Manual city/office text fields removed (map is the picker).
 
 ## Integrations

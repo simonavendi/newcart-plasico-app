@@ -1,5 +1,6 @@
 # plasico cart notes
 
+- BG phone validator on `#field-phone` / `.telephone` / recipient — `main` @ `09f232a`; see `internal/bg-phone-validator.md`
 - Bank transfer: IBAN/beneficiary details panel when selected — `internal/bank-transfer-payment-details.md`
 - Invoice individual „Копирай от горните данни“ wired — `internal/copy-invoice-from-above.md`
 - Auth modal: Facebook OAuth removed (Google + Apple kept) — `internal/remove-facebook-oauth.md` (main clear since `c949930`; WIP race cleaned)
@@ -15,4 +16,5 @@
 - Partner ID: **18248**
 - Auth modal: circle Google/Apple + thank-you + top-bar profile (`a71bfa8`) — see `internal/auth-thanks-profile.md`; Facebook stays omitted
 - Speedy/Econt office map locators + „Избери офис от карта“ — `internal/speedy-econt-office-locators.md`
+- Office map CTA nested in Speedy/Еконт `co-option-row` (`main` @ `9b7bd2d`) — `internal/office-map-cta-in-option.md`
 - Speedy + Econt logos like BOX NOW (option rows + office CTA/summary) — `internal/econt-logo-like-boxnow.md`

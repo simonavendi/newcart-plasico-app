@@ -3420,6 +3420,38 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
     }
   }
 
+  function isBoxnowAllowedOrigin(origin) {
+    try {
+      var host = new URL(origin).hostname;
+      if (!host) return false;
+      // Match Box Now CDN origins (map / widget hosts) — same idea as v5 client.
+      if (/^(map|widget-new|widget(-v\d+)?)\.boxnow\.[a-z0-9-]+$/i.test(host)) {
+        return true;
+      }
+      return /\.boxnow\./i.test(host);
+    } catch (err) {
+      return false;
+    }
+  }
+
+  function normalizeBoxnowPayload(raw) {
+    if (raw == null || raw === "") return null;
+    if (typeof raw === "string") {
+      var s = raw.trim();
+      if (s === "closeIframe" || s === "close") return s;
+      if (s.charAt(0) === "{") {
+        try {
+          return JSON.parse(s);
+        } catch (err) {
+          return null;
+        }
+      }
+      return null;
+    }
+    if (typeof raw === "object") return raw;
+    return null;
+  }
+
   function isBoxnowLockerPayload(data) {
     if (!data || typeof data !== "object") return false;
     return (
@@ -3429,30 +3461,62 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
     );
   }
 
+  function focusBoxnowSelection() {
+    var target =
+      document.getElementById("boxnow-selected") ||
+      document.getElementById("boxnow-widget-wrap") ||
+      document.getElementById("boxnow-open-locator");
+    if (!target) return;
+    try {
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+    } catch (err) {
+      try { target.scrollIntoView(true); } catch (err2) {}
+    }
+    var focusEl =
+      document.getElementById("boxnow-open-locator") ||
+      document.getElementById("boxnow-selected");
+    if (focusEl && typeof focusEl.focus === "function") {
+      try { focusEl.focus({ preventScroll: true }); } catch (err3) {
+        try { focusEl.focus(); } catch (err4) {}
+      }
+    }
+  }
+
+  // Megamag-style autoclose: fill locker fields, destroy host overlay, return to cart.
+  // Host always closes even if the iframe ignores autoclose=yes.
+  function onBoxnowSelect(selected) {
+    fillBoxnowFields(selected);
+    closeBoxnowLocator();
+    // Defer focus until after overlay teardown / scroll-lock class removal.
+    setTimeout(focusBoxnowSelection, 0);
+  }
+
   function bindBoxnowMessage() {
     if (window.__plasicoBoxNowMsgBound) return;
     window.__plasicoBoxNowMsgBound = true;
     window.addEventListener("message", function (event) {
-      try {
-        var host = event.origin && new URL(event.origin).hostname;
-        if (!host || !/\.boxnow\./i.test(host)) return;
-      } catch (err) {
-        return;
-      }
-      if (event.data == null || event.data === "") return;
-      // popup.html close button posts the string "closeIframe"
-      if (event.data === "closeIframe" || event.data === "close") {
+      if (!isBoxnowAllowedOrigin(event.origin)) return;
+      var data = normalizeBoxnowPayload(event.data);
+      if (data == null) return;
+      // popup.html / widget close control
+      if (data === "closeIframe" || data === "close") {
         closeBoxnowLocator();
         return;
       }
-      if (!isBoxnowLockerPayload(event.data)) return;
-      if (
-        window._bn_map_widget_config &&
-        typeof window._bn_map_widget_config.afterSelect === "function"
-      ) {
-        window._bn_map_widget_config.afterSelect(event.data);
+      if (!isBoxnowLockerPayload(data)) return;
+      try {
+        if (
+          window._bn_map_widget_config &&
+          typeof window._bn_map_widget_config.afterSelect === "function"
+        ) {
+          window._bn_map_widget_config.afterSelect(data);
+        } else {
+          onBoxnowSelect(data);
+        }
+      } finally {
+        // Belt-and-suspenders: always tear down host overlay on locker select.
+        closeBoxnowLocator();
       }
-      closeBoxnowLocator();
     });
   }
 
@@ -3538,8 +3602,13 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
       txt.textContent = parts.length ? parts.join(", ") : (id ? "ID " + id : "");
     }
     if (sel) {
-      if (id || addr) sel.removeAttribute("hidden");
-      else sel.setAttribute("hidden", "");
+      if (id || addr) {
+        sel.removeAttribute("hidden");
+        sel.hidden = false;
+      } else {
+        sel.setAttribute("hidden", "");
+        sel.hidden = true;
+      }
     }
     if (id) clearBoxnowLockerError();
   }
@@ -3718,7 +3787,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
     listener: false,
     countryCode: "bg",
     language: "bg",
-    afterSelect: fillBoxnowFields
+    afterSelect: onBoxnowSelect
   };
 
   window.__plasicoBoxNowOnShipChange = function (panelKey) {

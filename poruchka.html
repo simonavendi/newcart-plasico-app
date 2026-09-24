@@ -387,6 +387,15 @@ cursor:not-allowed;opacity:.48;background:#f5f5f5;border-color:#e8e8e8;pointer-e
 #checkout .co-person-type label{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid #e0e0e0;border-radius:6px;cursor:pointer;background:#fff;font-size:14px}
 #checkout .co-person-type label:has(input:checked),#checkout .co-person-type label.clicked{border-color:#ff6100;background:#fff8f3}
 #checkout .co-invoice-type-label{margin:0 0 6px;font-size:13px;color:#666}
+#checkout #bank-transfer-details{margin:8px 0 4px;padding:12px 14px;border:1px solid #e0e0e0;border-radius:6px;background:#fafafa;box-sizing:border-box}
+#checkout #bank-transfer-details[hidden],#checkout #bank-transfer-details.hide{display:none!important}
+#checkout .bank-transfer-details__lead{margin:0 0 10px;font-size:13px;color:#666;line-height:1.4}
+#checkout .bank-transfer-details__list{margin:0;padding:0;display:grid;gap:8px}
+#checkout .bank-transfer-details__row{display:grid;grid-template-columns:minmax(96px,120px) 1fr;gap:8px 12px;align-items:baseline}
+#checkout .bank-transfer-details__row dt{margin:0;font-size:12px;color:#666;font-weight:normal}
+#checkout .bank-transfer-details__row dd{margin:0;font-size:14px;color:#000;font-weight:bold;word-break:break-word}
+#checkout .bank-transfer-details__row dd code{font-family:Consolas,"Courier New",monospace;font-size:13px;font-weight:bold;letter-spacing:.02em}
+#checkout .bank-transfer-details__note{margin:10px 0 0;font-size:13px;color:#666;line-height:1.4}
 #checkout #installment-options{margin:8px 0 4px;padding:0;border:0;border-radius:0;background:transparent}
 #checkout #installment-options[hidden],#checkout #installment-options.hide{display:none!important}
 #checkout .installment-options__label{margin:0 0 8px;font-size:13px;color:#666}
@@ -760,14 +769,18 @@ cursor:not-allowed;opacity:.48;background:#f5f5f5;border-color:#e8e8e8;pointer-e
     setClickedForRadios("payment_id");
     var leasing = document.getElementById("leasing-schema");
     var install = document.getElementById("installment-options");
+    var bank = document.getElementById("bank-transfer-details");
     var pay = document.querySelector("input[name=payment_id]:checked");
-    if (pay && pay.value === "8") {
+    var val = pay ? pay.value : "";
+    if (val === "8") {
       showEl(leasing);
       showEl(install);
     } else {
       hideEl(leasing);
       hideEl(install);
     }
+    if (val === "7") showEl(bank);
+    else hideEl(bank);
   }
 
 
@@ -2777,10 +2790,39 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <span class="co-option-row__copy">
 <span class="co-option-row__title">Банков превод</span>
 <span class="co-option-row__hint">SEPA · обработка 1–2 раб. дни</span>
-<span class="co-option-row__hint">След завършване на поръчката ще получите проформа фактура на имейл</span>
 </span>
 </span>
 </label>
+<div id=bank-transfer-details class="bank-transfer-details" role=region aria-label="Данни за банков превод">
+<p class="bank-transfer-details__lead">Преведи сумата по следната сметка (SEPA):</p>
+<dl class="bank-transfer-details__list">
+<div class="bank-transfer-details__row">
+<dt>Получател</dt>
+<dd>Пласико Компютърс ЕООД</dd>
+</div>
+<div class="bank-transfer-details__row">
+<dt>ЕИК</dt>
+<dd>148019777</dd>
+</div>
+<div class="bank-transfer-details__row">
+<dt>IBAN</dt>
+<dd><code id=bank-transfer-iban>BG18UBBS80021090123456</code></dd>
+</div>
+<div class="bank-transfer-details__row">
+<dt>Банка</dt>
+<dd>Обединена Българска Банка</dd>
+</div>
+<div class="bank-transfer-details__row">
+<dt>BIC</dt>
+<dd><code>UBBSBGSF</code></dd>
+</div>
+<div class="bank-transfer-details__row">
+<dt>Основание</dt>
+<dd>Номер на поръчката (ще се покаже след завършване)</dd>
+</div>
+</dl>
+<p class="bank-transfer-details__note">След завършване на поръчката ще получите проформа фактура на имейл с данните за плащане.</p>
+</div>
 <label class="co-option-row">
 <input type=radio name=payment_id value=8 autocomplete=off>
 <span class="co-option-row__body">

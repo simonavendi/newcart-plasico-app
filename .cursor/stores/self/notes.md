@@ -1,5 +1,7 @@
 # plasico cart notes
 
+- Bank transfer: IBAN/beneficiary details panel when selected — `internal/bank-transfer-payment-details.md`
+- Invoice individual „Копирай от горните данни“ wired — `internal/copy-invoice-from-above.md`
 - Auth modal: Facebook OAuth removed (Google + Apple kept) — `internal/remove-facebook-oauth.md` (main clear since `c949930`; WIP race cleaned)
 - Aside cart Ozone rows: delivery from `api/delivery-eta.json`, FLASH 10% promo lines, restored qty line totals — `internal/cart-delivery-flash-promo.md`
 - Aside cart qty +/−/del wired locally (FLASH line/grand + leasing teaser) — `internal/cart-qty-selectors.md`
@@ -13,3 +15,4 @@
 - Partner ID: **18248**
 - Auth modal: circle Google/Apple + thank-you + top-bar profile (`a71bfa8`) — see `internal/auth-thanks-profile.md`; Facebook stays omitted
 - Speedy/Econt office map locators + „Избери офис от карта“ — `internal/speedy-econt-office-locators.md`
+- Speedy + Econt logos like BOX NOW (option rows + office CTA/summary) — `internal/econt-logo-like-boxnow.md`

@@ -3,6 +3,7 @@
 	window.__plasicoLeasingBootstrapped = true;
 	window.__leaseScriptRan = true;
 	var CART_STORAGE_KEY = 'plasico-hss2026-cart';
+	var APPLY_STORAGE_KEY = 'plasico-leasing-apply';
 
 	/**
 	 * Left: personal finance / „Купи на изплащане“ (BNP-style multipliers).
@@ -44,6 +45,7 @@
 		downPayment: 0,
 		promoCode: '',
 		prodId: '',
+		apply: null,
 	};
 
 	function formatEuro(amount) {
@@ -135,6 +137,169 @@
 			install.classList.remove('hide', 'sf-hidden');
 			install.removeAttribute('hidden');
 		}
+		var leasing = document.getElementById('leasing-schema');
+		if (leasing) {
+			leasing.classList.remove('hide', 'sf-hidden');
+			leasing.removeAttribute('hidden');
+		}
+	}
+
+	function escapeHtml(value) {
+		return String(value == null ? '' : value)
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#39;');
+	}
+
+	function readSavedApply() {
+		if (state.apply) return state.apply;
+		try {
+			var raw = sessionStorage.getItem(APPLY_STORAGE_KEY);
+			if (!raw) return null;
+			state.apply = JSON.parse(raw);
+			return state.apply;
+		} catch (e) {
+			return null;
+		}
+	}
+
+	function writeSavedApply(payload) {
+		state.apply = payload;
+		try {
+			sessionStorage.setItem(APPLY_STORAGE_KEY, JSON.stringify(payload));
+		} catch (e) {
+			/* private mode / quota — in-memory still works */
+		}
+	}
+
+	function syncInstallmentOptionSelection(columnId) {
+		var kind = columnId === 'postbank' ? 'bnp-card' : 'bnp';
+		Array.prototype.slice
+			.call(document.querySelectorAll('.installment-option[data-installment]'))
+			.forEach(function (btn) {
+				var active = btn.getAttribute('data-installment') === kind;
+				btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+				btn.classList.toggle('is-selected', active);
+			});
+	}
+
+	function syncHiddenApplyFields(data) {
+		var host = document.getElementById('leasing-schema');
+		if (!host) return;
+		var fields = {
+			leasing_full_name: data && data.fullName,
+			leasing_phone: data && data.phone,
+			leasing_egn: data && data.egn,
+			leasing_email: data && data.email,
+			leasing_column: data && data.column,
+			leasing_provider: data && data.provider,
+			leasing_months: data && data.months,
+			leasing_monthly: data && data.monthly,
+			leasing_total: data && data.total,
+			leasing_down_payment: data && data.downPayment,
+			leasing_promo_code: data && data.promoCode,
+		};
+		Object.keys(fields).forEach(function (name) {
+			var input = host.querySelector('input[name="' + name + '"]');
+			if (!input) {
+				input = document.createElement('input');
+				input.type = 'hidden';
+				input.name = name;
+				host.appendChild(input);
+			}
+			input.value = fields[name] == null ? '' : String(fields[name]);
+		});
+	}
+
+	function renderSavedApply() {
+		var data = readSavedApply();
+		var host = document.getElementById('leasing-schema');
+		if (!host) return;
+
+		var panel = document.getElementById('pl-leasing-saved');
+		if (!panel) {
+			panel = document.createElement('div');
+			panel.id = 'pl-leasing-saved';
+			panel.className = 'pl-leasing-saved';
+			host.insertBefore(panel, host.firstChild);
+		}
+
+		if (!data) {
+			panel.hidden = true;
+			panel.innerHTML = '';
+			syncHiddenApplyFields(null);
+			return;
+		}
+
+		syncHiddenApplyFields(data);
+		syncInstallmentOptionSelection(data.column);
+
+		var schemeLine =
+			escapeHtml(data.columnTitle || '') +
+			' — ' +
+			escapeHtml(String(data.months || '')) +
+			' вноски × ' +
+			escapeHtml(formatEuro(Number(data.monthly) || 0));
+		if (Number(data.downPayment) > 0) {
+			schemeLine +=
+				' · първон. вноска ' + escapeHtml(formatEuro(Number(data.downPayment) || 0));
+		}
+
+		panel.hidden = false;
+		panel.innerHTML =
+			'<p class="pl-leasing-saved__title">Данни за кандидатстване</p>' +
+			'<dl class="pl-leasing-saved__list">' +
+			'<div class="pl-leasing-saved__row"><dt>Име</dt><dd>' +
+			escapeHtml(data.fullName) +
+			'</dd></div>' +
+			'<div class="pl-leasing-saved__row"><dt>Телефон</dt><dd>' +
+			escapeHtml(data.phone) +
+			'</dd></div>' +
+			'<div class="pl-leasing-saved__row"><dt>ЕГН</dt><dd>' +
+			escapeHtml(data.egn) +
+			'</dd></div>' +
+			'<div class="pl-leasing-saved__row"><dt>Ел. поща</dt><dd>' +
+			escapeHtml(data.email) +
+			'</dd></div>' +
+			'</dl>' +
+			'<p class="pl-leasing-saved__scheme">' +
+			schemeLine +
+			'</p>' +
+			'<button type="button" class="pl-leasing-saved__edit" id="pl-leasing-saved-edit">Промени данните</button>';
+
+		var editBtn = document.getElementById('pl-leasing-saved-edit');
+		if (editBtn) {
+			editBtn.addEventListener('click', function () {
+				openModal({ column: data.column || 'personal' });
+			});
+		}
+
+		var pay8 = document.querySelector('input[name="payment_id"][value="8"]');
+		if (pay8 && pay8.checked) {
+			host.classList.remove('hide', 'sf-hidden');
+			host.removeAttribute('hidden');
+		}
+	}
+
+	function fillApplyFormFromSaved() {
+		var data = readSavedApply();
+		if (!data) return;
+		var nameInput = document.getElementById('pl-leasing-name');
+		var phoneInput = document.getElementById('pl-leasing-phone');
+		var egnInput = document.getElementById('pl-leasing-egn');
+		var emailInput = document.getElementById('pl-leasing-email');
+		var agreeTerms = document.getElementById('pl-leasing-agree-terms');
+		var agreeApply = document.getElementById('pl-leasing-agree-apply');
+		var agreePrivacy = document.getElementById('pl-leasing-agree-privacy');
+		if (nameInput) nameInput.value = data.fullName || '';
+		if (phoneInput) phoneInput.value = data.phone || '';
+		if (egnInput) egnInput.value = data.egn || '';
+		if (emailInput) emailInput.value = data.email || '';
+		if (agreeTerms) agreeTerms.checked = true;
+		if (agreeApply) agreeApply.checked = true;
+		if (agreePrivacy) agreePrivacy.checked = true;
 	}
 
 	function parsePrice() {
@@ -335,7 +500,7 @@
 			'      <a class="pl-leasing-apply-product" href="http://dw-file.eu/%D0%91%D0%9D%D0%9F%20%D0%9F%D0%B0%D1%80%D0%B8%D0%B1%D0%B0%20%D0%9B%D0%A4-%D0%9F%D1%80%D0%BE%D0%B4%D1%83%D0%BA%D1%82%D0%BE%D0%B2%D0%B0%20%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D1%8F.pdf" target="_blank" rel="noopener noreferrer">Продуктова Информация на ПБ Лични финанси</a>' +
 			'      <p class="pl-leasing-apply-error" id="pl-leasing-apply-error" hidden></p>' +
 			'      <p class="pl-leasing-apply-success" id="pl-leasing-apply-success" hidden></p>' +
-			'      <button type="submit" class="pl-leasing-apply-submit" id="pl-leasing-apply-submit">Кандидатствай онлайн</button>' +
+			'      <button type="submit" class="pl-leasing-apply-submit" id="pl-leasing-apply-submit">Продължи</button>' +
 			'    </form>' +
 			'  </div>' +
 			'</div>';
@@ -521,15 +686,26 @@
 			console.log('[PlasicoLeasing] local apply (no backend)', payload);
 		}
 
-		showApplySuccess(
-			'Заявката е приета локално (без изпращане). Избрана схема: ' +
-				columnTitle +
-				' — ' +
-				selected.months +
-				' вноски × ' +
-				formatEuro(selected.monthly) +
-				'.'
-		);
+		writeSavedApply(payload);
+		if (payload.column === 'personal') {
+			state.personalMonths = payload.months;
+		}
+		state.column = payload.column;
+		state.selectedMonths = payload.months;
+		syncCheckoutPaymentInstallments();
+		syncInstallmentOptionSelection(payload.column);
+		renderSavedApply();
+		renderTeaser();
+		closeModal();
+
+		var paymentStep = document.getElementById('step-payment');
+		if (paymentStep && typeof paymentStep.scrollIntoView === 'function') {
+			try {
+				paymentStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			} catch (scrollErr) {
+				paymentStep.scrollIntoView(true);
+			}
+		}
 	}
 
 	function applyToolbarInputs() {
@@ -686,6 +862,7 @@
 		syncCheckoutPaymentInstallments();
 		renderModal();
 		clearApplyFeedback();
+		fillApplyFormFromSaved();
 		var overlay = ensureModal();
 		overlay.hidden = false;
 		overlay.removeAttribute('hidden');
@@ -752,15 +929,44 @@
 		state.personalMonths = DEFAULT_PERSONAL_MONTHS;
 		state.selectedMonths = DEFAULT_PERSONAL_MONTHS;
 		state.column = 'personal';
+		readSavedApply();
+		if (state.apply) {
+			if (state.apply.column && COLUMNS[state.apply.column]) {
+				state.column = state.apply.column;
+			}
+			if (state.apply.months) {
+				state.selectedMonths = Number(state.apply.months) || state.selectedMonths;
+				if (state.column === 'personal') {
+					state.personalMonths = state.selectedMonths;
+				}
+			}
+			if (state.apply.downPayment != null) {
+				state.downPayment = Number(state.apply.downPayment) || 0;
+			}
+			if (state.apply.promoCode) {
+				state.promoCode = String(state.apply.promoCode);
+			}
+		}
 		renderTeaser();
+		renderSavedApply();
 		bindTriggers();
 
 		document.addEventListener('plasico:cart-updated', refresh);
+
+		var paymentRadios = document.querySelectorAll('input[name="payment_id"]');
+		Array.prototype.slice.call(paymentRadios).forEach(function (radio) {
+			radio.addEventListener('change', function () {
+				if (radio.value === '8') {
+					renderSavedApply();
+				}
+			});
+		});
 
 		window.PlasicoLeasing = {
 			open: openModal,
 			close: closeModal,
 			refresh: refresh,
+			getApply: readSavedApply,
 			getState: function () {
 				var selected = getSelectedTerm();
 				var teaser = getTeaserTerm();
@@ -776,6 +982,7 @@
 					personalMonths: state.personalMonths,
 					selected: selected,
 					teaser: teaser,
+					apply: readSavedApply(),
 				};
 			},
 		};

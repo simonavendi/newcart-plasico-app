@@ -4,7 +4,7 @@
 When **Банков превод** (`payment_id=7`) is selected under `#checkout-payments`, show real payment data (IBAN, beneficiary, bank, BIC, reference) in an expandable details panel.
 
 ## Landed
-- `main` (this commit)
+- `main` @ `383b8c6`
 - Files: `index.html`, `poruchka.html` (mirrored)
 
 ## UI

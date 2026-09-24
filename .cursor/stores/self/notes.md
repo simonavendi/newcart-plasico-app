@@ -20,6 +20,7 @@
 - Speedy/Econt office map: browser Back closes overlay (like BOX NOW) — wiring `e858e32`, docs/verify `bf00c50`; see `internal/speedy-econt-back-button.md`
 - Office map CTA nested in Speedy/Еконт `co-option-row` (`main` @ `9b7bd2d`) — `internal/office-map-cta-in-option.md`
 - `#office-open-locator` wire fix (CTA outside `<label>`, capture delegation) — `main` @ `70acbcb` / docs `a541115`; see `internal/office-open-locator-wire.md`
+- `#office-open-locator` inline with Speedy/Econt title, no logo in button — see `internal/office-cta-inline-no-logo.md`
 - Speedy + Econt logos like BOX NOW (option rows + office CTA/summary) — `internal/econt-logo-like-boxnow.md`
 - Transpress address courier: green Plasico `#39B54A` logo like Speedy/Econt — `internal/transpress-green-logo.md`
 - Postbank logo on payment row + leasing „Купи на вноски…“ colhead — `internal/postbank-logo.md`

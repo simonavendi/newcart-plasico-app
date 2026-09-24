@@ -26,10 +26,10 @@
 #checkout #checkout-cart+.bgff{position:relative;overflow:visible;padding-bottom:14px!important}
 #checkout #checkout-cart+.bgff:before,#checkout #checkout-cart + .bgff:before{display:none!important;content:none!important;height:0!important}
 #checkout .checkout-layout__aside .bgff{position:relative;overflow:visible;padding-bottom:14px}
-#checkout .checkout-layout__aside .aside-leasing{position:relative;z-index:2;display:block;width:100%;margin:12px 0 4px;padding:10px 12px;box-sizing:border-box;border:2px solid #55a630;border-radius:4px;background:#fff;color:#55a630;font-family:"exo2b",sans-serif;font-size:15px;line-height:1.3;cursor:pointer;text-align:center;clear:both;float:none}
+#checkout .checkout-layout__aside .aside-leasing{position:relative;z-index:2;display:block;width:100%;margin:12px 0 4px;padding:10px 18px;box-sizing:border-box;border:2px solid #55a630;border-radius:4px;background:#fff;color:#55a630;font-family:"exo2b",sans-serif;font-size:15px;line-height:1.25;cursor:pointer;text-align:center;clear:both;float:none}
 #checkout .checkout-layout__aside .aside-leasing:hover{background:#55a630;color:#fff}
 #checkout .checkout-layout__aside .aside-leasing__label{display:block;font-weight:bold}
-#checkout .checkout-layout__aside .aside-leasing__teaser{display:block;margin-top:2px;font-size:13px;font-weight:normal;opacity:.9}
+#checkout .checkout-layout__aside .aside-leasing__teaser{display:block;margin-top:2px;font-size:inherit;font-weight:bold;line-height:1.25;opacity:.95}
 /* BOX NOW widget — launch button + edge-to-edge fullscreen overlay */
 #checkout .boxnow-widget-panel{width:100%;margin:12px 0;box-sizing:border-box}
 #checkout .boxnow-widget-launch{
@@ -375,11 +375,11 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
 	word-break: break-word;
 }
 
-/* Aside installment CTA (poruchka js-open-leasing, Plasico look) */
-#checkout .checkout-layout__aside .aside-leasing{display:block;width:100%;margin:12px 0 0;padding:10px 12px;box-sizing:border-box;border:2px solid #55a630;border-radius:4px;background:#fff;color:#55a630;font-family:"exo2b",sans-serif;font-size:15px;line-height:1.3;cursor:pointer;text-align:center;text-transform:none}
+/* Aside installment CTA (poruchka js-open-leasing, Plasico look) — text size matches .checkout-auth-btn */
+#checkout .checkout-layout__aside .aside-leasing{display:block;width:100%;margin:12px 0 0;padding:10px 18px;box-sizing:border-box;border:2px solid #55a630;border-radius:4px;background:#fff;color:#55a630;font-family:"exo2b",sans-serif;font-size:15px;line-height:1.25;cursor:pointer;text-align:center;text-transform:none}
 #checkout .checkout-layout__aside .aside-leasing:hover{background:#55a630;color:#fff}
 #checkout .checkout-layout__aside .aside-leasing__label{display:block;font-weight:bold}
-#checkout .checkout-layout__aside .aside-leasing__teaser{display:block;margin-top:2px;font-size:13px;font-weight:normal;opacity:.9}
+#checkout .checkout-layout__aside .aside-leasing__teaser{display:block;margin-top:2px;font-size:inherit;font-weight:bold;line-height:1.25;opacity:.95}
 /* BOX NOW map widget styles live with launch-button block above */
 
 
@@ -407,9 +407,11 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
 #checkout .co-profile-cta{-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;-webkit-box-align:stretch;-ms-flex-align:stretch;align-items:stretch}
 #checkout .co-profile-cta__actions{width:100%;-webkit-box-sizing:border-box;box-sizing:border-box;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center}
 #checkout .checkout-auth-btn{width:100%;max-width:100%;text-align:center;padding:14px 24px;font-size:17px;line-height:1.3;-webkit-box-sizing:border-box;box-sizing:border-box}
+#checkout .checkout-layout__aside .aside-leasing{padding:12px 20px;font-size:17px;line-height:1.25}
 }
 @media (max-width:768px){
 #checkout .checkout-auth-btn{padding:16px 28px;font-size:18px}
+#checkout .checkout-layout__aside .aside-leasing{padding:14px 24px;font-size:18px;line-height:1.25}
 }
 @media (min-width:1101px){
 #checkout .checkout-layout__aside{-ms-flex-item-align:stretch;align-self:stretch;overflow:visible}
@@ -1689,7 +1691,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <input type=radio name="ship_to_id[2]" value=boxnow autocomplete=off checked>
 <span class="co-option-row__body">
 <span class="co-option-row__copy">
-<span class="co-option-row__title"><img class="co-option-row__logo co-option-row__logo--boxnow" src="assets/boxnow-logo.png" width="70" height="51" alt="BOX NOW"><em class="co-option-row__badge">Безплатно</em></span>
+<span class="co-option-row__title">Автомат <img class="co-option-row__logo co-option-row__logo--boxnow" src="assets/boxnow-logo.png" width="70" height="51" alt="BOX NOW"><em class="co-option-row__badge">Безплатно</em></span>
 <span class="co-option-row__hint">Доставка до автомат · достъп 24/7</span>
 </span>
 <span class="co-option-row__price">0 €</span>

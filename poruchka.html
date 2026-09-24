@@ -40,7 +40,7 @@
 }
 #checkout .boxnow-widget-launch:hover{border-color:#bbb;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 #checkout .boxnow-widget-launch:focus-visible{outline:2px solid #000;outline-offset:2px}
-#checkout .boxnow-widget-launch__title{font-size:15px;font-weight:600;line-height:1.3}
+#checkout .boxnow-widget-launch__title{display:inline-flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:15px;font-weight:600;line-height:1.3}
 #checkout .boxnow-widget-launch__hint{font-size:12px;color:#666;line-height:1.35}
 #checkout .boxnow-widget-launch.is-error{border-color:#dc2626}
 #checkout #boxnowmap{display:none!important;width:0;height:0;overflow:hidden}
@@ -48,9 +48,11 @@
 #checkout .boxnow-selected{margin:12px 0 0}
 #checkout .boxnow-selected[hidden]{display:none!important}
 #checkout .boxnow-selected__heading{
+  display:flex;align-items:center;flex-wrap:wrap;gap:8px;
   margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.02em;
   text-transform:uppercase;color:#333;line-height:1.35
 }
+#checkout .boxnow-selected__heading-text{display:inline}
 #checkout .boxnow-selected__card{
   display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
   padding:12px 14px;background:#f3f3f3;border:1px solid #e6e6e6;border-radius:8px;
@@ -357,10 +359,16 @@ cursor:not-allowed;opacity:.48;background:#f5f5f5;border-color:#e8e8e8;pointer-e
 #checkout .co-option-row__title{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-weight:bold;color:#000}
 #checkout .co-option-row__logo{display:block;height:28px;width:auto;max-width:min(96px,42vw);object-fit:contain}
 #checkout .co-option-row__logo--boxnow{height:30px;max-width:min(110px,46vw)}
+#checkout .co-option-row__logo--econt{height:30px;max-width:min(110px,46vw)}
+#checkout .co-option-row__logo--speedy{height:30px;max-width:min(96px,42vw)}
 @media (min-width:768px){
 #checkout .co-option-row__logo{height:32px;max-width:120px}
 #checkout .co-option-row__logo--boxnow{height:36px;max-width:140px}
+#checkout .co-option-row__logo--econt{height:36px;max-width:140px}
+#checkout .co-option-row__logo--speedy{height:36px;max-width:110px}
 }
+#checkout .office-widget-launch__logo[hidden],
+#checkout .boxnow-selected__heading-logo[hidden]{display:none!important}
 #checkout .co-option-row__hint{display:block;font-size:13px;color:#666;margin-top:2px}
 #checkout .co-option-row__badge{font-style:normal;font-size:12px;color:#ff6100;margin-left:0}
 #checkout .co-option-row__price{white-space:nowrap;font-weight:bold;color:#000}
@@ -1851,10 +1859,14 @@ cursor:not-allowed;opacity:.48;background:#f5f5f5;border-color:#e8e8e8;pointer-e
 		min-width: 0;
 	}
 
+	/* Plan cards: 2 columns under each section header (incl. ~390px) */
 	.pl-leasing-grid {
-		display: flex;
-		flex-direction: column;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 8px;
 		min-width: 0;
+		padding: 8px;
+		background: var(--pl-soft);
 	}
 
 	.pl-leasing-grid-row {
@@ -1866,17 +1878,20 @@ cursor:not-allowed;opacity:.48;background:#f5f5f5;border-color:#e8e8e8;pointer-e
 	}
 
 	.pl-leasing-grid-colhead {
+		grid-column: 1 / -1;
 		order: 0;
+		border: 0;
 		border-right: 0;
+		border-radius: var(--pl-radius-sm);
 		text-align: left;
-		padding: 12px 14px;
-		background: var(--pl-soft);
+		padding: 10px 12px;
+		background: var(--pl-card);
 	}
 
 	.pl-leasing-grid-colhead--postbank {
 		order: 50;
-		margin-top: 8px;
-		border-top: 1px solid var(--pl-border);
+		margin-top: 4px;
+		border-top: 0;
 	}
 
 	.pl-leasing-grid-month {
@@ -1888,8 +1903,15 @@ cursor:not-allowed;opacity:.48;background:#f5f5f5;border-color:#e8e8e8;pointer-e
 	}
 
 	.pl-leasing-cell {
-		border-right: 0;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 4px;
+		padding: 8px;
+		border: 1px solid var(--pl-border);
+		border-right: 1px solid var(--pl-border);
+		border-radius: var(--pl-radius-sm);
 		min-height: 0;
+		background: var(--pl-card);
 	}
 
 	.pl-leasing-cell[data-column="personal"] {
@@ -1900,18 +1922,36 @@ cursor:not-allowed;opacity:.48;background:#f5f5f5;border-color:#e8e8e8;pointer-e
 		order: 51;
 	}
 
+	.pl-leasing-radio {
+		margin: 0;
+	}
+
+	.pl-leasing-cell-body {
+		gap: 3px;
+		width: 100%;
+	}
+
 	.pl-leasing-cell-months {
 		display: block;
-		margin-bottom: 2px;
-		font-size: 12px;
+		margin-bottom: 0;
+		font-size: 11px;
 		font-weight: 700;
 		color: var(--pl-muted);
+	}
+
+	.pl-leasing-cell-monthly {
+		font-size: 15px;
+	}
+
+	.pl-leasing-cell-meta {
+		font-size: 10px;
+		line-height: 1.35;
 	}
 }
 
 @media (max-width: 480px) {
 	.pl-leasing-overlay {
-		padding: 14px;
+		padding: 10px;
 	}
 
 	.pl-leasing-close {
@@ -1924,15 +1964,40 @@ cursor:not-allowed;opacity:.48;background:#f5f5f5;border-color:#e8e8e8;pointer-e
 	}
 
 	.pl-leasing-body {
-		padding: 12px;
+		padding: 10px;
 	}
 
 	.pl-leasing-summary {
-		font-size: 16px;
+		font-size: 15px;
+		padding: 10px 12px;
+	}
+
+	.pl-leasing-grid {
+		gap: 6px;
+		padding: 6px;
+	}
+
+	.pl-leasing-grid-colhead {
+		padding: 8px 10px;
+		font-size: 12px;
+	}
+
+	.pl-leasing-cell {
+		padding: 7px 6px;
+		gap: 3px;
+	}
+
+	.pl-leasing-cell-months {
+		font-size: 10px;
 	}
 
 	.pl-leasing-cell-monthly {
-		font-size: 18px;
+		font-size: 14px;
+	}
+
+	.pl-leasing-cell-meta {
+		font-size: 9.5px;
+		line-height: 1.3;
 	}
 }
 
@@ -2420,7 +2485,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <input type=radio name=courier_id value=2 data-key=speedy_new autocomplete=off checked>
 <span class="co-option-row__body">
 <span class="co-option-row__copy">
-<span class="co-option-row__title">Спиди <em class="co-option-row__badge">Препоръчан</em></span>
+<span class="co-option-row__title"><img class="co-option-row__logo co-option-row__logo--speedy" src="assets/speedy-logo.png" width="31" height="36" alt="Speedy"> Спиди <em class="co-option-row__badge">Препоръчан</em></span>
 <span class="co-option-row__hint">Стандартна куриерска доставка</span>
 </span>
 <span class="co-option-row__price">3.57 €</span>
@@ -2471,7 +2536,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <input type=radio name=office_courier value=speedy autocomplete=off checked>
 <span class="co-option-row__body">
 <span class="co-option-row__copy">
-<span class="co-option-row__title">Спиди офис</span>
+<span class="co-option-row__title"><img class="co-option-row__logo co-option-row__logo--speedy" src="assets/speedy-logo.png" width="31" height="36" alt="Speedy"> Спиди офис</span>
 <span class="co-option-row__hint">Вземи пратката от удобен офис на Speedy</span>
 </span>
 <span class="co-option-row__price">3.57 €</span>
@@ -2481,7 +2546,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <input type=radio name=office_courier value=econt autocomplete=off>
 <span class="co-option-row__body">
 <span class="co-option-row__copy">
-<span class="co-option-row__title">Еконт офис</span>
+<span class="co-option-row__title"><img class="co-option-row__logo co-option-row__logo--econt" src="assets/econt-logo.png" width="36" height="36" alt="Еконт"> Еконт офис</span>
 <span class="co-option-row__hint">Доставка до офис на Еконт</span>
 </span>
 <span class="co-option-row__price">4.60 €</span>
@@ -2496,10 +2561,10 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <input type=hidden id=field-office name="courier_address[2]" value=0>
 <div class="office-widget-panel" id=office-widget-wrap>
 <button type=button class="boxnow-widget-launch office-widget-launch" id=office-open-locator>
-<span class="boxnow-widget-launch__title">Избери офис от карта</span>
+<span class="boxnow-widget-launch__title"><img class="co-option-row__logo co-option-row__logo--speedy office-widget-launch__logo" id=office-launch-logo-speedy src="assets/speedy-logo.png" width="31" height="36" alt=""><img class="co-option-row__logo co-option-row__logo--econt office-widget-launch__logo" id=office-launch-logo-econt src="assets/econt-logo.png" width="36" height="36" alt="" hidden> <span>Избери офис от карта</span></span>
 </button>
 <div class="boxnow-selected office-selected" id=office-selected hidden>
-<p class="boxnow-selected__heading" id=office-selected-heading>ОФИС — АДРЕС ЗА ДОСТАВКА</p>
+<p class="boxnow-selected__heading" id=office-selected-heading><img class="co-option-row__logo co-option-row__logo--speedy boxnow-selected__heading-logo" id=office-selected-logo-speedy src="assets/speedy-logo.png" width="31" height="36" alt=""><img class="co-option-row__logo co-option-row__logo--econt boxnow-selected__heading-logo" id=office-selected-logo-econt src="assets/econt-logo.png" width="36" height="36" alt="" hidden> <span class="boxnow-selected__heading-text" id=office-selected-heading-text>ОФИС — АДРЕС ЗА ДОСТАВКА</span></p>
 <div class="boxnow-selected__card" id=selectedCourierOfficeAddress>
 <div class="boxnow-selected__body">
 <strong class="boxnow-selected__name" id=office-selected-name></strong>
@@ -4287,6 +4352,24 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
     var el = document.querySelector('input[name="office_courier"]:checked');
     return el && el.value === "econt" ? "econt" : "speedy";
   }
+  function setMarkVisible(el, on) {
+    if (!el) return;
+    if (on) {
+      el.removeAttribute("hidden");
+      el.hidden = false;
+    } else {
+      el.setAttribute("hidden", "");
+      el.hidden = true;
+    }
+  }
+  function syncOfficeCarrierMarks(courier) {
+    courier = courier || getCourier();
+    var isEcont = courier === "econt";
+    setMarkVisible(document.getElementById("office-launch-logo-speedy"), !isEcont);
+    setMarkVisible(document.getElementById("office-launch-logo-econt"), isEcont);
+    setMarkVisible(document.getElementById("office-selected-logo-speedy"), !isEcont);
+    setMarkVisible(document.getElementById("office-selected-logo-econt"), isEcont);
+  }
   function isOfficeShip() {
     var mode = document.querySelector('input[name="ship_to_id[2]"]:checked');
     return !!(mode && mode.value === "office");
@@ -4528,11 +4611,15 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
     if (field) field.value = code || id || "0";
 
     if (heading) {
-      heading.textContent =
+      var headingText = document.getElementById("office-selected-heading-text");
+      var label =
         courier === "econt"
           ? "ЕКОНТ — ДО ОФИС — АДРЕС ЗА ДОСТАВКА"
           : "SPEEDY — ДО ОФИС — АДРЕС ЗА ДОСТАВКА";
+      if (headingText) headingText.textContent = label;
+      else heading.textContent = label;
     }
+    syncOfficeCarrierMarks(courier);
     if (nameTxt) nameTxt.textContent = name || (courier === "econt" ? "Еконт офис" : "Speedy офис");
     if (addrTxt) addrTxt.textContent = address;
 
@@ -4745,6 +4832,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
       if (t.name === "office_courier") {
         clearOfficeSelection();
         closeOfficeLocator();
+        syncOfficeCarrierMarks(t.value === "econt" ? "econt" : "speedy");
       }
       if (t.name === "ship_to_id[2]" && t.value !== "office") {
         clearOfficeError();
@@ -4795,6 +4883,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
   };
 
   function boot() {
+    syncOfficeCarrierMarks();
     bindOfficeLaunch();
     bindOfficeCourierChange();
     bindOfficeSubmitGuard();

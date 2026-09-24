@@ -11,6 +11,11 @@
   - Behavior: mapType=popup so Избор calls parent.postMessage (setupSidebar.js)
   Assets resolve to the official CDN via <base>; query params stay on this page URL
   so partnerId / autoclose / zip still drive globalState.
+
+  Classic CDN bundle.js is baked with env:DEV (only a few test lockers). Official
+  ES-module builds use config.js env:PROD (~900+ BG lockers). Rewrite DEV→PROD
+  locker/partner fetches so this shell shows the real Bulgaria network for
+  partnerId 18248 while keeping fullscreen UX + Izbor postMessage.
 -->
 <base href="https://map.boxnow.bg/">
 <link rel="icon" href="media/icons/favicon.ico">
@@ -19,6 +24,7 @@
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <link rel="preconnect" href="https://ajax.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://globallockersprod.z28.web.core.windows.net">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" onerror="this.onerror=null;this.href='cdns/leaflet.css'">
 <link rel="stylesheet" href="css/main.css">
 <style>
@@ -53,6 +59,39 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" onerror="this.onerror=null;this.src='cdns/leaflet.js'"></script>
 <!-- Critical: popup mapType posts locker payload on Избор; iframe mapType does not. -->
 <script>window.mapType = "popup";</script>
+<!-- Force PROD locker dataset (CDN IIFE bundle.js ships env:DEV test lockers only). -->
+<script>
+(function () {
+  var DEV_HOST = "globallockersdev.z28.web.core.windows.net";
+  var PROD_HOST = "globallockersprod.z28.web.core.windows.net";
+  function rewriteBoxnowLockerUrl(url) {
+    if (url == null) return url;
+    var s = String(url);
+    if (s.indexOf(DEV_HOST) === -1 && s.indexOf("/DEV/") === -1) return url;
+    return s.split(DEV_HOST).join(PROD_HOST).split("/DEV/").join("/PROD/");
+  }
+  var nativeFetch = window.fetch;
+  if (typeof nativeFetch === "function") {
+    window.fetch = function (input, init) {
+      if (typeof input === "string") {
+        input = rewriteBoxnowLockerUrl(input);
+      } else if (input && typeof Request !== "undefined" && input instanceof Request) {
+        var next = rewriteBoxnowLockerUrl(input.url);
+        if (next !== input.url) input = new Request(next, input);
+      } else if (input && typeof input.url === "string") {
+        var rewritten = rewriteBoxnowLockerUrl(input.url);
+        if (rewritten !== input.url) input = new Request(rewritten, input);
+      }
+      return nativeFetch.call(this, input, init);
+    };
+  }
+  var nativeOpen = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function (method, url) {
+    if (arguments.length > 1) arguments[1] = rewriteBoxnowLockerUrl(url);
+    return nativeOpen.apply(this, arguments);
+  };
+})();
+</script>
 </head>
 <body>
 <a href="#boxnow_list_cover" class="skip-link">Skip to locker list</a>

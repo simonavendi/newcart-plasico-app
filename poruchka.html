@@ -4205,7 +4205,11 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
     return BOXNOW_MAP_BASE + "?" + params.join("&");
   }
 
-  function closeBoxnowLocator() {
+  // Browser Back must close the fullscreen map and return to checkout (not leave the page).
+  var BOXNOW_HIST_KEY = "plasicoBoxnowLocator";
+
+  function closeBoxnowLocator(opts) {
+    opts = opts || {};
     var root = document.getElementById("boxnow-fullscreen-root");
     if (root && root.parentNode) root.parentNode.removeChild(root);
     var id = window.__plasicoBoxNowIframeId;
@@ -4224,6 +4228,36 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
       document.removeEventListener("keydown", window.__plasicoBoxNowEscBound, true);
       window.__plasicoBoxNowEscBound = null;
     }
+    // Pop our overlay history entry when closed via × / Esc / Izbor (not via Back itself).
+    if (window.__plasicoBoxNowHistPushed && !opts.fromPopstate) {
+      window.__plasicoBoxNowHistPushed = false;
+      // Ignore the matching popstate so a quick re-open isn't torn down.
+      window.__plasicoBoxNowIgnorePop = true;
+      try {
+        history.back();
+      } catch (errHist) {
+        window.__plasicoBoxNowIgnorePop = false;
+      }
+    } else {
+      window.__plasicoBoxNowHistPushed = false;
+    }
+  }
+
+  function bindBoxnowHistory() {
+    if (window.__plasicoBoxNowHistBound) return;
+    window.__plasicoBoxNowHistBound = true;
+    window.addEventListener("popstate", function () {
+      if (window.__plasicoBoxNowIgnorePop) {
+        window.__plasicoBoxNowIgnorePop = false;
+        return;
+      }
+      if (
+        window.__plasicoBoxNowHistPushed ||
+        document.getElementById("boxnow-fullscreen-root")
+      ) {
+        closeBoxnowLocator({ fromPopstate: true });
+      }
+    });
   }
 
   function isBoxnowAllowedOrigin(origin) {
@@ -4339,6 +4373,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
     if (!isBoxnowShip()) return false;
     closeBoxnowLocator();
     bindBoxnowMessage();
+    bindBoxnowHistory();
 
     var cfg = window._bn_map_widget_config || {};
     var root = document.createElement("div");
@@ -4377,6 +4412,18 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
     document.documentElement.classList.add("boxnow-locator-open");
     document.body.classList.add("boxnow-locator-open");
     window.__plasicoBoxNowIframeId = i.id;
+
+    // History entry so browser Back closes the overlay and returns to cart.
+    if (!window.__plasicoBoxNowHistPushed) {
+      try {
+        var st = {};
+        st[BOXNOW_HIST_KEY] = true;
+        history.pushState(st, "", window.location.href);
+        window.__plasicoBoxNowHistPushed = true;
+      } catch (errPush) {
+        window.__plasicoBoxNowHistPushed = false;
+      }
+    }
 
     window.__plasicoBoxNowEscBound = function (ev) {
       if (ev.key === "Escape" || ev.keyCode === 27) {
@@ -4540,6 +4587,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
     bindBoxnowLaunch();
     bindBoxnowSubmitGuard();
     bindBoxnowMessage();
+    bindBoxnowHistory();
   }
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", boot);

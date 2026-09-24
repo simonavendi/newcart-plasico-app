@@ -22,6 +22,13 @@ function _bnclient_map_widget() {
   let _buttonSelector =
     window._bn_map_widget_config.buttonSelector || '.boxnow-map-widget-button'
   let _partnerId = window._bn_map_widget_config.partnerId || 0
+  if (
+    !_partnerId ||
+    String(_partnerId).trim() === '' ||
+    String(_partnerId) === 'YOUR_BOXNOW_PARTNER_ID'
+  ) {
+    _partnerId = 18248
+  }
   let _lockerId = window._bn_map_widget_config.lockerId
   let _zip = window._bn_map_widget_config.zip
   let _peer = window._bn_map_widget_config.peer
@@ -136,9 +143,12 @@ function _bnclient_map_widget() {
   )}`
 
   function createIframe() {
+    // Avoid duplicate iframes; prefer Global Widget host per map-docs.boxnow.bg
+    if (parentElement.querySelector('iframe')) return
     let i = document.createElement('iframe')
+    const path = _type === 'popup' ? 'popup.html' : 'iframe.html'
     i.src =
-      'https://widget-v5.boxnow.bg/' + _type + '.html?' + urlConfig.join('&')
+      'https://map.boxnow.bg/' + path + '?' + urlConfig.join('&')
     i.allowtransparency = 'true'
     i.allow = 'geolocation'
     i.id = iframe_id
@@ -170,10 +180,12 @@ function _bnclient_map_widget() {
         'https://widget-v3.boxnow.bg',
         'https://widget-v4.boxnow.bg',
         'https://widget-v5.boxnow.bg',
+        'https://map.boxnow.bg',
+        'https://map.boxnow.gr',
       ])
       if (explicit.has(origin)) return true
 
-      return /^(map|widget-new)\.boxnow\.[a-z0-9-]+$/i.test(host)
+      return /^(map|widget-new|widget(-v\d+)?)\.boxnow\.[a-z0-9-]+$/i.test(host)
     } catch {
       return false
     }

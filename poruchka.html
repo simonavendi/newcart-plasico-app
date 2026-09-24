@@ -156,13 +156,13 @@
 .auth-modal{position:fixed;inset:0;z-index:10050;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;padding:16px;box-sizing:border-box}
 .auth-modal__backdrop{position:absolute;inset:0;background:rgba(0,0,0,.4)}
 .auth-modal__shell{position:relative;z-index:1;width:100%;max-width:420px;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;-webkit-box-align:center;-ms-flex-align:center;align-items:center}
-.auth-modal__brand{display:block;margin:0 0 14px;line-height:0}
-.auth-modal__brand img{display:block;width:auto;height:40px;max-width:180px}
+.auth-modal__brand{display:block;margin:0 auto 10px;line-height:0;text-align:center}
+.auth-modal__brand img{display:block;width:auto;height:40px;max-width:180px;margin:0 auto}
 .auth-modal__dialog{position:relative;width:100%;background:#fff;border:0;border-radius:12px;padding:28px 28px 24px;box-shadow:0 8px 32px rgba(0,0,0,.12);box-sizing:border-box}
 .auth-modal__close{position:absolute;top:6px;right:8px;width:36px;height:36px;border:0;background:transparent;font-size:26px;line-height:1;color:#999;cursor:pointer;z-index:2}
 .auth-modal__close:hover{color:#333}
 .auth-modal__step[hidden]{display:none!important}
-.auth-modal__greeting{margin:4px 0 10px;font-family:"exo2b",sans-serif;font-size:28px;font-weight:400;line-height:1.2;text-align:center;text-transform:none;color:#b0b0b0}
+.auth-modal__greeting{margin:0 0 10px;font-family:"exo2b",sans-serif;font-size:28px;font-weight:400;line-height:1.2;text-align:center;text-transform:none;color:#b0b0b0}
 .auth-modal__prompt{margin:0 0 16px;font-size:15px;line-height:1.35;text-align:center;color:#222}
 .auth-modal__title{margin:4px 0 8px;font-family:"exo2b",sans-serif;font-size:24px;line-height:1.2;text-align:center;text-transform:none;color:#222}
 .auth-modal__email-chip{margin:0 0 16px;font-size:14px;line-height:1.35;text-align:center;color:#666;word-break:break-all}
@@ -3680,13 +3680,13 @@ window.__plasicoEnsureBoxNow = function () {
 <div id=auth-modal class="auth-modal" hidden aria-hidden=true>
  <div class="auth-modal__backdrop" data-auth-close tabindex=-1></div>
  <div class="auth-modal__shell">
- <a class="auth-modal__brand" href=https://plasico.bg/ tabindex=-1>
- <img src=assets/plasico-logo.png width=174 height=40 alt=Plasico>
- </a>
  <div class="auth-modal__dialog" role=dialog aria-modal=true aria-labelledby=auth-modal-title tabindex=-1>
  <button type=button class="auth-modal__close" data-auth-close aria-label=Затвори>×</button>
 
  <div class="auth-modal__step" id=auth-step-email>
+ <a class="auth-modal__brand" href=https://plasico.bg/ tabindex=-1>
+ <img src=assets/plasico-logo.png width=174 height=40 alt=Plasico>
+ </a>
  <h2 class="auth-modal__greeting" id=auth-modal-title>Здравей!</h2>
  <p class="auth-modal__prompt">Моля въведи имейл адрес</p>
  <form class="auth-modal__form" id=auth-email-form action=# method=post>

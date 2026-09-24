@@ -282,9 +282,9 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
 #checkout #step-ship-details label[for=want-recipient-phone],
 #checkout #step-ship-details #recipient-phone-field{display:none!important}
 #checkout #step-payment h2:before{content:"04";display:inline-block;margin-right:10px;padding:2px 8px;border-radius:6px;background:#e8f6ec;color:#2e7d32;font-size:14px;font-family:"exo2b",sans-serif;vertical-align:middle;position:relative;top:-2px}
-/* Required asterisk at top-left of terms checkbox */
+/* Required asterisk at top-right of terms checkbox */
 #checkout #step-confirm > .cl label.conditions > .fbox{position:relative;display:inline-flex;align-items:flex-start;padding-top:0}
-#checkout #step-confirm > .cl label.conditions > .fbox::before{content:"*";position:absolute;left:-3px;top:-8px;z-index:1;color:#e53935;font-size:12px;line-height:1;font-weight:700;pointer-events:none}
+#checkout #step-confirm > .cl label.conditions > .fbox::before{content:"*";position:absolute;left:0;top:-8px;width:13px;text-align:right;z-index:1;color:#e53935;font-size:12px;line-height:1;font-weight:700;pointer-events:none}
 
 /* Phone confirm: grey text (override Plasico .conditions.phonecall .lb {color:red}) */
 #checkout #step-confirm label.conditions.phonecall,

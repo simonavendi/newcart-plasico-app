@@ -97,14 +97,14 @@
 html.office-locator-open,html.office-locator-open body{
   overflow:hidden!important;overscroll-behavior:none;touch-action:none
 }
-/* Host overlay for megamag-style popup.html (mapType=popup → Izbor postMessage). */
+/* Host overlay: local boxnow-fullscreen-map.html (mapType=popup + main.css edge-to-edge). */
 .boxnow-fullscreen{
   position:fixed;inset:0;width:100%;height:100%;margin:0;padding:0;
-  z-index:2147483000;background:rgba(0,0,0,.55);box-sizing:border-box
+  z-index:2147483000;background:#fff;box-sizing:border-box
 }
 .boxnow-fullscreen iframe{
   display:block;border:0;width:100%;height:100%;margin:0;padding:0;
-  background:transparent
+  background:#fff
 }
 .boxnow-fullscreen__close{
   position:absolute;top:10px;right:10px;z-index:2;
@@ -3602,15 +3602,15 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 </script>
 <script>
 (function () {
-  // BOX NOW Global Widget — megamag-aligned popup locator
-  // popup.html sets mapType=popup so Izbor calls parent.postMessage (setupSidebar.js).
-  // iframe.html sets mapType=iframe and does NOT postMessage on Izbor — broken select.
+  // BOX NOW Global Widget — edge-to-edge fullscreen + working Izbor select
+  // Local shell boxnow-fullscreen-map.html: main.css (100vw/100vh) + mapType=popup
+  // so Izbor postMessages (setupSidebar.js). Official popup.html uses popup.css card;
+  // iframe.html is fullscreen but mapType=iframe and does NOT postMessage on Izbor.
   // Docs: https://map-docs.boxnow.bg/configuration
   // Ref: megamag.bg/checkout (mega-gamma.com/checkout is 404)
   var BOXNOW_ERR = "Моля изберете BOX NOW автомат.";
-  // popup.html + popup.css = centered card with dim shadow (same as megamag CDN type:popup).
-  var BOXNOW_MAP_BASE = "https://map.boxnow.bg/popup.html";
-  var BOXNOW_MAP_FALLBACK = "https://widget-v5.boxnow.bg/popup.html";
+  var BOXNOW_MAP_BASE = new URL("boxnow-fullscreen-map.html", window.location.href).href;
+  var BOXNOW_MAP_FALLBACK = "https://map.boxnow.bg/popup.html";
   function resolvePartnerId() {
     var raw =
       (window._bn_map_widget_config && window._bn_map_widget_config.partnerId) ||
@@ -3691,6 +3691,8 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 
   function isBoxnowAllowedOrigin(origin) {
     try {
+      // Local fullscreen shell posts from this origin (not *.boxnow.*).
+      if (origin && origin === window.location.origin) return true;
       var host = new URL(origin).hostname;
       if (!host) return false;
       // Match Box Now CDN origins (map / widget hosts) — same idea as v5 client.

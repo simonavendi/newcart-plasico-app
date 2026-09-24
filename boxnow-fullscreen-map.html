@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="description" content="Find and select the best BOX NOW locker for your parcel delivery and pickup.">
+<title>BOX NOW</title>
+<!--
+  Plasico fullscreen locator shell:
+  - Visual: iframe.html / main.css (edge-to-edge 100vw×100vh — NOT popup.css card)
+  - Behavior: mapType=popup so Избор calls parent.postMessage (setupSidebar.js)
+  Assets resolve to the official CDN via <base>; query params stay on this page URL
+  so partnerId / autoclose / zip still drive globalState.
+-->
+<base href="https://map.boxnow.bg/">
+<link rel="icon" href="media/icons/favicon.ico">
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="preconnect" href="https://tile.openstreetmap.org">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="preconnect" href="https://ajax.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" onerror="this.onerror=null;this.href='cdns/leaflet.css'">
+<link rel="stylesheet" href="css/main.css">
+<style>
+  /* Keep edge-to-edge even if CDN later reintroduces popup-like rules. */
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #fff;
+  }
+  #boxnow_widget {
+    width: 100vw !important;
+    height: 100vh !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    border-radius: 0 !important;
+    position: fixed !important;
+    overflow: hidden !important;
+  }
+  #boxnow_shadow {
+    display: none !important;
+  }
+</style>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" onerror="this.onerror=null;this.src='cdns/leaflet.js'"></script>
+<!-- Critical: popup mapType posts locker payload on Избор; iframe mapType does not. -->
+<script>window.mapType = "popup";</script>
+</head>
+<body>
+<a href="#boxnow_list_cover" class="skip-link">Skip to locker list</a>
+<div id="boxnow_widget" class="loadingDimmer">
+  <h2 id="boxnow_heading" class="visually-hidden">Select a box locker</h2>
+  <aside id="boxnow_widget_bar">
+    <img src="media/icons/search.png" id="boxnow_magnifier_icon" alt="search">
+    <div id="boxnow_search_wrap">
+      <button id="boxnow_clear_input" type="button" aria-label="Clear search" style="display:none">
+        <img src="media/icons/delete.png" alt="delete" aria-hidden="true">
+      </button>
+    </div>
+    <label for="boxnow_widget_input" class="visually-hidden">Search for lockers</label>
+    <input type="search" id="boxnow_widget_input" placeholder="Enter city, address or ZIP" aria-describedby="search_help" required>
+    <small id="search_help" class="visually-hidden">Type at least two characters to get suggestions.</small>
+    <ul id="boxnow_suggest" role="listbox" aria-label="Search suggestions" aria-live="polite" aria-relevant="additions" tabindex="0"></ul>
+    <div class="swiper" style="display:none"></div>
+    <div id="boxnow_list_cover"></div>
+  </aside>
+  <main id="map"></main>
+</div>
+<!-- Hidden; host overlay owns close. Kept so popup close handlers stay harmless. -->
+<div id="boxnow_shadow">
+  <button id="boxnow_close_all" class="boxnow_button_close" type="button" aria-label="Close widget">
+    <img src="media/icons/closer.svg" alt="" aria-hidden="true">
+  </button>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" onerror="this.onerror=null;this.src='cdns/jquery.min.js'"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js" onerror="this.onerror=null;this.src='cdns/leaflet.markercluster.js'"></script>
+<!-- Classic bundle (IIFE) — avoids cross-origin ES module CORS from this shell origin. -->
+<script src="bundle.js"></script>
+<script>
+  function bindPopupEvents() {
+    if (!window.jQuery) return;
+    window.jQuery(document).on("click", "#boxnow_close_all", function () {
+      window.parent.postMessage("closeIframe", "*");
+      window.jQuery("#boxnow_shadow").removeClass("active");
+    });
+  }
+  if (window.jQuery) bindPopupEvents();
+  else window.addEventListener("load", bindPopupEvents);
+</script>
+</body>
+</html>

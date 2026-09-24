@@ -2,7 +2,7 @@
 
 - Auth modal: Facebook OAuth removed (Google + Apple kept) — `internal/remove-facebook-oauth.md` (main clear since `c949930`; WIP race cleaned)
 - Aside cart Ozone rows: delivery from `api/delivery-eta.json`, FLASH 10% promo lines, restored qty line totals — `internal/cart-delivery-flash-promo.md`
-- BOX NOW mega-gamma/megamag flow: use `popup.html` so Izbor postMessages → locker summary + Смени — `internal/boxnow-mega-gamma-flow.md`
+- BOX NOW fullscreen + Izbor select: local `boxnow-fullscreen-map.html` (main.css + mapType=popup) — `internal/boxnow-fullscreen-keep-select.md` (supersedes popup.html modal regression from mega-gamma fix)
 - BOX NOW locker name autofill + Смени summary: see `internal/boxnow-autofill-locker-name.md`
 - Box Now row: “Автомат” text before logo — see `internal/boxnow-avtomat-before-logo.md`
 - Terms required label: `(задължително)` on `#step-confirm label.conditions` — index `a3e1619`, poruchka `d7d8f36`; see `internal/terms-required-label.md`

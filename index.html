@@ -239,9 +239,11 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
 #checkout .checkout-step__sub{font-weight:normal;font-size:14px;color:#666;text-transform:none}
 #checkout .checkout-subhead{margin:0 0 10px;font-size:16px}
 #checkout .co-option-stack{display:flex;flex-direction:column;gap:8px;margin:0 0 12px}
-#checkout .co-option-row{display:block;border:1px solid #e0e0e0;border-radius:6px;padding:10px 12px;cursor:pointer;background:#fff;margin:0}
+#checkout .co-option-row{display:block;border:1px solid #e0e0e0;border-radius:6px;padding:10px 12px;cursor:pointer;background:#fff;margin:0;position:relative}
 #checkout .co-option-row.clicked,#checkout .co-option-row:has(input:checked){border-color:#ff6100;background:#fff8f3}
 #checkout .co-option-row input[type=radio]{margin-right:8px;vertical-align:top}
+/* Visually hide ship-method radios; keep in DOM for form submit; selection via card/label */
+#checkout #step-ship-method > .co-option-stack > .co-option-row > input[type=radio][name="ship_to_id[2]"]{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;opacity:0}
 #checkout .co-option-row__body{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;width:100%}
 #checkout .co-option-row__title{display:block;font-weight:bold;color:#000}
 #checkout .co-option-row__hint{display:block;font-size:13px;color:#666;margin-top:2px}

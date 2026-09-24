@@ -3568,10 +3568,10 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			'    <form class="pl-leasing-apply" id="pl-leasing-apply" novalidate>' +
 			'      <h3 class="pl-leasing-apply-title">Кандидатствай за лизинг:</h3>' +
 			'      <div class="pl-leasing-apply-fields">' +
-			'        <input type="text" name="full_name" id="pl-leasing-name" class="pl-leasing-apply-input" placeholder="Име и фамилия... (задължително на кирилица)" autocomplete="name" />' +
-			'        <input type="tel" name="phone" id="pl-leasing-phone" class="pl-leasing-apply-input" placeholder="Телефон за контакти... (започващ с нула)" autocomplete="tel" inputmode="tel" />' +
-			'        <input type="text" name="egn" id="pl-leasing-egn" class="pl-leasing-apply-input" placeholder="ЕГН..." autocomplete="off" inputmode="numeric" />' +
-			'        <input type="email" name="email" id="pl-leasing-email" class="pl-leasing-apply-input" placeholder="Ел. поща..." autocomplete="email" />' +
+			'        <input type="text" name="full_name" id="pl-leasing-name" class="pl-leasing-apply-input" placeholder="Име и фамилия ... (задължително на кирилица)" autocomplete="name" />' +
+			'        <input type="tel" name="phone" id="pl-leasing-phone" class="pl-leasing-apply-input" placeholder="Телефон за контакти ... (започващ с нула)" autocomplete="tel" inputmode="tel" />' +
+			'        <input type="text" name="egn" id="pl-leasing-egn" class="pl-leasing-apply-input" placeholder="ЕГН ..." autocomplete="off" inputmode="numeric" />' +
+			'        <input type="email" name="email" id="pl-leasing-email" class="pl-leasing-apply-input" placeholder="Ел. поща ..." autocomplete="email" />' +
 			'      </div>' +
 			'      <p class="pl-leasing-apply-help">Моля въведете коректна ел. поща. На нея ще получите инструкции за завършване на Вашата кандидатура за кредитиране.</p>' +
 			'      <div class="pl-leasing-apply-checks">' +
@@ -3973,7 +3973,9 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 
 	function fillApplyFormFromCustomer() {
 		var data = readCheckoutCustomerData();
-		setApplyFieldIfEmpty(document.getElementById('pl-leasing-name'), data.fullName);
+		if (isCyrillicName(data.fullName)) {
+			setApplyFieldIfEmpty(document.getElementById('pl-leasing-name'), data.fullName);
+		}
 		setApplyFieldIfEmpty(document.getElementById('pl-leasing-phone'), data.phone);
 		setApplyFieldIfEmpty(document.getElementById('pl-leasing-email'), data.email);
 		setApplyFieldIfEmpty(document.getElementById('pl-leasing-egn'), data.egn);

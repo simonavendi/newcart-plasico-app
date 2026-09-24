@@ -18,3 +18,6 @@ On `#step-ship-details` `.co-ship-panel[data-ship-panel=address]` `.co-option-st
   - `.cursor/stores/self/media/courier-rows-no-radio-speedy.png`
   - `.cursor/stores/self/media/courier-rows-no-radio-transpress.png`
   - `.cursor/stores/self/media/courier-rows-no-radio-details.png`
+
+## Git
+- Landed on `main` @ `70acbcb` (hint removal + notes/media; radio-hide CSS already present).

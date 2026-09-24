@@ -18,3 +18,5 @@
 - Speedy/Econt office map locators + „Избери офис от карта“ — `internal/speedy-econt-office-locators.md`
 - Office map CTA nested in Speedy/Еконт `co-option-row` (`main` @ `9b7bd2d`) — `internal/office-map-cta-in-option.md`
 - Speedy + Econt logos like BOX NOW (option rows + office CTA/summary) — `internal/econt-logo-like-boxnow.md`
+- Transpress address courier: green Plasico `#39B54A` logo like Speedy/Econt — `internal/transpress-green-logo.md`
+- Address courier rows (Спиди/Транспрес): no radio circles + no hint subtext — `internal/courier-rows-no-radio-subtext.md`

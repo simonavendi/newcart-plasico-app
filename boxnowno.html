@@ -4503,10 +4503,37 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 	}
 
 	/**
+	 * Show firm vs individual invoice panels to match the selected person type.
+	 * Mirrors checkout syncInvoice() showEl/hideEl so ЮЛ never leaves
+	 * #checkout-person-individual visible.
+	 */
+	function syncInvoicePersonPanels(isFirm) {
+		var firms = document.getElementById('checkout-firms');
+		var indiv = document.getElementById('checkout-person-individual');
+		function show(el) {
+			if (!el) return;
+			el.classList.remove('hide', 'sf-hidden');
+			el.removeAttribute('hidden');
+			if (el.style && el.style.display === 'none') el.style.display = '';
+		}
+		function hide(el) {
+			if (!el) return;
+			el.classList.add('hide', 'sf-hidden');
+		}
+		if (isFirm) {
+			show(firms);
+			hide(indiv);
+		} else {
+			hide(firms);
+			show(indiv);
+		}
+	}
+
+	/**
 	 * After leasing apply + PostBank installment selected: open „Искам фактура“,
 	 * autofill физ. лице (automatic — option hidden), show credit notice.
-	 * On ЮЛ: МОЛ + red badge. Notices hide when payment leaves leasing method.
-	 * „Копирай от горните данни“ always stays visible/usable.
+	 * On ЮЛ: firm fields + МОЛ + red badge. Notices hide when payment leaves leasing method.
+	 * „Копирай от горните данни“ always stays on the individual panel.
 	 * @param {{ forceIndividual?: boolean }} opts
 	 */
 	function syncInvoiceFromLeasing(opts) {
@@ -4553,6 +4580,8 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			var type = document.querySelector('input[name="invoice_person_type"]:checked');
 			var isFirm = !!(type && String(type.value) === '2');
 
+			syncInvoicePersonPanels(isFirm);
+
 			if (isFirm) {
 				applyLeasingToInvoiceMol(data);
 				if (ui.top) ui.top.hidden = true;
@@ -4593,10 +4622,17 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			},
 			false
 		);
-		/* Clicking already-selected ЮЛ while leasing returns to automatic физ. лице. */
+		/*
+		 * Re-clicking already-selected ЮЛ while leasing returns to automatic физ.
+		 * Must read checked state on pointerdown — by click time the browser has
+		 * already checked the radio when switching FROM физ TO ЮЛ, so a naive
+		 * click handler would treat the first select as a re-click and block ЮЛ.
+		 */
+		var yulCheckedBeforePointer = false;
 		document.addEventListener(
-			'click',
+			'pointerdown',
 			function (e) {
+				yulCheckedBeforePointer = false;
 				if (!isLeasingInvoicePathActive()) return;
 				var t = e.target;
 				if (!t || !t.closest) return;
@@ -4605,7 +4641,24 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 				var radio = label.querySelector(
 					'input[name="invoice_person_type"][value="2"]'
 				);
-				if (!radio || !radio.checked) return;
+				yulCheckedBeforePointer = !!(radio && radio.checked);
+			},
+			true
+		);
+		document.addEventListener(
+			'click',
+			function (e) {
+				if (!isLeasingInvoicePathActive()) return;
+				if (!yulCheckedBeforePointer) return;
+				var t = e.target;
+				if (!t || !t.closest) return;
+				var label = t.closest('.co-person-type label');
+				if (!label || label.hidden) return;
+				var radio = label.querySelector(
+					'input[name="invoice_person_type"][value="2"]'
+				);
+				if (!radio) return;
+				yulCheckedBeforePointer = false;
 				e.preventDefault();
 				selectInvoicePersonType('1');
 				syncInvoiceFromLeasing({ forceIndividual: false });

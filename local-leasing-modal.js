@@ -419,9 +419,8 @@
 
 	function applyLeasingToInvoiceIndividual(data) {
 		var names = document.getElementById('person-names');
-		var egn = document.getElementById('person-egn');
 		if (names && data.fullName) names.value = String(data.fullName);
-		if (egn && data.egn) egn.value = String(data.egn);
+		/* Invoice физ лице has no ЕГН field; leasing EGN stays on #pl-leasing-egn. */
 		var copyCb = document.getElementById('copy-person-from-above');
 		if (copyCb && copyCb.checked) {
 			copyCb.checked = false;
@@ -441,7 +440,7 @@
 	/**
 	 * Show firm vs individual invoice panels to match the selected person type.
 	 * On the leasing path, hide #checkout-person-individual even for физ —
-	 * invoice is automatic; Копирай / Три имена / Адрес / ЕГН are not shown.
+	 * invoice is automatic; Копирай / Три имена / Адрес are not shown.
 	 * @param {boolean} isFirm
 	 * @param {boolean} [hideIndividualForLeasing]
 	 */

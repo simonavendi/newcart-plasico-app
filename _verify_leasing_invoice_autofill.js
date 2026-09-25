@@ -1,6 +1,6 @@
 /**
  * Verify leasing-complete → invoice (фактура) autofill:
- * - want-invoice + физическо лице + name/EGN from leasing
+ * - want-invoice + физическо лице + name from leasing (no invoice ЕГН field)
  * - green top notice
  * - switch to ЮЛ → МОЛ filled + red badge
  * - clearApply hides notices
@@ -72,7 +72,7 @@ function assert(cond, msg) {
       person1: !!(p1 && p1.checked),
       person2: !!(p2 && p2.checked),
       names: names ? names.value : "",
-      egn: egn ? egn.value : "",
+      hasPersonEgn: !!egn,
       topText: top ? top.textContent.trim() : "",
       topHidden: !!(top && top.hidden),
       badgeHidden: !badge || badge.hidden,
@@ -88,7 +88,7 @@ function assert(cond, msg) {
     afterFill.names === "Симона Димитрова",
     "person-names mismatch: " + afterFill.names
   );
-  assert(afterFill.egn === "9001011234", "person-egn mismatch: " + afterFill.egn);
+  assert(!afterFill.hasPersonEgn, "invoice person-egn must be removed");
   assert(
     afterFill.topText.includes("Автоматично ще бъде издадена фактура"),
     "top message missing: " + afterFill.topText
@@ -120,12 +120,14 @@ function assert(cond, msg) {
   const afterFirm = await page.evaluate(() => {
     const p2 = document.getElementById("invoice-person-2");
     const mol = document.getElementById("firm-mol");
+    const firmIdn = document.getElementById("firm-idn");
     const top = document.getElementById("co-invoice-leasing-auto-msg");
     const badge = document.getElementById("co-invoice-leasing-mol-badge");
     const firms = document.getElementById("checkout-firms");
     return {
       person2: !!(p2 && p2.checked),
       mol: mol ? mol.value : "",
+      hasFirmIdn: !!firmIdn,
       topHidden: !top || top.hidden,
       badgeText: badge ? badge.textContent.trim() : "",
       badgeHidden: !badge || badge.hidden,
@@ -135,6 +137,7 @@ function assert(cond, msg) {
 
   assert(afterFirm.person2, "ЮЛ not selected");
   assert(afterFirm.mol === "Симона Димитрова", "МОЛ not filled: " + afterFirm.mol);
+  assert(afterFirm.hasFirmIdn, "firm ЕИК field must remain");
   assert(
     afterFirm.badgeText.includes("потребителят на кредита да е МОЛ"),
     "red badge text wrong: " + afterFirm.badgeText

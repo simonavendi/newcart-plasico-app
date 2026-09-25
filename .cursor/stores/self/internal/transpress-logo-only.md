@@ -1,19 +1,29 @@
-# Transpress logo-only row
+# Transpress logo-only courier row (Simona correction)
 
-Simona: on the Transpress shipping option row, leave **just the logo** — hide Cyrillic „Транспрес“ and price „3.57 €“. Row stays selectable.
+Simona selected the **Transpress shipping courier option row** (not an address form field):
+- `label.co-option-row` in `.co-ship-panel` → `.co-option-stack`
+- visible_text had been: `Транспрес 3.57 €`
+- Ask: leave **just the logo** on that courier row
 
-## Change
+## What `6d49eca` did
 
-CSS-only hide on address courier stack (`#step-ship-details` / `[data-ship-panel=address]` / `input[data-key=transpress]`):
+CSS-only hide scoped to `#step-ship-details` / `[data-ship-panel=address]` / `input[data-key=transpress]`:
+- `.co-option-row__title { font-size:0 }` + clipped price
+- Correct **courier** row (under „До адрес“), **not** Град/Адрес fields
+- But companion Cyrillic + clipped price stayed in DOM/`innerText`, so selection tools still reported `Транспрес 3.57 €`
+- Notes/URL wrongly pointed at `newcart.plasico.app` (dead); live is Vercel
 
-- `.co-option-row__title` → `font-size:0; line-height:0; gap:0` (logo keeps explicit height)
-- `.co-option-row__price` → clip / sr-only style (markup kept)
+## Fix
 
-Files: `index.html`, `poruchka.html`. Speedy row unchanged (still shows label + badge + price).
+On the Transpress **courier option** only (`index.html` + `poruchka.html`):
 
-No existing Speedy/Box Now “logo-only” hide pattern — those still show companion text — so Transpress-specific CSS.
+1. Remove companion text node „Транспрес“ after the logo (`alt` kept for a11y)
+2. Empty price text (`data-price` kept) + `aria-hidden` + CSS clip
+3. Narrow CSS to `.co-option-stack label…` — drop title `font-size:0` hack
+4. Do **not** touch address fields, Speedy/Econt/Box Now
 
-## Verify (:8780)
+## Verify
 
-- `python _verify_transpress_logo_only.py` → PASS (CSS present, click selects Transpress, title font-size 0, price clipped, Speedy still shows text)
-- Screenshot: `.cursor/stores/self/media/transpress-logo-only.png`
+- Local `:8780`: `python _verify_transpress_logo_only.py` → PASS
+- Screenshot: `.cursor/stores/self/media/transpress-logo-only-fixed.png`
+- Live: https://newcart-plasico-app.vercel.app/

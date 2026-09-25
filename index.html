@@ -2816,6 +2816,45 @@ body.is-leasing-ready #checkout .aside-leasing {
 	display: none !important;
 }
 
+/* Leasing → invoice (фактура) notices */
+#checkout .co-invoice-leasing-auto-msg,
+.co-invoice-leasing-auto-msg {
+	display: block;
+	margin: 0 0 12px;
+	padding: 10px 12px;
+	border: 1px solid #b6e0c2;
+	border-radius: 6px;
+	background: #f0faf3;
+	color: #1b5e20;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.4;
+	box-sizing: border-box;
+}
+#checkout .co-invoice-leasing-auto-msg[hidden],
+.co-invoice-leasing-auto-msg[hidden] {
+	display: none !important;
+}
+
+#checkout .co-invoice-leasing-mol-badge,
+.co-invoice-leasing-mol-badge {
+	display: block;
+	margin: 0 0 10px;
+	padding: 10px 12px;
+	border: 1px solid #e57373;
+	border-radius: 6px;
+	background: #fdecea;
+	color: #c62828;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.4;
+	box-sizing: border-box;
+}
+#checkout .co-invoice-leasing-mol-badge[hidden],
+.co-invoice-leasing-mol-badge[hidden] {
+	display: none !important;
+}
+
 /* Plasico accent + ensure overlay wins over site CSS */
 .pl-leasing-overlay{
   --pl-accent:#55a630;
@@ -4181,6 +4220,191 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 		document.body.setAttribute('data-leasing-ready', active ? '1' : '0');
 	}
 
+	/* —— Invoice (фактура) wiring after leasing apply —— */
+	var INVOICE_LEASING_AUTO_MSG =
+		'Автоматично ще бъде издадена фактура на физическото лице при кредит.';
+	var INVOICE_LEASING_MOL_MSG =
+		'При фактура за фирма и кредит трябва задължително потребителят на кредита да е МОЛ на фирмата';
+	var INVOICE_AUTO_MSG_ID = 'co-invoice-leasing-auto-msg';
+	var INVOICE_MOL_BADGE_ID = 'co-invoice-leasing-mol-badge';
+	var invoiceLeasingBound = false;
+	var invoiceSyncLock = false;
+
+	function dispatchDomChange(el) {
+		if (!el) return;
+		try {
+			el.dispatchEvent(new Event('change', { bubbles: true }));
+		} catch (err) {
+			/* ignore */
+		}
+	}
+
+	function ensureInvoiceLeasingMessages() {
+		var fields = document.getElementById('checkout-invoice-fields');
+		if (!fields) return { top: null, badge: null };
+
+		var top = document.getElementById(INVOICE_AUTO_MSG_ID);
+		if (!top) {
+			top = document.createElement('p');
+			top.id = INVOICE_AUTO_MSG_ID;
+			top.className = 'co-invoice-leasing-auto-msg';
+			top.setAttribute('role', 'status');
+			top.hidden = true;
+			top.textContent = INVOICE_LEASING_AUTO_MSG;
+			fields.insertBefore(top, fields.firstChild);
+		}
+
+		var firms = document.getElementById('checkout-firms');
+		var badge = document.getElementById(INVOICE_MOL_BADGE_ID);
+		if (!badge && firms) {
+			badge = document.createElement('p');
+			badge.id = INVOICE_MOL_BADGE_ID;
+			badge.className = 'co-invoice-leasing-mol-badge';
+			badge.setAttribute('role', 'status');
+			badge.hidden = true;
+			badge.textContent = INVOICE_LEASING_MOL_MSG;
+			firms.insertBefore(badge, firms.firstChild);
+		} else if (!badge) {
+			badge = document.getElementById(INVOICE_MOL_BADGE_ID);
+		}
+		return { top: top, badge: badge };
+	}
+
+	function hideInvoiceLeasingUi() {
+		var top = document.getElementById(INVOICE_AUTO_MSG_ID);
+		var badge = document.getElementById(INVOICE_MOL_BADGE_ID);
+		if (top) top.hidden = true;
+		if (badge) badge.hidden = true;
+		document.body.removeAttribute('data-leasing-invoice');
+	}
+
+	function showInvoiceFieldsPanel() {
+		var want = document.getElementById('want-invoice');
+		var inv = document.getElementById('checkout-invoice-fields');
+		var label = document.querySelector('label.co-invoice-check[for=want-invoice]');
+		if (want && !want.checked) {
+			want.checked = true;
+			dispatchDomChange(want);
+		}
+		if (label) label.classList.add('is-checked');
+		if (inv) {
+			inv.classList.remove('hide', 'sf-hidden');
+			inv.removeAttribute('hidden');
+		}
+	}
+
+	function selectInvoicePersonType(value) {
+		var radio = document.querySelector(
+			'input[name="invoice_person_type"][value="' + value + '"]'
+		);
+		if (!radio) return;
+		radio.checked = true;
+		var group = document.querySelectorAll('input[name="invoice_person_type"]');
+		for (var i = 0; i < group.length; i++) {
+			var lb = group[i].closest('label');
+			if (lb) lb.classList.toggle('clicked', group[i].checked);
+		}
+		dispatchDomChange(radio);
+	}
+
+	function applyLeasingToInvoiceIndividual(data) {
+		var names = document.getElementById('person-names');
+		var egn = document.getElementById('person-egn');
+		if (names && data.fullName) names.value = String(data.fullName);
+		if (egn && data.egn) egn.value = String(data.egn);
+		var copyCb = document.getElementById('copy-person-from-above');
+		if (copyCb && copyCb.checked) {
+			copyCb.checked = false;
+			var copyLabel = document.querySelector(
+				'label.co-invoice-check[for=copy-person-from-above]'
+			);
+			if (copyLabel) copyLabel.classList.remove('is-checked');
+			dispatchDomChange(copyCb);
+		}
+	}
+
+	function applyLeasingToInvoiceMol(data) {
+		var mol = document.getElementById('firm-mol');
+		if (mol && data.fullName) mol.value = String(data.fullName);
+	}
+
+	/**
+	 * After leasing apply: open „Искам фактура“, default to физическо лице,
+	 * autofill personal fields, show credit invoice notice. On ЮЛ: fill МОЛ + red badge.
+	 * @param {{ forceIndividual?: boolean }} opts
+	 */
+	function syncInvoiceFromLeasing(opts) {
+		if (invoiceSyncLock) return;
+		invoiceSyncLock = true;
+		try {
+			opts = opts || {};
+			var data = readSavedApply();
+			var filled = isLeasingApplyFilled();
+			var ui = ensureInvoiceLeasingMessages();
+
+			if (!filled || !data) {
+				hideInvoiceLeasingUi();
+				return;
+			}
+
+			var want = document.getElementById('want-invoice');
+			var primed = document.body.getAttribute('data-leasing-invoice') === '1';
+			var shouldPrime = opts.forceIndividual || !primed;
+
+			if (shouldPrime) {
+				document.body.setAttribute('data-leasing-invoice', '1');
+				showInvoiceFieldsPanel();
+				selectInvoicePersonType('1');
+			}
+
+			if (!want || !want.checked) {
+				if (ui.top) ui.top.hidden = true;
+				if (ui.badge) ui.badge.hidden = true;
+				return;
+			}
+
+			var type = document.querySelector('input[name="invoice_person_type"]:checked');
+			var isFirm = !!(type && String(type.value) === '2');
+
+			if (isFirm) {
+				applyLeasingToInvoiceMol(data);
+				if (ui.top) ui.top.hidden = true;
+				if (ui.badge) {
+					ui.badge.textContent = INVOICE_LEASING_MOL_MSG;
+					ui.badge.hidden = false;
+				}
+			} else {
+				applyLeasingToInvoiceIndividual(data);
+				if (ui.top) {
+					ui.top.textContent = INVOICE_LEASING_AUTO_MSG;
+					ui.top.hidden = false;
+				}
+				if (ui.badge) ui.badge.hidden = true;
+			}
+		} finally {
+			invoiceSyncLock = false;
+		}
+	}
+
+	function bindInvoiceLeasingWatchers() {
+		if (invoiceLeasingBound) return;
+		invoiceLeasingBound = true;
+		document.addEventListener(
+			'change',
+			function (e) {
+				var t = e.target;
+				if (!t || !t.name) return;
+				if (t.name !== 'invoice_person_type' && t.name !== 'want_invoice') return;
+				if (!isLeasingApplyFilled()) return;
+				syncInvoiceFromLeasing({ forceIndividual: false });
+			},
+			false
+		);
+		document.addEventListener('plasico:leasing-apply', function () {
+			syncInvoiceFromLeasing({ forceIndividual: true });
+		});
+	}
+
 	function syncInstallmentOptionSelection(columnId) {
 		var kind = columnId === 'postbank' ? 'bnp-card' : 'bnp';
 		Array.prototype.slice
@@ -4238,6 +4462,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			panel.innerHTML = '';
 			syncHiddenApplyFields(null);
 			syncCheckoutCta();
+			syncInvoiceFromLeasing();
 			return;
 		}
 
@@ -4290,6 +4515,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			host.removeAttribute('hidden');
 		}
 		syncCheckoutCta();
+		syncInvoiceFromLeasing();
 	}
 
 	function readInputValue(sel) {
@@ -5110,6 +5336,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			}
 		}
 		renderTeaser();
+		bindInvoiceLeasingWatchers();
 		renderSavedApply();
 		bindTriggers();
 
@@ -5135,6 +5362,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			getApply: readSavedApply,
 			clearApply: function () {
 				clearSavedApply();
+				hideInvoiceLeasingUi();
 				renderSavedApply();
 				renderTeaser();
 				syncCheckoutCta();
@@ -5142,6 +5370,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			isApplyFilled: isLeasingApplyFilled,
 			isCompletedCtaActive: isLeasingCompletedCtaActive,
 			syncCheckoutCta: syncCheckoutCta,
+			syncInvoiceFromLeasing: syncInvoiceFromLeasing,
 			getState: function () {
 				var selected = getSelectedTerm();
 				var teaser = getTeaserTerm();

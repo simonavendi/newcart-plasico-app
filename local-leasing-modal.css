@@ -962,3 +962,42 @@ body.is-leasing-ready #aside-leasing-btn,
 body.is-leasing-ready #checkout .aside-leasing {
 	display: none !important;
 }
+
+/* Leasing → invoice (фактура) notices */
+#checkout .co-invoice-leasing-auto-msg,
+.co-invoice-leasing-auto-msg {
+	display: block;
+	margin: 0 0 12px;
+	padding: 10px 12px;
+	border: 1px solid #b6e0c2;
+	border-radius: 6px;
+	background: #f0faf3;
+	color: #1b5e20;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.4;
+	box-sizing: border-box;
+}
+#checkout .co-invoice-leasing-auto-msg[hidden],
+.co-invoice-leasing-auto-msg[hidden] {
+	display: none !important;
+}
+
+#checkout .co-invoice-leasing-mol-badge,
+.co-invoice-leasing-mol-badge {
+	display: block;
+	margin: 0 0 10px;
+	padding: 10px 12px;
+	border: 1px solid #e57373;
+	border-radius: 6px;
+	background: #fdecea;
+	color: #c62828;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.4;
+	box-sizing: border-box;
+}
+#checkout .co-invoice-leasing-mol-badge[hidden],
+.co-invoice-leasing-mol-badge[hidden] {
+	display: none !important;
+}

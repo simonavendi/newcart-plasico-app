@@ -452,17 +452,18 @@ position:absolute!important;width:1px!important;height:1px!important;padding:0!i
 #checkout .co-option-row__logo--boxnow{height:30px;max-width:min(110px,46vw)}
 #checkout .co-option-row__logo--econt{height:30px;max-width:min(110px,46vw)}
 #checkout .co-option-row__logo--speedy{height:30px;max-width:min(96px,42vw)}
-#checkout .co-option-row__logo--transpress{height:20px;max-width:min(168px,58vw)}
+#checkout .co-option-row__logo--transpress{height:30px;max-width:min(168px,58vw)}
 @media (min-width:768px){
 #checkout .co-option-row__logo{height:32px;max-width:120px}
 #checkout .co-option-row__logo--boxnow{height:36px;max-width:140px}
 #checkout .co-option-row__logo--econt{height:36px;max-width:140px}
 #checkout .co-option-row__logo--speedy{height:36px;max-width:110px}
-#checkout .co-option-row__logo--transpress{height:24px;max-width:190px}
+#checkout .co-option-row__logo--transpress{height:36px;max-width:190px}
 }
-/* Transpress courier option row (До адрес panel): logo alone — price clipped, not address fields */
-#checkout #step-ship-details .co-ship-panel[data-ship-panel=address] .co-option-stack label.co-option-row:has(input[data-key=transpress]) .co-option-row__price{
-position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important
+/* Transpress courier option (До адрес): logo-only title; price visible like Speedy */
+#checkout #step-ship-details .co-ship-panel[data-ship-panel=address] .co-option-stack label.co-option-row:has(input[data-key=transpress]),
+#checkout #step-ship-details .co-ship-panel[data-ship-panel=address] .co-option-stack label.co-option-row:has(input[data-key=speedy_new]){
+min-height:52px;box-sizing:border-box
 }
 #checkout .boxnow-selected__heading-logo[hidden]{display:none!important}
 #checkout .co-option-row__hint{display:block;font-size:13px;color:#666;margin-top:2px}
@@ -2849,7 +2850,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <span class="co-option-row__copy">
 <span class="co-option-row__title"><img class="co-option-row__logo co-option-row__logo--transpress" src="assets/transpress-logo.png" width="276" height="38" alt="Транспрес"></span>
 </span>
-<span class="co-option-row__price" aria-hidden="true" data-price="3.57 €"></span>
+<span class="co-option-row__price">3.57 €</span>
 </span>
 </label>
 </div>

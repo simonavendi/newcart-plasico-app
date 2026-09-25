@@ -1,30 +1,28 @@
-# Transpress logo-only courier row (Simona correction)
+# Transpress courier row — logo-only + visible price (size match)
 
-Simona selected the **Transpress shipping courier option row** (not an address form field):
-- `label.co-option-row` in `.co-ship-panel` → `.co-option-stack`
-- visible_text had been: `Транспрес 3.57 €`
-- Ask: leave **just the logo** on that courier row
+## Ask (Simona)
 
-## What `6d49eca` did
+Transpress courier option under „До адрес“ was too short and missing price:
+1. Same height/size as Speedy (Спиди Препоръчан @ 3.57 €)
+2. Price back on the right (e.g. 3.57 €)
+3. Keep logo-only label (no Cyrillic „Транспрес“ companion text)
 
-CSS-only hide scoped to `#step-ship-details` / `[data-ship-panel=address]` / `input[data-key=transpress]`:
-- `.co-option-row__title { font-size:0 }` + clipped price
-- Correct **courier** row (under „До адрес“), **not** Град/Адрес fields
-- But companion Cyrillic + clipped price stayed in DOM/`innerText`, so selection tools still reported `Транспрес 3.57 €`
-- Notes/URL wrongly pointed at `newcart.plasico.app` (dead); live is Vercel
+## Prior regression (`6940f14`)
 
-## Fix
+Emptied price text + clipped `.co-option-row__price` so selection tools saw logo-only — also shrank the row (~42px vs Speedy taller).
 
-On the Transpress **courier option** only (`index.html` + `poruchka.html`):
+## Fix (`index.html` + `poruchka.html`)
 
-1. Remove companion text node „Транспрес“ after the logo (`alt` kept for a11y)
-2. Empty price text (`data-price` kept) + `aria-hidden` + CSS clip
-3. Narrow CSS to `.co-option-stack label…` — drop title `font-size:0` hack
-4. Do **not** touch address fields, Speedy/Econt/Box Now
+1. Restore price markup: `<span class="co-option-row__price">3.57 €</span>` (drop empty/`aria-hidden`/`data-price`)
+2. Remove price clip CSS
+3. Match Speedy logo height for Transpress: `30px` / `36px` (was `20px` / `24px`)
+4. Shared `min-height:52px` on Speedy + Transpress address courier rows
+5. Title stays logo-only (`alt="Транспрес"` for a11y; no companion text node)
 
 ## Verify
 
 - Local `:8780`: `python _verify_transpress_logo_only.py` → PASS
-- Screenshot: `.cursor/stores/self/media/transpress-logo-only-fixed.png`
-- Live: https://newcart-plasico-app.vercel.app/ → PASS (empty `innerText`, logo visible, Speedy + Град unchanged)
-- Pushed `main` @ `6940f14` (notes SHA `b6f9948`)
+  - both rows height `58`; Transpress `innerText` = `3.57 €` (no Cyrillic name)
+  - price box in layout; logo ~190×36
+- Screenshot: `.cursor/stores/self/media/transpress-size-price.png`
+- Live: https://newcart-plasico-app.vercel.app/

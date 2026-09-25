@@ -26,3 +26,4 @@ Emptied price text + clipped `.co-option-row__price` so selection tools saw logo
   - price box in layout; logo ~190×36
 - Screenshot: `.cursor/stores/self/media/transpress-size-price.png`
 - Live: https://newcart-plasico-app.vercel.app/
+- Pushed `main` @ `8a117f9`

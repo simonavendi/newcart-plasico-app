@@ -85,6 +85,8 @@ function assert(cond, msg) {
       hint: hint ? hint.textContent.trim() : "",
       pay8: !!(pay8 && pay8.checked),
       stored: !!sessionStorage.getItem("plasico-leasing-apply"),
+      bodyReady: document.body.classList.contains("is-leasing-ready"),
+      bodyData: document.body.getAttribute("data-leasing-ready"),
     };
   });
 
@@ -100,6 +102,7 @@ function assert(cond, msg) {
   );
   assert(afterFill.buyClass.includes("is-leasing-complete"), "missing is-leasing-complete class");
   assert(afterFill.pay8, "payment 8 should be selected after apply");
+  assert(afterFill.bodyReady, "body.is-leasing-ready missing after fill");
 
   await page.locator("#step-confirm .checkout-finish.btn").scrollIntoViewIfNeeded();
   await page.screenshot({
@@ -140,6 +143,7 @@ function assert(cond, msg) {
       buyText: (buy && buy.textContent || "").trim(),
       buyClass: buy ? buy.className : "",
       hintPresent: !!hint,
+      bodyReady: document.body.classList.contains("is-leasing-ready"),
     };
   });
   assert(afterLeave.filled, "apply data should remain when leaving path");
@@ -148,6 +152,7 @@ function assert(cond, msg) {
   assert(/^купи$/i.test(afterLeave.buyText), "buy restored: " + afterLeave.buyText);
   assert(!afterLeave.buyClass.includes("is-leasing-complete"), "leasing class cleared");
   assert(!afterLeave.hintPresent, "hint removed");
+  assert(!afterLeave.bodyReady, "body ready class should clear off leasing path");
 
   // Back to payment 8 → CTA again
   await page.evaluate(() => {

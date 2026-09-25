@@ -4,6 +4,7 @@
 When leasing modal apply is **filled**:
 1. Hide `#aside-leasing-btn`
 2. Morph `#step-confirm .checkout-finish.btn` → **КУПИ НА ИЗПЛАЩАНЕ** + gray hint `(Продължаваш към страницата на кредитора)` (Plasico green `#55a630`)
+3. Mark ready state: `body.is-leasing-ready` + `data-leasing-ready="1"` (also `html.pl-leasing-cta-complete`)
 
 Restore aside + normal **Купи** when:
 - apply not filled / `PlasicoLeasing.clearApply()`
@@ -16,13 +17,14 @@ CTA active when filled **and** (`payment_id=8` checked **or** no payment selecte
 
 ## Files
 - `local-leasing-modal.js` (+ `_leasing_modal.js` mirror)
-- `local-leasing-modal.css` (synced into `index.html` / `poruchka.html` via `_sync_leasing_css_inline.py`)
-- `index.html` / `poruchka.html` — `#checkout-finish-eyebrow` CTA styles
+- `local-leasing-modal.css`
+- `index.html` / `poruchka.html` — inline `#local-leasing-modal-inline` **synced** with JS + `#checkout-finish-eyebrow` CTA styles
 
 ## API
 `PlasicoLeasing.isApplyFilled`, `isCompletedCtaActive`, `syncCheckoutCta`, `clearApply`; event `plasico:leasing-apply`.
 
 ## Verify
-`node _verify_leasing_completed_cta.js` → media `leasing-completed-cta-*.png`
+`node _verify_leasing_completed_cta.js` (also `PLASICO_BASE=…/poruchka.html`) → media `leasing-completed-cta-*.png`
 
-Landed: `main` @ `0fbe764` (impl) / `3c62114` (verify + shots)
+## Gap closed
+Prior landing (`0fbe764`) put CTA logic only in the external JS file; HTML inline fallbacks were stale. Inline scripts on both pages now include `syncCheckoutCta` + `body.is-leasing-ready`.

@@ -284,6 +284,8 @@
 		}
 
 		document.documentElement.classList.toggle('pl-leasing-cta-complete', active);
+		document.body.classList.toggle('is-leasing-ready', active);
+		document.body.setAttribute('data-leasing-ready', active ? '1' : '0');
 	}
 
 	function syncInstallmentOptionSelection(columnId) {

@@ -2806,7 +2806,9 @@ min-height:52px;box-sizing:border-box
 }
 
 #aside-leasing-btn[hidden],
-#checkout .aside-leasing[hidden] {
+#checkout .aside-leasing[hidden],
+body.is-leasing-ready #aside-leasing-btn,
+body.is-leasing-ready #checkout .aside-leasing {
 	display: none !important;
 }
 
@@ -2882,7 +2884,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 #checkout .checkout-finish.btn.is-leasing-complete:hover{background:#4a9229;border-color:#4a9229;color:#fff}
 #checkout .checkout-finish.btn.is-leasing-complete .checkout-finish__label{display:block;color:#fff;font-weight:bold}
 #checkout .checkout-finish__hint{display:block;margin:6px 0 0;padding:0;color:#666;font-family:"exo2b",sans-serif;font-size:12px;font-weight:normal;line-height:1.3;text-align:center;text-transform:none}
-#aside-leasing-btn[hidden],#checkout .aside-leasing[hidden]{display:none!important}
+#aside-leasing-btn[hidden],#checkout .aside-leasing[hidden],body.is-leasing-ready #aside-leasing-btn,body.is-leasing-ready #checkout .aside-leasing{display:none!important}
 </style>
 </head>
  <body id=order style=padding-top:0px class=aliexpress_superstar_plugin_present>
@@ -3890,6 +3892,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 	window.__plasicoLeasingBootstrapped = true;
 	window.__leaseScriptRan = true;
 	var CART_STORAGE_KEY = 'plasico-hss2026-cart';
+	var APPLY_STORAGE_KEY = 'plasico-leasing-apply';
 
 	/**
 	 * Left: personal finance / „Купи на изплащане“ (BNP-style multipliers).
@@ -3931,6 +3934,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 		downPayment: 0,
 		promoCode: '',
 		prodId: '',
+		apply: null,
 	};
 
 	function formatEuro(amount) {
@@ -4022,6 +4026,405 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			install.classList.remove('hide', 'sf-hidden');
 			install.removeAttribute('hidden');
 		}
+		var leasing = document.getElementById('leasing-schema');
+		if (leasing) {
+			leasing.classList.remove('hide', 'sf-hidden');
+			leasing.removeAttribute('hidden');
+		}
+	}
+
+	function escapeHtml(value) {
+		return String(value == null ? '' : value)
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#39;');
+	}
+
+	function readSavedApply() {
+		if (state.apply) return state.apply;
+		try {
+			var raw = sessionStorage.getItem(APPLY_STORAGE_KEY);
+			if (!raw) return null;
+			state.apply = JSON.parse(raw);
+			return state.apply;
+		} catch (e) {
+			return null;
+		}
+	}
+
+	function writeSavedApply(payload) {
+		state.apply = payload;
+		try {
+			sessionStorage.setItem(APPLY_STORAGE_KEY, JSON.stringify(payload));
+		} catch (e) {
+			/* private mode / quota — in-memory still works */
+		}
+	}
+
+	function clearSavedApply() {
+		state.apply = null;
+		try {
+			sessionStorage.removeItem(APPLY_STORAGE_KEY);
+		} catch (e) {
+			/* ignore */
+		}
+	}
+
+	/** Successful modal apply (sessionStorage / state.apply with core fields). */
+	function isLeasingApplyFilled() {
+		var data = readSavedApply();
+		return !!(
+			data &&
+			String(data.fullName || '').trim() &&
+			String(data.phone || '').trim() &&
+			String(data.egn || '').trim() &&
+			String(data.email || '').trim()
+		);
+	}
+
+	/**
+	 * Filled apply + still on leasing path (payment 8 or nothing chosen yet).
+	 * Selecting any other payment restores the normal Купи + aside CTA.
+	 */
+	function isLeasingCompletedCtaActive() {
+		if (!isLeasingApplyFilled()) return false;
+		var checked = document.querySelector('input[name="payment_id"]:checked');
+		if (!checked) return true;
+		return String(checked.value) === '8';
+	}
+
+	var BUY_LABEL_DEFAULT = 'Купи';
+	var BUY_LABEL_LEASING = 'КУПИ НА ИЗПЛАЩАНЕ';
+	var BUY_HINT_LEASING = '(Продължаваш към страницата на кредитора)';
+	var BUY_HINT_ID = 'checkout-finish-leasing-hint';
+
+	function getFinishBuyButton() {
+		return (
+			document.querySelector('#step-confirm .checkout-finish.btn') ||
+			document.querySelector('#checkout .checkout-finish.btn') ||
+			document.querySelector('.checkout-finish.btn')
+		);
+	}
+
+	function ensureFinishWrap(buy) {
+		if (!buy || !buy.parentNode) return null;
+		var parent = buy.parentNode;
+		if (parent.classList && parent.classList.contains('checkout-finish-wrap')) {
+			return parent;
+		}
+		var wrap = document.createElement('div');
+		wrap.className = 'checkout-finish-wrap';
+		parent.insertBefore(wrap, buy);
+		wrap.appendChild(buy);
+		return wrap;
+	}
+
+	function removeLeasingHint() {
+		var hint = document.getElementById(BUY_HINT_ID);
+		if (hint && hint.parentNode) hint.parentNode.removeChild(hint);
+	}
+
+	/** Hide aside leasing CTA + morph Купи when apply is filled on leasing path. */
+	function syncCheckoutCta() {
+		var active = isLeasingCompletedCtaActive();
+		var aside = document.getElementById('aside-leasing-btn');
+		var buy = getFinishBuyButton();
+
+		if (aside) {
+			if (active) {
+				aside.hidden = true;
+				aside.setAttribute('aria-hidden', 'true');
+			} else if (state.price > 0) {
+				aside.hidden = false;
+				aside.removeAttribute('aria-hidden');
+			}
+		}
+
+		if (!buy) return;
+
+		var wrap = ensureFinishWrap(buy);
+		if (wrap) wrap.classList.toggle('is-leasing-complete', active);
+
+		if (active) {
+			buy.classList.add('is-leasing-complete');
+			buy.setAttribute('data-leasing-cta', '1');
+			buy.innerHTML =
+				'<span class="checkout-finish__label">' + BUY_LABEL_LEASING + '</span>';
+			var hint = document.getElementById(BUY_HINT_ID);
+			if (!hint) {
+				hint = document.createElement('span');
+				hint.id = BUY_HINT_ID;
+				hint.className = 'checkout-finish__hint';
+				if (wrap) wrap.appendChild(hint);
+				else if (buy.parentNode) buy.parentNode.insertBefore(hint, buy.nextSibling);
+			}
+			hint.textContent = BUY_HINT_LEASING;
+			hint.hidden = false;
+		} else if (
+			buy.classList.contains('is-leasing-complete') ||
+			buy.getAttribute('data-leasing-cta') === '1'
+		) {
+			buy.classList.remove('is-leasing-complete');
+			buy.removeAttribute('data-leasing-cta');
+			buy.textContent = BUY_LABEL_DEFAULT;
+			removeLeasingHint();
+		}
+
+		document.documentElement.classList.toggle('pl-leasing-cta-complete', active);
+		document.body.classList.toggle('is-leasing-ready', active);
+		document.body.setAttribute('data-leasing-ready', active ? '1' : '0');
+	}
+
+	function syncInstallmentOptionSelection(columnId) {
+		var kind = columnId === 'postbank' ? 'bnp-card' : 'bnp';
+		Array.prototype.slice
+			.call(document.querySelectorAll('.installment-option[data-installment]'))
+			.forEach(function (btn) {
+				var active = btn.getAttribute('data-installment') === kind;
+				btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+				btn.classList.toggle('is-selected', active);
+			});
+	}
+
+	function syncHiddenApplyFields(data) {
+		var host = document.getElementById('leasing-schema');
+		if (!host) return;
+		var fields = {
+			leasing_full_name: data && data.fullName,
+			leasing_phone: data && data.phone,
+			leasing_egn: data && data.egn,
+			leasing_email: data && data.email,
+			leasing_column: data && data.column,
+			leasing_provider: data && data.provider,
+			leasing_months: data && data.months,
+			leasing_monthly: data && data.monthly,
+			leasing_total: data && data.total,
+			leasing_down_payment: data && data.downPayment,
+			leasing_promo_code: data && data.promoCode,
+		};
+		Object.keys(fields).forEach(function (name) {
+			var input = host.querySelector('input[name="' + name + '"]');
+			if (!input) {
+				input = document.createElement('input');
+				input.type = 'hidden';
+				input.name = name;
+				host.appendChild(input);
+			}
+			input.value = fields[name] == null ? '' : String(fields[name]);
+		});
+	}
+
+	function renderSavedApply() {
+		var data = readSavedApply();
+		var host = document.getElementById('leasing-schema');
+		if (!host) return;
+
+		var panel = document.getElementById('pl-leasing-saved');
+		if (!panel) {
+			panel = document.createElement('div');
+			panel.id = 'pl-leasing-saved';
+			panel.className = 'pl-leasing-saved';
+			host.insertBefore(panel, host.firstChild);
+		}
+
+		if (!data) {
+			panel.hidden = true;
+			panel.innerHTML = '';
+			syncHiddenApplyFields(null);
+			syncCheckoutCta();
+			return;
+		}
+
+		syncHiddenApplyFields(data);
+		syncInstallmentOptionSelection(data.column);
+
+		var schemeLine =
+			escapeHtml(data.columnTitle || '') +
+			' — ' +
+			escapeHtml(String(data.months || '')) +
+			' вноски × ' +
+			escapeHtml(formatEuro(Number(data.monthly) || 0));
+		if (Number(data.downPayment) > 0) {
+			schemeLine +=
+				' · първон. вноска ' + escapeHtml(formatEuro(Number(data.downPayment) || 0));
+		}
+
+		panel.hidden = false;
+		panel.innerHTML =
+			'<p class="pl-leasing-saved__title">Данни за кандидатстване</p>' +
+			'<dl class="pl-leasing-saved__list">' +
+			'<div class="pl-leasing-saved__row"><dt>Име</dt><dd>' +
+			escapeHtml(data.fullName) +
+			'</dd></div>' +
+			'<div class="pl-leasing-saved__row"><dt>Телефон</dt><dd>' +
+			escapeHtml(data.phone) +
+			'</dd></div>' +
+			'<div class="pl-leasing-saved__row"><dt>ЕГН</dt><dd>' +
+			escapeHtml(data.egn) +
+			'</dd></div>' +
+			'<div class="pl-leasing-saved__row"><dt>Ел. поща</dt><dd>' +
+			escapeHtml(data.email) +
+			'</dd></div>' +
+			'</dl>' +
+			'<p class="pl-leasing-saved__scheme">' +
+			schemeLine +
+			'</p>' +
+			'<button type="button" class="pl-leasing-saved__edit" id="pl-leasing-saved-edit">Промени данните</button>';
+
+		var editBtn = document.getElementById('pl-leasing-saved-edit');
+		if (editBtn) {
+			editBtn.addEventListener('click', function () {
+				openModal({ column: data.column || 'personal' });
+			});
+		}
+
+		var pay8 = document.querySelector('input[name="payment_id"][value="8"]');
+		if (pay8 && pay8.checked) {
+			host.classList.remove('hide', 'sf-hidden');
+			host.removeAttribute('hidden');
+		}
+		syncCheckoutCta();
+	}
+
+	function readInputValue(sel) {
+		var el = typeof sel === 'string' ? document.querySelector(sel) : sel;
+		if (!el) return '';
+		return String(el.value || '').trim();
+	}
+
+	function readAuthEmail() {
+		try {
+			var raw = localStorage.getItem('plasico_demo_auth');
+			if (!raw) return '';
+			var parsed = JSON.parse(raw);
+			if (parsed && parsed.loggedIn && parsed.email) {
+				return String(parsed.email).trim();
+			}
+		} catch (e) {
+			/* ignore */
+		}
+		return '';
+	}
+
+	/** Pull name/phone/email/egn from checkout guest fields, invoice person, auth. */
+	function readCheckoutCustomerData() {
+		var fullName =
+			readInputValue('#field-name') ||
+			readInputValue('#person-names') ||
+			readInputValue('#field-address-person') ||
+			readInputValue('#register-name') ||
+			'';
+		var phone =
+			readInputValue('#field-phone') ||
+			readInputValue('#field-address-person-phone') ||
+			'';
+		var email =
+			readInputValue('#field-email') ||
+			readAuthEmail() ||
+			readInputValue('#auth-email') ||
+			readInputValue('#login-email') ||
+			readInputValue('#register-email') ||
+			'';
+		var egn = readInputValue('#person-egn') || '';
+		return { fullName: fullName, phone: phone, email: email, egn: egn };
+	}
+
+	function setApplyFieldIfEmpty(input, value) {
+		if (!input || !value) return;
+		if (String(input.value || '').trim()) return;
+		input.value = value;
+	}
+
+	function fillApplyFormFromSaved() {
+		var data = readSavedApply();
+		if (!data) return;
+		var nameInput = document.getElementById('pl-leasing-name');
+		var phoneInput = document.getElementById('pl-leasing-phone');
+		var egnInput = document.getElementById('pl-leasing-egn');
+		var emailInput = document.getElementById('pl-leasing-email');
+		var agreeTerms = document.getElementById('pl-leasing-agree-terms');
+		var agreeApply = document.getElementById('pl-leasing-agree-apply');
+		var agreePrivacy = document.getElementById('pl-leasing-agree-privacy');
+		/* Restore only non-empty saved values so empty leftovers do not wipe fields. */
+		if (nameInput && data.fullName) nameInput.value = data.fullName;
+		if (phoneInput && data.phone) phoneInput.value = data.phone;
+		if (egnInput && data.egn) egnInput.value = data.egn;
+		if (emailInput && data.email) emailInput.value = data.email;
+		if (agreeTerms) agreeTerms.checked = true;
+		if (agreeApply) agreeApply.checked = true;
+		if (agreePrivacy) agreePrivacy.checked = true;
+	}
+
+	/** Prefill empty apply fields from checkout/auth; never overwrite typed values.
+	 *  Name only when Cyrillic (field requires кирилица) — skip Latin-only names. */
+	function fillApplyFormFromCustomer() {
+		var apply = document.getElementById('pl-leasing-apply');
+		if (!apply) return;
+		var data = readCheckoutCustomerData();
+		if (isCyrillicName(data.fullName)) {
+			setApplyFieldIfEmpty(document.getElementById('pl-leasing-name'), data.fullName);
+		}
+		setApplyFieldIfEmpty(document.getElementById('pl-leasing-phone'), data.phone);
+		setApplyFieldIfEmpty(document.getElementById('pl-leasing-email'), data.email);
+		setApplyFieldIfEmpty(document.getElementById('pl-leasing-egn'), data.egn);
+	}
+
+	/** Saved first, then checkout — safe to call whenever apply becomes visible. */
+	function autofillApplyForm() {
+		fillApplyFormFromSaved();
+		fillApplyFormFromCustomer();
+	}
+
+	function isLeasingOverlayOpen() {
+		var overlay = document.getElementById('pl-leasing-overlay');
+		return !!(overlay && !overlay.hidden);
+	}
+
+	function bindApplyAutofillWatchers(overlay) {
+		if (overlay.__plApplyAutofillBound) return;
+		overlay.__plApplyAutofillBound = true;
+
+		var apply = overlay.querySelector('#pl-leasing-apply');
+		var body = overlay.querySelector('.pl-leasing-body');
+
+		/* When the user scrolls the apply block into view, refill empty fields. */
+		if (apply && typeof IntersectionObserver === 'function') {
+			var io = new IntersectionObserver(
+				function (entries) {
+					entries.forEach(function (entry) {
+						if (entry.isIntersecting && isLeasingOverlayOpen()) {
+							autofillApplyForm();
+						}
+					});
+				},
+				{ root: body || null, threshold: 0.05 }
+			);
+			io.observe(apply);
+		}
+
+		/* If checkout fields change while the modal is open, backfill empties. */
+		var checkoutSels = [
+			'#field-name',
+			'#field-phone',
+			'#field-email',
+			'#person-egn',
+			'#person-names',
+			'#field-address-person',
+			'#field-address-person-phone',
+		];
+		checkoutSels.forEach(function (sel) {
+			var el = document.querySelector(sel);
+			if (!el || el.__plLeasingAutofillBound) return;
+			el.__plLeasingAutofillBound = true;
+			el.addEventListener('input', function () {
+				if (isLeasingOverlayOpen()) autofillApplyForm();
+			});
+			el.addEventListener('change', function () {
+				if (isLeasingOverlayOpen()) autofillApplyForm();
+			});
+		});
 	}
 
 	function parsePrice() {
@@ -4204,10 +4607,10 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			'    <form class="pl-leasing-apply" id="pl-leasing-apply" novalidate>' +
 			'      <h3 class="pl-leasing-apply-title">Кандидатствай за лизинг:</h3>' +
 			'      <div class="pl-leasing-apply-fields">' +
-			'        <input type="text" name="full_name" id="pl-leasing-name" class="pl-leasing-apply-input" placeholder="Име и фамилия... (задължително на кирилица)" autocomplete="name" />' +
-			'        <input type="tel" name="phone" id="pl-leasing-phone" class="pl-leasing-apply-input" placeholder="Телефон за контакти... (започващ с нула)" autocomplete="tel" inputmode="tel" />' +
-			'        <input type="text" name="egn" id="pl-leasing-egn" class="pl-leasing-apply-input" placeholder="ЕГН..." autocomplete="off" inputmode="numeric" />' +
-			'        <input type="email" name="email" id="pl-leasing-email" class="pl-leasing-apply-input" placeholder="Ел. поща..." autocomplete="email" />' +
+			'        <input type="text" name="full_name" id="pl-leasing-name" class="pl-leasing-apply-input" placeholder="Име и фамилия ... (задължително на кирилица)" autocomplete="name" />' +
+			'        <input type="tel" name="phone" id="pl-leasing-phone" class="pl-leasing-apply-input" placeholder="Телефон за контакти ... (започващ с нула)" autocomplete="tel" inputmode="tel" />' +
+			'        <input type="text" name="egn" id="pl-leasing-egn" class="pl-leasing-apply-input" placeholder="ЕГН ..." autocomplete="off" inputmode="numeric" />' +
+			'        <input type="email" name="email" id="pl-leasing-email" class="pl-leasing-apply-input" placeholder="Ел. поща ..." autocomplete="email" />' +
 			'      </div>' +
 			'      <p class="pl-leasing-apply-help">Моля въведете коректна ел. поща. На нея ще получите инструкции за завършване на Вашата кандидатура за кредитиране.</p>' +
 			'      <div class="pl-leasing-apply-checks">' +
@@ -4260,6 +4663,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 		});
 
 		overlay.querySelector('#pl-leasing-apply').addEventListener('submit', handleApplySubmit);
+		bindApplyAutofillWatchers(overlay);
 
 		document.addEventListener('keydown', function (e) {
 			if (e.key === 'Escape' && !overlay.hidden) {
@@ -4415,15 +4819,34 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			console.log('[PlasicoLeasing] local apply (no backend)', payload);
 		}
 
-		showApplySuccess(
-			'Заявката е приета локално (без изпращане). Избрана схема: ' +
-				columnTitle +
-				' — ' +
-				selected.months +
-				' вноски × ' +
-				formatEuro(selected.monthly) +
-				'.'
-		);
+		writeSavedApply(payload);
+		if (payload.column === 'personal') {
+			state.personalMonths = payload.months;
+		}
+		state.column = payload.column;
+		state.selectedMonths = payload.months;
+		syncCheckoutPaymentInstallments();
+		syncInstallmentOptionSelection(payload.column);
+		renderSavedApply();
+		renderTeaser();
+		syncCheckoutCta();
+		try {
+			document.dispatchEvent(
+				new CustomEvent('plasico:leasing-apply', { detail: payload })
+			);
+		} catch (evtErr) {
+			/* CustomEvent unsupported — syncCheckoutCta already ran */
+		}
+		closeModal();
+
+		var paymentStep = document.getElementById('step-payment');
+		if (paymentStep && typeof paymentStep.scrollIntoView === 'function') {
+			try {
+				paymentStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			} catch (scrollErr) {
+				paymentStep.scrollIntoView(true);
+			}
+		}
 	}
 
 	function applyToolbarInputs() {
@@ -4508,13 +4931,24 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 		var selected = getSelectedTerm();
 		document.getElementById('pl-leasing-summary').textContent = summaryText(selected);
 		renderGrid();
+		if (isLeasingOverlayOpen()) {
+			autofillApplyForm();
+		}
 	}
 
 	function syncLeasingControls() {
 		var hasPrice = state.price > 0;
+		var hideAsideFilled = isLeasingCompletedCtaActive();
 		document.querySelectorAll('.js-open-leasing').forEach(function (btn) {
+			if (btn.id === 'aside-leasing-btn') {
+				btn.hidden = !hasPrice || hideAsideFilled;
+				if (btn.hidden) btn.setAttribute('aria-hidden', 'true');
+				else btn.removeAttribute('aria-hidden');
+				return;
+			}
 			btn.hidden = !hasPrice;
 		});
+		syncCheckoutCta();
 	}
 
 	function renderTeaser() {
@@ -4560,63 +4994,6 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 		return 'personal';
 	}
 
-
-	function readInputValue(sel) {
-		var el = typeof sel === 'string' ? document.querySelector(sel) : sel;
-		if (!el) return '';
-		return String(el.value || '').trim();
-	}
-
-	function readAuthEmail() {
-		try {
-			var raw = localStorage.getItem('plasico_demo_auth');
-			if (!raw) return '';
-			var parsed = JSON.parse(raw);
-			if (parsed && parsed.loggedIn && parsed.email) {
-				return String(parsed.email).trim();
-			}
-		} catch (e) {
-			/* ignore */
-		}
-		return '';
-	}
-
-	function readCheckoutCustomerData() {
-		var fullName =
-			readInputValue('#field-name') ||
-			readInputValue('#person-names') ||
-			readInputValue('#field-address-person') ||
-			readInputValue('#register-name') ||
-			'';
-		var phone =
-			readInputValue('#field-phone') ||
-			readInputValue('#field-address-person-phone') ||
-			'';
-		var email =
-			readInputValue('#field-email') ||
-			readAuthEmail() ||
-			readInputValue('#auth-email') ||
-			readInputValue('#login-email') ||
-			readInputValue('#register-email') ||
-			'';
-		var egn = readInputValue('#person-egn') || '';
-		return { fullName: fullName, phone: phone, email: email, egn: egn };
-	}
-
-	function setApplyFieldIfEmpty(input, value) {
-		if (!input || !value) return;
-		if (String(input.value || '').trim()) return;
-		input.value = value;
-	}
-
-	function fillApplyFormFromCustomer() {
-		var data = readCheckoutCustomerData();
-		setApplyFieldIfEmpty(document.getElementById('pl-leasing-name'), data.fullName);
-		setApplyFieldIfEmpty(document.getElementById('pl-leasing-phone'), data.phone);
-		setApplyFieldIfEmpty(document.getElementById('pl-leasing-email'), data.email);
-		setApplyFieldIfEmpty(document.getElementById('pl-leasing-egn'), data.egn);
-	}
-
 	function openModal(options) {
 		state.column = resolveColumnFromOptions(options);
 		state.price = parsePrice();
@@ -4635,13 +5012,19 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 		}
 
 		syncCheckoutPaymentInstallments();
+		var overlay = ensureModal();
 		renderModal();
 		clearApplyFeedback();
-		fillApplyFormFromCustomer();
-		var overlay = ensureModal();
+		/* Fill after DOM exists and overlay is shown — apply may be below the fold. */
 		overlay.hidden = false;
 		overlay.removeAttribute('hidden');
 		document.body.style.overflow = 'hidden';
+		bindApplyAutofillWatchers(overlay);
+		autofillApplyForm();
+		/* Second pass after layout/scroll so late checkout values still land. */
+		window.setTimeout(function () {
+			if (isLeasingOverlayOpen()) autofillApplyForm();
+		}, 0);
 	}
 
 	function closeModal() {
@@ -4704,15 +5087,57 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 		state.personalMonths = DEFAULT_PERSONAL_MONTHS;
 		state.selectedMonths = DEFAULT_PERSONAL_MONTHS;
 		state.column = 'personal';
+		readSavedApply();
+		if (state.apply) {
+			if (state.apply.column && COLUMNS[state.apply.column]) {
+				state.column = state.apply.column;
+			}
+			if (state.apply.months) {
+				state.selectedMonths = Number(state.apply.months) || state.selectedMonths;
+				if (state.column === 'personal') {
+					state.personalMonths = state.selectedMonths;
+				}
+			}
+			if (state.apply.downPayment != null) {
+				state.downPayment = Number(state.apply.downPayment) || 0;
+			}
+			if (state.apply.promoCode) {
+				state.promoCode = String(state.apply.promoCode);
+			}
+		}
 		renderTeaser();
+		renderSavedApply();
 		bindTriggers();
 
 		document.addEventListener('plasico:cart-updated', refresh);
+
+		var paymentRadios = document.querySelectorAll('input[name="payment_id"]');
+		Array.prototype.slice.call(paymentRadios).forEach(function (radio) {
+			radio.addEventListener('change', function () {
+				if (radio.value === '8') {
+					renderSavedApply();
+				} else {
+					syncCheckoutCta();
+				}
+			});
+		});
+
+		syncCheckoutCta();
 
 		window.PlasicoLeasing = {
 			open: openModal,
 			close: closeModal,
 			refresh: refresh,
+			getApply: readSavedApply,
+			clearApply: function () {
+				clearSavedApply();
+				renderSavedApply();
+				renderTeaser();
+				syncCheckoutCta();
+			},
+			isApplyFilled: isLeasingApplyFilled,
+			isCompletedCtaActive: isLeasingCompletedCtaActive,
+			syncCheckoutCta: syncCheckoutCta,
 			getState: function () {
 				var selected = getSelectedTerm();
 				var teaser = getTeaserTerm();
@@ -4728,6 +5153,8 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 					personalMonths: state.personalMonths,
 					selected: selected,
 					teaser: teaser,
+					apply: readSavedApply(),
+					completedCta: isLeasingCompletedCtaActive(),
 				};
 			},
 		};

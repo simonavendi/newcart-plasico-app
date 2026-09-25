@@ -1,6 +1,6 @@
 # Hide ЕГН on individual (физ. лице) invoice
 
-- Landed on: `main` @ `da2e5c4`
+- Landed on: `main` @ `7bad0a4`
 - Live: https://newcart-plasico-app.vercel.app/
 - Local: http://127.0.0.1:8780/
 

@@ -1,5 +1,6 @@
 # plasico cart notes
 
+- Leasing-completed CTA: hide `#aside-leasing-btn` + morph Купи → **КУПИ НА ИЗПЛАЩАНЕ** after apply fill — see `internal/leasing-completed-cta.md`
 - Checkout: no payment method preselected (bank transfer was default) — `main` @ `3b70ea3`; see `internal/no-payment-preselect.md`
 - Aside discount amount: info badge + tooltip (auto-applied promo) — `main` @ `eb6f2a2`; see `internal/aside-discount-info-tooltip.md`
 

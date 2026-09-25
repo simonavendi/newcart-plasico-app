@@ -174,6 +174,118 @@
 		}
 	}
 
+	function clearSavedApply() {
+		state.apply = null;
+		try {
+			sessionStorage.removeItem(APPLY_STORAGE_KEY);
+		} catch (e) {
+			/* ignore */
+		}
+	}
+
+	/** Successful modal apply (sessionStorage / state.apply with core fields). */
+	function isLeasingApplyFilled() {
+		var data = readSavedApply();
+		return !!(
+			data &&
+			String(data.fullName || '').trim() &&
+			String(data.phone || '').trim() &&
+			String(data.egn || '').trim() &&
+			String(data.email || '').trim()
+		);
+	}
+
+	/**
+	 * Filled apply + still on leasing path (payment 8 or nothing chosen yet).
+	 * Selecting any other payment restores the normal Купи + aside CTA.
+	 */
+	function isLeasingCompletedCtaActive() {
+		if (!isLeasingApplyFilled()) return false;
+		var checked = document.querySelector('input[name="payment_id"]:checked');
+		if (!checked) return true;
+		return String(checked.value) === '8';
+	}
+
+	var BUY_LABEL_DEFAULT = 'Купи';
+	var BUY_LABEL_LEASING = 'КУПИ НА ИЗПЛАЩАНЕ';
+	var BUY_HINT_LEASING = '(Продължаваш към страницата на кредитора)';
+	var BUY_HINT_ID = 'checkout-finish-leasing-hint';
+
+	function getFinishBuyButton() {
+		return (
+			document.querySelector('#step-confirm .checkout-finish.btn') ||
+			document.querySelector('#checkout .checkout-finish.btn') ||
+			document.querySelector('.checkout-finish.btn')
+		);
+	}
+
+	function ensureFinishWrap(buy) {
+		if (!buy || !buy.parentNode) return null;
+		var parent = buy.parentNode;
+		if (parent.classList && parent.classList.contains('checkout-finish-wrap')) {
+			return parent;
+		}
+		var wrap = document.createElement('div');
+		wrap.className = 'checkout-finish-wrap';
+		parent.insertBefore(wrap, buy);
+		wrap.appendChild(buy);
+		return wrap;
+	}
+
+	function removeLeasingHint() {
+		var hint = document.getElementById(BUY_HINT_ID);
+		if (hint && hint.parentNode) hint.parentNode.removeChild(hint);
+	}
+
+	/** Hide aside leasing CTA + morph Купи when apply is filled on leasing path. */
+	function syncCheckoutCta() {
+		var active = isLeasingCompletedCtaActive();
+		var aside = document.getElementById('aside-leasing-btn');
+		var buy = getFinishBuyButton();
+
+		if (aside) {
+			if (active) {
+				aside.hidden = true;
+				aside.setAttribute('aria-hidden', 'true');
+			} else if (state.price > 0) {
+				aside.hidden = false;
+				aside.removeAttribute('aria-hidden');
+			}
+		}
+
+		if (!buy) return;
+
+		var wrap = ensureFinishWrap(buy);
+		if (wrap) wrap.classList.toggle('is-leasing-complete', active);
+
+		if (active) {
+			buy.classList.add('is-leasing-complete');
+			buy.setAttribute('data-leasing-cta', '1');
+			buy.innerHTML =
+				'<span class="checkout-finish__label">' + BUY_LABEL_LEASING + '</span>';
+			var hint = document.getElementById(BUY_HINT_ID);
+			if (!hint) {
+				hint = document.createElement('span');
+				hint.id = BUY_HINT_ID;
+				hint.className = 'checkout-finish__hint';
+				if (wrap) wrap.appendChild(hint);
+				else if (buy.parentNode) buy.parentNode.insertBefore(hint, buy.nextSibling);
+			}
+			hint.textContent = BUY_HINT_LEASING;
+			hint.hidden = false;
+		} else if (
+			buy.classList.contains('is-leasing-complete') ||
+			buy.getAttribute('data-leasing-cta') === '1'
+		) {
+			buy.classList.remove('is-leasing-complete');
+			buy.removeAttribute('data-leasing-cta');
+			buy.textContent = BUY_LABEL_DEFAULT;
+			removeLeasingHint();
+		}
+
+		document.documentElement.classList.toggle('pl-leasing-cta-complete', active);
+	}
+
 	function syncInstallmentOptionSelection(columnId) {
 		var kind = columnId === 'postbank' ? 'bnp-card' : 'bnp';
 		Array.prototype.slice
@@ -230,6 +342,7 @@
 			panel.hidden = true;
 			panel.innerHTML = '';
 			syncHiddenApplyFields(null);
+			syncCheckoutCta();
 			return;
 		}
 
@@ -281,6 +394,7 @@
 			host.classList.remove('hide', 'sf-hidden');
 			host.removeAttribute('hidden');
 		}
+		syncCheckoutCta();
 	}
 
 	function readInputValue(sel) {
@@ -824,6 +938,14 @@
 		syncInstallmentOptionSelection(payload.column);
 		renderSavedApply();
 		renderTeaser();
+		syncCheckoutCta();
+		try {
+			document.dispatchEvent(
+				new CustomEvent('plasico:leasing-apply', { detail: payload })
+			);
+		} catch (evtErr) {
+			/* CustomEvent unsupported — syncCheckoutCta already ran */
+		}
 		closeModal();
 
 		var paymentStep = document.getElementById('step-payment');
@@ -925,9 +1047,17 @@
 
 	function syncLeasingControls() {
 		var hasPrice = state.price > 0;
+		var hideAsideFilled = isLeasingCompletedCtaActive();
 		document.querySelectorAll('.js-open-leasing').forEach(function (btn) {
+			if (btn.id === 'aside-leasing-btn') {
+				btn.hidden = !hasPrice || hideAsideFilled;
+				if (btn.hidden) btn.setAttribute('aria-hidden', 'true');
+				else btn.removeAttribute('aria-hidden');
+				return;
+			}
 			btn.hidden = !hasPrice;
 		});
+		syncCheckoutCta();
 	}
 
 	function renderTeaser() {
@@ -1095,15 +1225,28 @@
 			radio.addEventListener('change', function () {
 				if (radio.value === '8') {
 					renderSavedApply();
+				} else {
+					syncCheckoutCta();
 				}
 			});
 		});
+
+		syncCheckoutCta();
 
 		window.PlasicoLeasing = {
 			open: openModal,
 			close: closeModal,
 			refresh: refresh,
 			getApply: readSavedApply,
+			clearApply: function () {
+				clearSavedApply();
+				renderSavedApply();
+				renderTeaser();
+				syncCheckoutCta();
+			},
+			isApplyFilled: isLeasingApplyFilled,
+			isCompletedCtaActive: isLeasingCompletedCtaActive,
+			syncCheckoutCta: syncCheckoutCta,
 			getState: function () {
 				var selected = getSelectedTerm();
 				var teaser = getTeaserTerm();
@@ -1120,6 +1263,7 @@
 					selected: selected,
 					teaser: teaser,
 					apply: readSavedApply(),
+					completedCta: isLeasingCompletedCtaActive(),
 				};
 			},
 		};

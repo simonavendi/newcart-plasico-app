@@ -2738,6 +2738,78 @@ min-height:52px;box-sizing:border-box
 	}
 }
 
+
+/* Checkout finish CTA after leasing apply is filled */
+.checkout-finish-wrap {
+	display: inline-block;
+	margin: 12px 0 0;
+	vertical-align: top;
+	text-align: center;
+}
+
+.checkout-finish-wrap .checkout-finish.btn {
+	margin-top: 0 !important;
+}
+
+#checkout .checkout-finish.btn.is-leasing-complete,
+.checkout-finish.btn.is-leasing-complete {
+	display: inline-flex !important;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 48px;
+	padding: 12px 28px;
+	border: 2px solid #55a630;
+	border-radius: 4px;
+	background: #55a630;
+	color: #fff;
+	font-family: "exo2b", sans-serif;
+	font-size: 16px;
+	font-weight: bold;
+	line-height: 1.2;
+	text-align: center;
+	text-transform: none;
+	cursor: pointer;
+	box-sizing: border-box;
+}
+
+#checkout .checkout-finish.btn.is-leasing-complete:hover,
+.checkout-finish.btn.is-leasing-complete:hover {
+	background: #4a9229;
+	border-color: #4a9229;
+	color: #fff;
+}
+
+#checkout .checkout-finish.btn.is-leasing-complete .checkout-finish__label,
+.checkout-finish.btn.is-leasing-complete .checkout-finish__label {
+	display: block;
+	color: #fff;
+	font-size: inherit;
+	font-weight: bold;
+	line-height: 1.2;
+	letter-spacing: 0.02em;
+}
+
+#checkout .checkout-finish__hint,
+.checkout-finish__hint {
+	display: block;
+	margin: 6px 0 0;
+	padding: 0;
+	color: #666;
+	font-family: "exo2b", sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+	line-height: 1.3;
+	letter-spacing: 0;
+	text-transform: none;
+	text-align: center;
+}
+
+#aside-leasing-btn[hidden],
+#checkout .aside-leasing[hidden] {
+	display: none !important;
+}
+
 /* Plasico accent + ensure overlay wins over site CSS */
 .pl-leasing-overlay{
   --pl-accent:#55a630;

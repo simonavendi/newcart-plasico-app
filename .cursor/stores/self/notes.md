@@ -2,6 +2,7 @@
 
 - Agent store: checkout/auth/header/leasing evidence + internal notes landed on `main` @ `b7c0c0f` (docs/media only; product already at tip) — see `internal/` for auth, Box Now, leasing, terms, carrier logos, bank/phone
 - Leasing `#pl-leasing-summary`: prefix **Обща сума: ** — `main` @ `b1041af`; see `internal/leasing-summary-obsha-suma.md` + `media/leasing-summary-obsha-suma.png`
+- Leasing-complete Купи CTA: wrap + creditor hint **left-aligned** (was centered) — `main` @ `be700a8`; see `internal/leasing-buy-cta-left.md` + `media/leasing-buy-cta-left.png`
 - Leasing-completed CTA (complete): hide `#aside-leasing-btn` + morph Купи → **КУПИ НА ИЗПЛАЩАНЕ** + `body.is-leasing-ready`; inline JS synced on index+poruchka — `main` @ `5c7e918`; see `internal/leasing-completed-cta.md`
 - Checkout: no payment method preselected (bank transfer was default) — `main` @ `3b70ea3`; see `internal/no-payment-preselect.md`
 - Aside discount amount: info badge + tooltip (auto-applied promo) — `main` @ `eb6f2a2`; see `internal/aside-discount-info-tooltip.md`

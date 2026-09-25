@@ -1,5 +1,6 @@
 # plasico cart notes
 
+- Auth modal UX polish: equal demo pills + shared logo on login/register + ← НАЗАД → default email — see `internal/auth-modal-ux-polish.md`
 - Auth login + register: FB/Google/Apple OAuth under both submit buttons (match email step) — `main` @ `8388a7c`; see `internal/auth-login-register-oauth.md`
 - Auth modal demo pills: **default** | неразпознат | разпознат — default opens `#auth-step-email` — `main` @ `442559f`; see `internal/auth-demo-default-toggle.md`
 - Auth email step submit: **Продължи** (was „Продължи с поръчката“) — see `internal/auth-email-submit-continue.md`

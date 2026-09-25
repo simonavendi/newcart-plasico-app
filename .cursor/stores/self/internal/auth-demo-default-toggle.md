@@ -1,5 +1,6 @@
 # Auth modal demo: default | unknown | known
 
+- **SHA:** `442559f` on `main`
 - **Files:** `index.html`, `poruchka.html`
 - **Pill order (first = initial):** `default` | `неразпознат имейл` | `разпознат имейл`
 - **Modes:**

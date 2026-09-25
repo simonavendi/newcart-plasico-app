@@ -500,7 +500,12 @@
 	}
 
 	function summaryText(term) {
-		return formatEuro(term.monthly) + ' / месец - ' + term.months + ' вноски';
+		var cartTotal = Number(state.price) || 0;
+		var monthlyPart =
+			formatEuro(term.monthly) + ' / месец - ' + term.months + ' вноски';
+		if (cartTotal <= 0) return monthlyPart;
+		/* Cart grand total (aside СУМА ЗА ПЛАЩАНЕ) + selected installment line */
+		return formatEuro(cartTotal) + ' · ' + monthlyPart;
 	}
 
 	function schemeCardHtml(columnId, term) {
@@ -634,6 +639,7 @@
 		overlay.querySelector('.pl-leasing-close').addEventListener('click', closeModal);
 
 		overlay.querySelector('#pl-leasing-recalc').addEventListener('click', function () {
+			state.price = parsePrice();
 			applyToolbarInputs();
 			renderModal();
 			renderTeaser();
@@ -643,6 +649,7 @@
 			overlay.querySelector(sel).addEventListener('keydown', function (e) {
 				if (e.key === 'Enter') {
 					e.preventDefault();
+					state.price = parsePrice();
 					applyToolbarInputs();
 					renderModal();
 					renderTeaser();

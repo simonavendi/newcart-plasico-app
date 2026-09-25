@@ -28,3 +28,5 @@ CTA active when filled **and** (`payment_id=8` checked **or** no payment selecte
 
 ## Gap closed
 Prior landing (`0fbe764`) put CTA logic only in the external JS file; HTML inline fallbacks were stale. Inline scripts on both pages now include `syncCheckoutCta` + `body.is-leasing-ready`.
+
+Landed: `main` @ `5c7e918` (inline sync + body.is-leasing-ready; prior partial `0fbe764`).

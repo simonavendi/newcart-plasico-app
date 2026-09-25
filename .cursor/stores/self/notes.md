@@ -1,6 +1,6 @@
 # plasico cart notes
 
-- Leasing invoice green notice gated on **approved credit** + PostBank method; Физическо лице hidden on that path; Копирай always usable — see `internal/leasing-invoice-msg-gated.md` + `media/leasing-invoice-msg-gated.png`
+- Leasing invoice green notice gated on **approved credit** + PostBank method; Физическо лице hidden on that path; Копирай always usable — `main` @ `00a6b7e`; see `internal/leasing-invoice-msg-gated.md` + `media/leasing-invoice-msg-gated.png`
 - Auth login **Забравена парола**: in-modal success (tick + email copy, no navigate) — see `internal/auth-forgot-password.md` + `media/auth-forgot-password.png`
 - Leasing-complete → invoice autofill (физ. лице + green notice; ЮЛ МОЛ + red badge) — `main` @ `8d96350`; see `internal/leasing-invoice-autofill.md` + `media/leasing-invoice-autofill.png`
 - `/boxnowno` checkout copy: BOX NOW greyed + size tip + default Speedy office — `main` @ `7b84fc0`; see `internal/boxnowno-page.md` + `media/boxnowno-grey-boxnow.png`

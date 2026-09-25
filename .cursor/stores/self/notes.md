@@ -1,6 +1,7 @@
 # plasico cart notes
 
 - Agent store: checkout/auth/header/leasing evidence + internal notes landed on `main` @ `b7c0c0f` (docs/media only; product already at tip) — see `internal/` for auth, Box Now, leasing, terms, carrier logos, bank/phone
+- Leasing `#pl-leasing-summary`: prefix **Обща сума: ** — see `internal/leasing-summary-obsha-suma.md` + `media/leasing-summary-obsha-suma.png`
 - Leasing-completed CTA (complete): hide `#aside-leasing-btn` + morph Купи → **КУПИ НА ИЗПЛАЩАНЕ** + `body.is-leasing-ready`; inline JS synced on index+poruchka — `main` @ `5c7e918`; see `internal/leasing-completed-cta.md`
 - Checkout: no payment method preselected (bank transfer was default) — `main` @ `3b70ea3`; see `internal/no-payment-preselect.md`
 - Aside discount amount: info badge + tooltip (auto-applied promo) — `main` @ `eb6f2a2`; see `internal/aside-discount-info-tooltip.md`
@@ -28,7 +29,7 @@
 - Terms required label: `(задължително)` on `#step-confirm label.conditions` — index `a3e1619`, poruchka `d7d8f36`; see `internal/terms-required-label.md`
 - Terms consent: native `required` checkbox on `main` @ `296fb53` — no decorative `*`; see `internal/terms-consent-required.md`
 - User preference: always commit to **main**
-- Localhost: http://127.0.0.1:8780/index.html
+- Localhost: http://127.0.0.1:8780/index.html — synced to `origin/main` @ `1ce2ba1` (2026-09-25); python `http.server` on 8780 restarted from repo root
 - Partner ID: **18248**
 - Auth modal: circle social icons + thank-you + top-bar profile (`a71bfa8`) — see `internal/auth-thanks-profile.md`; Facebook restored with Google/Apple
 - Header #user profile dropdown (BG) + no orange; #top-line full-bleed 30px — internal/profile-menu-header.md

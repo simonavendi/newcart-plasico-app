@@ -619,9 +619,9 @@
 		var cartTotal = Number(state.price) || 0;
 		var monthlyPart =
 			formatEuro(term.monthly) + ' / месец - ' + term.months + ' вноски';
-		if (cartTotal <= 0) return monthlyPart;
+		if (cartTotal <= 0) return 'Обща сума: ' + monthlyPart;
 		/* Cart grand total (aside СУМА ЗА ПЛАЩАНЕ) + selected installment line */
-		return formatEuro(cartTotal) + ' · ' + monthlyPart;
+		return 'Обща сума: ' + formatEuro(cartTotal) + ' · ' + monthlyPart;
 	}
 
 	function schemeCardHtml(columnId, term) {

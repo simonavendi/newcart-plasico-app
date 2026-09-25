@@ -1,6 +1,6 @@
 # Auth modal recognized-email login step
 
-- **SHA:** (pending commit)
+- **SHA:** `5ed2056` on `main` (docs/screens follow-up)
 - **Files:** `index.html`, `poruchka.html`
 - **Pill:** `разпознат имейл` (`data-auth-email-mode=known`) → `#auth-step-login` with demo `s.dimitrova@plasico.bg`
 - **UI:** email chip + clear ×; status **разпознат имейл** + green tick circle; one password; CTA **Вход**

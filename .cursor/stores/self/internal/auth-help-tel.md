@@ -9,3 +9,6 @@
 
 ## Scope
 Help link only — no other auth-modal edits (email-mode switch left alone).
+
+## Landed
+`main` @ `7310b43`

@@ -1,6 +1,6 @@
 # plasico cart notes
 
-- Auth modal help link: phone CTA + `tel:070020810` — see `internal/auth-help-tel.md` (SHA after push)
+- Auth modal help link: phone CTA + `tel:070020810` — `main` @ `7310b43`; see `internal/auth-help-tel.md`
 - Auth modal: demo switch **неразпознат / разпознат имейл** above dialog (`unknown`→register, `known`→login) — `main` @ `fd1c3bb`; see `internal/auth-email-mode-switch.md`
 - BG phone validator on `#field-phone` / `.telephone` / recipient — `main` @ `09f232a`; see `internal/bg-phone-validator.md`
 - Bank transfer: IBAN/beneficiary details panel when selected — `internal/bank-transfer-payment-details.md`

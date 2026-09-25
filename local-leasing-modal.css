@@ -892,7 +892,10 @@
 	display: inline-block;
 	margin: 12px 0 0;
 	vertical-align: top;
-	text-align: center;
+	text-align: left;
+}
+.checkout-finish-wrap.is-leasing-complete {
+	text-align: left;
 }
 
 .checkout-finish-wrap .checkout-finish.btn {
@@ -950,7 +953,7 @@
 	line-height: 1.3;
 	letter-spacing: 0;
 	text-transform: none;
-	text-align: center;
+	text-align: left;
 }
 
 #aside-leasing-btn[hidden],

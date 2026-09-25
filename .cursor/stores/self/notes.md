@@ -1,5 +1,6 @@
 # plasico cart notes
 
+- Auth login + register: FB/Google/Apple OAuth under both submit buttons (match email step) — see `internal/auth-login-register-oauth.md`
 - Auth modal demo pills: **default** | неразпознат | разпознат — default opens `#auth-step-email` — `main` @ `442559f`; see `internal/auth-demo-default-toggle.md`
 - Auth email step submit: **Продължи** (was „Продължи с поръчката“) — see `internal/auth-email-submit-continue.md`
 - Auth modal help link: two-line phone CTA (`<br>`) + `tel:070020810` — `main` @ `196eab7`; see `internal/auth-help-tel.md`
@@ -8,6 +9,7 @@
 - BG phone validator on `#field-phone` / `.telephone` / recipient — `main` @ `09f232a`; see `internal/bg-phone-validator.md`
 - Bank transfer: IBAN/beneficiary details panel when selected — `internal/bank-transfer-payment-details.md`
 - Invoice individual „Копирай от горните данни“ wired — `internal/copy-invoice-from-above.md`
+- Auth register step: OAuth circles (FB/Google/Apple + „или“ / social hint) below „Регистрирай се“ — see `internal/auth-register-oauth.md`
 - Auth modal: Facebook OAuth circle restored (FB + Google + Apple) — `main` @ `aaf4513`; see `internal/auth-facebook-oauth-restore.md` (supersedes remove note)
 - Auth modal: Facebook OAuth removed (Google + Apple kept) — `internal/remove-facebook-oauth.md` (historical; restored later)
 - Aside cart Ozone rows: delivery from `api/delivery-eta.json`, FLASH 10% promo lines, restored qty line totals — `internal/cart-delivery-flash-promo.md`

@@ -418,26 +418,32 @@ body.is-demo-logged-in #head-profile .top-profile-btn{width:40px;height:40px;mar
 body.is-demo-logged-in #head-profile .top-profile-btn svg{width:22px;height:22px}
 }
 @media only screen and (max-width:990px){
-#head-cart-cluster{top:10px;right:0;gap:2px}
-#head-cart-cluster #cart{width:42px;height:30px}
-#head-cart-cluster #cart.hp:before{width:38px;height:38px;margin:-4px 2px;border-radius:19px}
-#head-cart-cluster #cart .cart-icon{margin:6px 0 0 6px;width:26px!important;height:18px!important}
+/* Align profile+cart with phone/search (top:18 h:27 → cy≈31.5); leave click gaps */
+#head-cart-cluster{top:13px;right:2px;gap:8px;height:38px;-webkit-box-align:center;-ms-flex-align:center;align-items:center}
+#head-cart-cluster #cart{width:38px;height:38px}
+#head-cart-cluster #cart.hp:before{width:38px;height:38px;margin:0;border-radius:19px;left:0;top:0}
+#head-cart-cluster #cart .cart-icon{margin:10px 0 0 7px;width:24px!important;height:18px!important}
 #head-cart-cluster #cart .dot{min-width:16px;line-height:16px;font-size:11px;top:-2px;right:-2px}
-#head-profile{width:42px;height:30px}
-#head-profile.hp:before{width:38px;height:38px;margin:-4px 2px;border-radius:19px}
-#head-profile .top-profile-btn{width:38px;height:38px;margin:-4px 2px}
+#head-profile{width:38px;height:38px}
+#head-profile.hp:before{width:38px;height:38px;margin:0;border-radius:19px;left:0;top:0}
+#head-profile .top-profile-btn{width:38px;height:38px;margin:0}
 #head-profile .top-profile-btn svg{width:20px;height:20px}
+/* Profile adds ~46px; shift phone+search left so nothing overlaps */
+body.is-demo-logged-in #search{right:100px!important}
+body.is-demo-logged-in #top-phone{right:135px!important}
 }
 @media only screen and (max-width:480px){
-#head-cart-cluster{top:8px;gap:1px}
-#head-cart-cluster #cart{width:36px;height:26px}
-#head-cart-cluster #cart.hp:before{width:32px;height:32px;margin:-3px 2px;border-radius:16px}
-#head-cart-cluster #cart .cart-icon{margin:4px 0 0 4px;width:22px!important;height:16px!important}
+#head-cart-cluster{top:16px;right:2px;gap:6px;height:32px}
+#head-cart-cluster #cart{width:32px;height:32px}
+#head-cart-cluster #cart.hp:before{width:32px;height:32px;margin:0;border-radius:16px;left:0;top:0}
+#head-cart-cluster #cart .cart-icon{margin:8px 0 0 5px;width:22px!important;height:16px!important}
 #head-cart-cluster #cart .dot{min-width:14px;line-height:14px;font-size:10px}
-#head-profile{width:36px;height:26px}
-#head-profile.hp:before{width:32px;height:32px;margin:-3px 2px;border-radius:16px}
-#head-profile .top-profile-btn{width:32px;height:32px;margin:-3px 2px}
+#head-profile{width:32px;height:32px}
+#head-profile.hp:before{width:32px;height:32px;margin:0;border-radius:16px;left:0;top:0}
+#head-profile .top-profile-btn{width:32px;height:32px;margin:0}
 #head-profile .top-profile-btn svg{width:17px;height:17px}
+body.is-demo-logged-in #search{right:86px!important}
+body.is-demo-logged-in #top-phone{right:121px!important}
 }
 body.is-demo-logged-in #btn-account-auth{border-color:#55a630;background:#e8f6ec;color:#2e7d32}
 /* Allow checkout profile dropdown to escape .oh overflow:hidden on #checkout-register */

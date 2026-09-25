@@ -19,6 +19,7 @@
 - Header #user profile dropdown (BG) + no orange; #top-line full-bleed 30px — internal/profile-menu-header.md
 - Header profile beside #cart (yellow circle, same row; mobile scale) — internal/profile-beside-cart.md
 - Mobile: hide header black bar; sticky pinned header (`#head`) always — `internal/mobile-header-no-black-bar.md`
+- Mobile `#head` utilities (phone/search/profile/cart) one aligned row — `internal/mobile-header-icons-aligned.md`
 - Checkout `#btn-account-auth` logged-in profile dropdown (same options as header) — `internal/checkout-profile-dropdown.md`
 - Speedy/Econt office map locators + „Избери офис от карта“ — `internal/speedy-econt-office-locators.md`
 - Speedy/Econt office map: browser Back closes overlay (like BOX NOW) — wiring `e858e32`, docs/verify `bf00c50`; see `internal/speedy-econt-back-button.md`

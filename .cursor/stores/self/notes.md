@@ -1,5 +1,6 @@
 # plasico cart notes
 
+- Auth email step submit: **Продължи** (was „Продължи с поръчката“) — see `internal/auth-email-submit-continue.md`
 - Auth modal help link: two-line phone CTA (`<br>`) + `tel:070020810` — `main` @ `196eab7`; see `internal/auth-help-tel.md`
 - Auth modal **разпознат имейл** login: chip + green tick + „разпознат имейл“ + one password + „Вход“ — see `internal/auth-known-login-recognized.md` (base demo switch `9636f51`)
 - Auth modal: demo **неразпознат** → register UI (`s.dimitrova@plasico.bg`, „няма открита регистрация“, passwords, „Регистрирай се“); **разпознат** → login — `main` @ `9636f51`; see `internal/auth-email-mode-switch.md`

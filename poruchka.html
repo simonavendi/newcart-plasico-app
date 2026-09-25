@@ -371,15 +371,23 @@ html.boxnow-locator-open,html.boxnow-locator-open body{
 .auth-modal__thanks-smiley svg{display:block;width:40px;height:40px}
 .auth-modal__thanks-text{margin:0;font-family:"exo2b",sans-serif;font-size:18px;line-height:1.4;color:#222;max-width:280px}
 /* Top bar: keep 30px like live Plasico so header::before full-bleed matches */
+/* Pin entire header so #head stays at top while scrolling (mobile + desktop) */
+header.cl.rel{position:-webkit-sticky!important;position:sticky!important;top:0;z-index:250;background:transparent}
 header.cl.rel::before{content:"";display:block!important;position:absolute;left:0;right:0;top:0;height:30px;background:#000;z-index:1}
 #top-line{position:relative;z-index:99;height:30px;min-height:30px;line-height:30px;background:transparent;box-sizing:border-box}
 #top-line::after{content:"";position:absolute;top:0;bottom:0;left:50%;width:100vw;transform:translateX(-50%);background:#000;z-index:-1;pointer-events:none}
+/* Mobile: hide black top strip entirely (base CSS already display:none; restore after our !important) */
+@media only screen and (max-width:990px){
+header.cl.rel::before,#top-line,#top-line::after{display:none!important;height:0!important;min-height:0!important;line-height:0!important;content:none!important;background:transparent!important}
+}
 /* Top-line #user: guest only; no orange pill; profile moved beside cart */
 #user{background:transparent!important;padding:0 8px;position:relative;z-index:100}
 #user .user-guest[hidden]{display:none!important}
 body.is-demo-logged-in #user{display:none!important}
 /* Profile + cart: absolute on #head right so they share cart row (no float wrap) */
-#head{position:relative}
+/* #head stays relative (cluster absolute); opaque full-bleed so content doesn't show through sticky header */
+#head{position:relative;z-index:2;background:#fff;overflow:visible}
+#head:before{content:"";position:absolute;left:50%;transform:translateX(-50%);width:100vw;top:0;bottom:0;background:#fff;z-index:-1;pointer-events:none;border-bottom:1px solid #e6e6e6;box-sizing:border-box}
 #head-cart-cluster{position:absolute;top:22px;right:-9px;float:none!important;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;gap:4px;margin:0;z-index:20}
 #head-cart-cluster #cart{float:none!important;margin:0!important;width:56px;height:39px;position:relative}
 /* Header profile LEFT of #cart — yellow circle matching cart.hp:before */

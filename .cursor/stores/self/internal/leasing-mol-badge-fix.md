@@ -1,5 +1,6 @@
 # Leasing ЮЛ МОЛ badge + firm panel fix
 
+- Landed on: `main` @ `5f75018`
 - Live: https://newcart-plasico-app.vercel.app/
 - Local: http://127.0.0.1:8780/index.html
 - Shot: `.cursor/stores/self/media/leasing-mol-badge-visible.png`

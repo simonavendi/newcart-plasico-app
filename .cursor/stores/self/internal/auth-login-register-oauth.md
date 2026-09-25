@@ -20,3 +20,6 @@ Existing delegated click handler on `[data-auth-social]` is reused (no new JS).
 
 ## Verify
 Each of email / login / register has exactly one `.auth-modal__oauth` and providers `[facebook, google, apple]`.
+
+## SHA
+`main` @ `8388a7c` (`8388a7c53c7d8ea929f876f4c6f7076018a5c6cb`)

@@ -1,6 +1,6 @@
 # plasico cart notes
 
-- Auth login + register: FB/Google/Apple OAuth under both submit buttons (match email step) — see `internal/auth-login-register-oauth.md`
+- Auth login + register: FB/Google/Apple OAuth under both submit buttons (match email step) — `main` @ `8388a7c`; see `internal/auth-login-register-oauth.md`
 - Auth modal demo pills: **default** | неразпознат | разпознат — default opens `#auth-step-email` — `main` @ `442559f`; see `internal/auth-demo-default-toggle.md`
 - Auth email step submit: **Продължи** (was „Продължи с поръчката“) — see `internal/auth-email-submit-continue.md`
 - Auth modal help link: two-line phone CTA (`<br>`) + `tel:070020810` — `main` @ `196eab7`; see `internal/auth-help-tel.md`

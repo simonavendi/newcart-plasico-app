@@ -17,4 +17,7 @@ Files: `index.html`, `poruchka.html`. Existing CSS + `data-auth-social` click ha
 - Register chunk order: `</form>` → oauth → switch
 - Demo pills `default` / `unknown` / `known` unchanged
 - Help `tel:070020810` unchanged
-- Screenshot: `media/auth-register-oauth-below-submit.png`
+- Screenshot: `media/auth-register-oauth-below-submit.png` (verified)
+
+## SHA
+`main` @ `8388a7c`

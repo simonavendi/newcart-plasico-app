@@ -1,6 +1,6 @@
 # plasico cart notes
 
-- Agent store: checkout/auth/header/leasing evidence + internal notes landed on `main` @ `03caf68` (docs/media only; product already at tip) — see `internal/` for auth, Box Now, leasing, terms, carrier logos, bank/phone
+- Agent store: checkout/auth/header/leasing evidence + internal notes landed on `main` @ `b7c0c0f` (docs/media only; product already at tip) — see `internal/` for auth, Box Now, leasing, terms, carrier logos, bank/phone
 - Leasing-completed CTA: hide `#aside-leasing-btn` + morph Купи → **КУПИ НА ИЗПЛАЩАНЕ** after apply fill — `main` @ `0fbe764`; see `internal/leasing-completed-cta.md`
 - Checkout: no payment method preselected (bank transfer was default) — `main` @ `3b70ea3`; see `internal/no-payment-preselect.md`
 - Aside discount amount: info badge + tooltip (auto-applied promo) — `main` @ `eb6f2a2`; see `internal/aside-discount-info-tooltip.md`

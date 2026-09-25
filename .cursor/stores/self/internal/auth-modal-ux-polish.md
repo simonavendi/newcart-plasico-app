@@ -15,6 +15,10 @@ OAuth under login/register submits left intact (3× `.auth-modal__oauth`).
 ## Verify
 `node _verify_auth_modal_polish.js` — pill widths equal (136/136/136), logo on login/register, back → default email + default pill.
 
+## Media
+- `.cursor/stores/self/media/auth-polish-register-back.png`
+- `.cursor/stores/self/media/auth-polish-login-logo.png`
+
 ## SHA
 - HTML (`index.html` + `poruchka.html`): `main` @ `bc29a90` (`bc29a90d210577ae2b5fc9b1e29d0fbd5b91ecca`)
-- Notes/media/internal: `main` @ `e8c29f0` (`e8c29f0ea93ceb3f1ee89ca101a91f7fb78eef7e`)
+- Notes/media/internal: `main` @ `e8c29f0` / SHA note `33a42fd`

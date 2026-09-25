@@ -1001,3 +1001,11 @@ body.is-leasing-ready #checkout .aside-leasing {
 .co-invoice-leasing-mol-badge[hidden] {
 	display: none !important;
 }
+
+/* Leasing path: Физическо лице not switchable (auto invoice); only ЮЛ shown */
+#checkout .co-person-type label.is-leasing-person-locked,
+#checkout .co-person-type label[hidden].is-leasing-person-locked,
+.co-person-type label.is-leasing-person-locked,
+.co-person-type label[hidden].is-leasing-person-locked {
+	display: none !important;
+}

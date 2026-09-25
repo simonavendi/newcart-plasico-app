@@ -195,6 +195,12 @@
 		);
 	}
 
+	/** Payment method „На изплащане с PostBank“ (shows #pl-leasing-saved). */
+	function isPostBankInstallmentPaymentSelected() {
+		var checked = document.querySelector('input[name="payment_id"]:checked');
+		return !!(checked && String(checked.value) === '8');
+	}
+
 	/**
 	 * Filled apply + still on leasing path (payment 8 or nothing chosen yet).
 	 * Selecting any other payment restores the normal Купи + aside CTA.
@@ -204,6 +210,16 @@
 		var checked = document.querySelector('input[name="payment_id"]:checked');
 		if (!checked) return true;
 		return String(checked.value) === '8';
+	}
+
+	/**
+	 * Approved credit path: leasing apply completed (`#pl-leasing-saved` /
+	 * is-leasing-complete) AND „На изплащане с PostBank“ selected.
+	 * Green notice + hide Физическо лице only then — not on PostBank click alone.
+	 * „Копирай от горните данни“ stays visible/usable in all states.
+	 */
+	function isLeasingInvoicePathActive() {
+		return isLeasingApplyFilled() && isPostBankInstallmentPaymentSelected();
 	}
 
 	var BUY_LABEL_DEFAULT = 'Купи';
@@ -344,6 +360,25 @@
 		if (top) top.hidden = true;
 		if (badge) badge.hidden = true;
 		document.body.removeAttribute('data-leasing-invoice');
+		syncFizicheskoPersonTypeAvailability(false);
+	}
+
+	/**
+	 * When leasing payment path is active, Физическо лице is not a switchable
+	 * option (invoice is automatic per the green notice). Only ЮЛ stays available.
+	 * Radio stays enabled so the auto физ value still submits with the form.
+	 * @param {boolean} lock
+	 */
+	function syncFizicheskoPersonTypeAvailability(lock) {
+		var radio = document.getElementById('invoice-person-1');
+		var label = radio && radio.closest ? radio.closest('label') : null;
+		var group = document.querySelector('.co-person-type');
+		if (label) {
+			label.hidden = !!lock;
+			label.classList.toggle('is-leasing-person-locked', !!lock);
+			label.setAttribute('aria-hidden', lock ? 'true' : 'false');
+		}
+		if (group) group.classList.toggle('is-leasing-person-locked', !!lock);
 	}
 
 	function showInvoiceFieldsPanel() {
@@ -397,8 +432,10 @@
 	}
 
 	/**
-	 * After leasing apply: open „Искам фактура“, default to физическо лице,
-	 * autofill personal fields, show credit invoice notice. On ЮЛ: fill МОЛ + red badge.
+	 * After leasing apply + PostBank installment selected: open „Искам фактура“,
+	 * autofill физ. лице (automatic — option hidden), show credit notice.
+	 * On ЮЛ: МОЛ + red badge. Notices hide when payment leaves leasing method.
+	 * „Копирай от горните данни“ always stays visible/usable.
 	 * @param {{ forceIndividual?: boolean }} opts
 	 */
 	function syncInvoiceFromLeasing(opts) {
@@ -408,10 +445,20 @@
 			opts = opts || {};
 			var data = readSavedApply();
 			var filled = isLeasingApplyFilled();
+			var pathActive = isLeasingInvoicePathActive();
 			var ui = ensureInvoiceLeasingMessages();
 
 			if (!filled || !data) {
 				hideInvoiceLeasingUi();
+				return;
+			}
+
+			syncFizicheskoPersonTypeAvailability(pathActive);
+
+			/* Leasing filled but PostBank installment not selected → hide notices only. */
+			if (!pathActive) {
+				if (ui.top) ui.top.hidden = true;
+				if (ui.badge) ui.badge.hidden = true;
 				return;
 			}
 
@@ -422,6 +469,7 @@
 			if (shouldPrime) {
 				document.body.setAttribute('data-leasing-invoice', '1');
 				showInvoiceFieldsPanel();
+				/* Auto физ path — option label stays hidden; radio remains selected. */
 				selectInvoicePersonType('1');
 			}
 
@@ -462,11 +510,36 @@
 			function (e) {
 				var t = e.target;
 				if (!t || !t.name) return;
-				if (t.name !== 'invoice_person_type' && t.name !== 'want_invoice') return;
-				if (!isLeasingApplyFilled()) return;
+				if (
+					t.name !== 'invoice_person_type' &&
+					t.name !== 'want_invoice' &&
+					t.name !== 'payment_id'
+				) {
+					return;
+				}
+				if (!isLeasingApplyFilled() && t.name !== 'payment_id') return;
 				syncInvoiceFromLeasing({ forceIndividual: false });
 			},
 			false
+		);
+		/* Clicking already-selected ЮЛ while leasing returns to automatic физ. лице. */
+		document.addEventListener(
+			'click',
+			function (e) {
+				if (!isLeasingInvoicePathActive()) return;
+				var t = e.target;
+				if (!t || !t.closest) return;
+				var label = t.closest('.co-person-type label');
+				if (!label || label.hidden) return;
+				var radio = label.querySelector(
+					'input[name="invoice_person_type"][value="2"]'
+				);
+				if (!radio || !radio.checked) return;
+				e.preventDefault();
+				selectInvoicePersonType('1');
+				syncInvoiceFromLeasing({ forceIndividual: false });
+			},
+			true
 		);
 		document.addEventListener('plasico:leasing-apply', function () {
 			syncInvoiceFromLeasing({ forceIndividual: true });
@@ -1417,6 +1490,7 @@
 					renderSavedApply();
 				} else {
 					syncCheckoutCta();
+					syncInvoiceFromLeasing({ forceIndividual: false });
 				}
 			});
 		});

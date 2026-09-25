@@ -64,5 +64,5 @@ def sync(html_path: str) -> bool:
     return True
 
 
-ok = all(sync(p) for p in ["index.html", "poruchka.html"])
+ok = all(sync(p) for p in ["index.html", "poruchka.html", "boxnowno.html"])
 raise SystemExit(0 if ok else 1)

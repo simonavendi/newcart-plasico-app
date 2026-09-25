@@ -330,7 +330,7 @@ html.boxnow-locator-open,html.boxnow-locator-open body{
 .auth-modal__backdrop{position:absolute;inset:0;background:rgba(0,0,0,.4)}
 .auth-modal__shell{position:relative;z-index:1;width:100%;max-width:420px;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;-webkit-box-align:center;-ms-flex-align:center;align-items:center}
 .auth-modal__demo-flow{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;width:100%;margin:0 0 10px;padding:3px;box-sizing:border-box;background:rgba(255,255,255,.92);border:1px solid #d8d8d8;border-radius:999px;box-shadow:0 2px 10px rgba(0,0,0,.08);gap:2px}
-.auth-modal__demo-flow-btn{display:block;-webkit-box-flex:1;-ms-flex:1 1 0;flex:1 1 0;min-width:0;margin:0;padding:6px 4px;border:0;border-radius:999px;background:transparent;color:#666;font:inherit;font-size:10.5px;line-height:1.2;text-align:center;cursor:pointer;white-space:nowrap}
+.auth-modal__demo-flow-btn{display:block;-webkit-box-flex:1;-ms-flex:1 1 0%;flex:1 1 0%;width:0;min-width:0;max-width:none;box-sizing:border-box;margin:0;padding:6px 4px;border:0;border-radius:999px;background:transparent;color:#666;font:inherit;font-size:10.5px;line-height:1.2;text-align:center;cursor:pointer;white-space:normal;overflow:hidden}
 .auth-modal__demo-flow-btn:hover{color:#333}
 .auth-modal__demo-flow-btn.is-active{background:#55a630;color:#fff;font-family:"exo2b",sans-serif}
 .auth-modal__demo-flow-btn.is-active:hover{color:#fff;background:#4a9229}
@@ -354,8 +354,10 @@ html.boxnow-locator-open,html.boxnow-locator-open body{
 .auth-modal__email-status--known{color:#55a630}
 .auth-modal__email-status--known .auth-modal__email-status-icon{color:#55a630}
 .auth-modal__email-status--unknown .auth-modal__email-status-icon{color:#b0b0b0;font-size:18px}
-.auth-modal__back{display:inline-block;margin:0 0 8px;padding:0;border:0;background:transparent;color:#55a630;font:inherit;font-size:13px;cursor:pointer;text-decoration:underline}
+.auth-modal__back{position:absolute;top:6px;left:4px;z-index:2;display:-webkit-inline-box;display:-ms-inline-flexbox;display:inline-flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;gap:2px;margin:0;padding:8px 10px;border:0;background:transparent;color:#55a630;font:inherit;font-family:"exo2b",sans-serif;font-size:12px;line-height:1;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;text-decoration:none}
 .auth-modal__back:hover{color:#4a9229}
+.auth-modal__back[hidden]{display:none!important}
+.auth-modal__brand[hidden]{display:none!important}
 .auth-modal__form{margin:0}
 .auth-modal__field{margin:0 0 12px}
 .auth-modal__field label{display:block;margin:0 0 6px;padding:0 4px;color:#444;font-size:13px}
@@ -490,7 +492,7 @@ body.auth-modal-open{overflow:hidden}
 .auth-modal{padding:12px}
 .auth-modal__dialog{padding:24px 18px 20px;border-radius:10px}
 .auth-modal__greeting{font-size:24px}
-.auth-modal__demo-flow-btn{font-size:9.5px;padding:6px 3px;white-space:normal;line-height:1.15}
+.auth-modal__demo-flow-btn{font-size:9px;padding:6px 2px;white-space:normal;line-height:1.15}
 .auth-modal__brand img{height:34px}
 }
 
@@ -1417,6 +1419,8 @@ min-height:52px;box-sizing:border-box
       var registerEmailChip = document.getElementById("auth-register-email-chip");
       var dialog = modal.querySelector(".auth-modal__dialog");
       var helpLink = modal.querySelector(".auth-modal__help");
+      var brandEl = modal.querySelector(".auth-modal__brand");
+      var backBtn = modal.querySelector("[data-auth-back]");
       var demoFlow = modal.querySelector(".auth-modal__demo-flow");
       var AUTH_EMAIL_MODE_KEY = "plasico-auth-email-mode";
 
@@ -1475,6 +1479,14 @@ min-height:52px;box-sizing:border-box
           if (key === which) el.removeAttribute("hidden");
           else el.setAttribute("hidden", "");
         });
+        if (brandEl) {
+          if (which === "thanks") brandEl.setAttribute("hidden", "");
+          else brandEl.removeAttribute("hidden");
+        }
+        if (backBtn) {
+          if (which === "login" || which === "register") backBtn.removeAttribute("hidden");
+          else backBtn.setAttribute("hidden", "");
+        }
         if (helpLink) {
           if (which === "thanks") helpLink.setAttribute("hidden", "");
           else helpLink.removeAttribute("hidden");
@@ -1606,7 +1618,7 @@ min-height:52px;box-sizing:border-box
         var back = t.closest("[data-auth-back]");
         if (back) {
           e.preventDefault();
-          setAuthStep("email");
+          setAuthEmailMode("default", true);
           return;
         }
         var goto = t.closest("[data-auth-goto]");
@@ -6149,12 +6161,13 @@ window.__plasicoEnsureBoxNow = function () {
  <button type=button class="auth-modal__demo-flow-btn" data-auth-email-mode=known aria-pressed=false>разпознат имейл</button>
  </div>
  <div class="auth-modal__dialog" role=dialog aria-modal=true aria-labelledby=auth-modal-title tabindex=-1>
+ <button type=button class="auth-modal__back" data-auth-back hidden aria-label=Назад>← НАЗАД</button>
  <button type=button class="auth-modal__close" data-auth-close aria-label=Затвори>×</button>
-
- <div class="auth-modal__step" id=auth-step-email>
  <a class="auth-modal__brand" href=https://plasico.bg/ tabindex=-1>
  <img src=assets/plasico-logo.png width=174 height=40 alt=Plasico>
  </a>
+
+ <div class="auth-modal__step" id=auth-step-email>
  <h2 class="auth-modal__greeting" id=auth-modal-title>Здравей!</h2>
  <p class="auth-modal__prompt">Моля въведи имейл адрес</p>
  <form class="auth-modal__form" id=auth-email-form action=# method=post>
@@ -6189,7 +6202,6 @@ window.__plasicoEnsureBoxNow = function () {
  </div>
 
  <div class="auth-modal__step" id=auth-step-login hidden>
- <button type=button class="auth-modal__back" data-auth-back>← Назад</button>
  <h2 class="auth-modal__title">Вход</h2>
  <div class="auth-modal__email-chip-row" id=auth-login-email-chip>
  <span class="auth-modal__email-chip-text"></span>
@@ -6230,9 +6242,6 @@ window.__plasicoEnsureBoxNow = function () {
  </div>
 
  <div class="auth-modal__step" id=auth-step-register hidden>
- <a class="auth-modal__brand" href=https://plasico.bg/ tabindex=-1>
- <img src=assets/plasico-logo.png width=174 height=40 alt=Plasico>
- </a>
  <h2 class="auth-modal__greeting">Здравей!</h2>
  <div class="auth-modal__email-chip-row" id=auth-register-email-chip>
  <span class="auth-modal__email-chip-text"></span>

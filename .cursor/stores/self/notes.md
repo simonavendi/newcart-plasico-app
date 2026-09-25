@@ -1,5 +1,6 @@
 # plasico cart notes
 
+- `/boxnowno` checkout copy: BOX NOW greyed + size tip + default Speedy office — see `internal/boxnowno-page.md` + `media/boxnowno-grey-boxnow.png`
 - Agent store: checkout/auth/header/leasing evidence + internal notes landed on `main` @ `b7c0c0f` (docs/media only; product already at tip) — see `internal/` for auth, Box Now, leasing, terms, carrier logos, bank/phone
 - Leasing `#pl-leasing-summary`: prefix **Обща сума: ** — `main` @ `b1041af`; see `internal/leasing-summary-obsha-suma.md` + `media/leasing-summary-obsha-suma.png`
 - Leasing-complete Купи CTA: wrap + creditor hint **left-aligned** (was centered) — `main` @ `be700a8`; see `internal/leasing-buy-cta-left.md` + `media/leasing-buy-cta-left.png`

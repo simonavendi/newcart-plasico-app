@@ -3,7 +3,7 @@
 - BG phone validator on `#field-phone` / `.telephone` / recipient — `main` @ `09f232a`; see `internal/bg-phone-validator.md`
 - Bank transfer: IBAN/beneficiary details panel when selected — `internal/bank-transfer-payment-details.md`
 - Invoice individual „Копирай от горните данни“ wired — `internal/copy-invoice-from-above.md`
-- Auth modal: Facebook OAuth circle restored (FB + Google + Apple) — `internal/auth-facebook-oauth-restore.md` (supersedes remove note)
+- Auth modal: Facebook OAuth circle restored (FB + Google + Apple) — `main` @ `aaf4513`; see `internal/auth-facebook-oauth-restore.md` (supersedes remove note)
 - Auth modal: Facebook OAuth removed (Google + Apple kept) — `internal/remove-facebook-oauth.md` (historical; restored later)
 - Aside cart Ozone rows: delivery from `api/delivery-eta.json`, FLASH 10% promo lines, restored qty line totals — `internal/cart-delivery-flash-promo.md`
 - Aside cart qty +/−/del wired locally (FLASH line/grand + leasing teaser) — `internal/cart-qty-selectors.md`

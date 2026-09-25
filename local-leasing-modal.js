@@ -306,7 +306,7 @@
 
 	/* —— Invoice (фактура) wiring after leasing apply —— */
 	var INVOICE_LEASING_AUTO_MSG =
-		'Автоматично ще бъде издадена фактура на физическото лице при кредит.';
+		'Автоматично ще бъде издадена фактура на физическото лице при кредит. - ако вместо това желаете фактура на фирма изберете опцията по-долу.';
 	var INVOICE_LEASING_MOL_MSG =
 		'При фактура за фирма и кредит трябва задължително потребителят на кредита да е МОЛ на фирмата';
 	var INVOICE_AUTO_MSG_ID = 'co-invoice-leasing-auto-msg';
@@ -361,11 +361,13 @@
 		if (badge) badge.hidden = true;
 		document.body.removeAttribute('data-leasing-invoice');
 		syncFizicheskoPersonTypeAvailability(false);
+		restoreInvoicePersonPanelsAfterLeasing();
 	}
 
 	/**
 	 * When leasing payment path is active, Физическо лице is not a switchable
 	 * option (invoice is automatic per the green notice). Only ЮЛ stays available.
+	 * „Тип лице“ label is also hidden — not useful with a single remaining option.
 	 * Radio stays enabled so the auto физ value still submits with the form.
 	 * @param {boolean} lock
 	 */
@@ -373,12 +375,17 @@
 		var radio = document.getElementById('invoice-person-1');
 		var label = radio && radio.closest ? radio.closest('label') : null;
 		var group = document.querySelector('.co-person-type');
+		var typeLabel = document.getElementById('invoice-person-type-label');
 		if (label) {
 			label.hidden = !!lock;
 			label.classList.toggle('is-leasing-person-locked', !!lock);
 			label.setAttribute('aria-hidden', lock ? 'true' : 'false');
 		}
 		if (group) group.classList.toggle('is-leasing-person-locked', !!lock);
+		if (typeLabel) {
+			typeLabel.hidden = !!lock;
+			typeLabel.setAttribute('aria-hidden', lock ? 'true' : 'false');
+		}
 	}
 
 	function showInvoiceFieldsPanel() {
@@ -433,10 +440,12 @@
 
 	/**
 	 * Show firm vs individual invoice panels to match the selected person type.
-	 * Mirrors checkout syncInvoice() showEl/hideEl so ЮЛ never leaves
-	 * #checkout-person-individual visible.
+	 * On the leasing path, hide #checkout-person-individual even for физ —
+	 * invoice is automatic; Копирай / Три имена / Адрес / ЕГН are not shown.
+	 * @param {boolean} isFirm
+	 * @param {boolean} [hideIndividualForLeasing]
 	 */
-	function syncInvoicePersonPanels(isFirm) {
+	function syncInvoicePersonPanels(isFirm, hideIndividualForLeasing) {
 		var firms = document.getElementById('checkout-firms');
 		var indiv = document.getElementById('checkout-person-individual');
 		function show(el) {
@@ -454,15 +463,28 @@
 			hide(indiv);
 		} else {
 			hide(firms);
-			show(indiv);
+			if (hideIndividualForLeasing) {
+				hide(indiv);
+			} else {
+				show(indiv);
+			}
 		}
+	}
+
+	/** Restore firm/individual panels after leaving the leasing invoice path. */
+	function restoreInvoicePersonPanelsAfterLeasing() {
+		var want = document.getElementById('want-invoice');
+		if (!want || !want.checked) return;
+		var type = document.querySelector('input[name="invoice_person_type"]:checked');
+		var isFirm = !!(type && String(type.value) === '2');
+		syncInvoicePersonPanels(isFirm, false);
 	}
 
 	/**
 	 * After leasing apply + PostBank installment selected: open „Искам фактура“,
-	 * autofill физ. лице (automatic — option hidden), show credit notice.
-	 * On ЮЛ: firm fields + МОЛ + red badge. Notices hide when payment leaves leasing method.
-	 * „Копирай от горните данни“ always stays on the individual panel.
+	 * autofill физ. лице (automatic — option + individual fields + „Тип лице“ hidden),
+	 * show credit notice with firm-option hint.
+	 * On ЮЛ: firm fields + МОЛ + red badge. Notices/locks clear when payment leaves leasing.
 	 * @param {{ forceIndividual?: boolean }} opts
 	 */
 	function syncInvoiceFromLeasing(opts) {
@@ -482,10 +504,11 @@
 
 			syncFizicheskoPersonTypeAvailability(pathActive);
 
-			/* Leasing filled but PostBank installment not selected → hide notices only. */
+			/* Leasing filled but PostBank installment not selected → hide notices + unlock UI. */
 			if (!pathActive) {
 				if (ui.top) ui.top.hidden = true;
 				if (ui.badge) ui.badge.hidden = true;
+				restoreInvoicePersonPanelsAfterLeasing();
 				return;
 			}
 
@@ -509,7 +532,8 @@
 			var type = document.querySelector('input[name="invoice_person_type"]:checked');
 			var isFirm = !!(type && String(type.value) === '2');
 
-			syncInvoicePersonPanels(isFirm);
+			/* Leasing path: always hide individual fields; ЮЛ still shows firm panel. */
+			syncInvoicePersonPanels(isFirm, true);
 
 			if (isFirm) {
 				applyLeasingToInvoiceMol(data);

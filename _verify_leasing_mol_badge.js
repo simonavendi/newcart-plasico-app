@@ -90,8 +90,6 @@ function panelVisible(el) {
   );
   assert(afterApply.badgeHidden, "badge must stay hidden on физ path");
   assert(afterApply.fizHidden, "Физическо лице toggle must be hidden");
-  assert(afterApply.copyLabelVisible, "Копирай must stay visible on indiv panel");
-  assert(!afterApply.copyDisabled, "Копирай must stay enabled");
   assert(afterApply.p1, "auto физ radio should be selected after apply");
 
   // Real user click on ЮЛ label (the bug path)
@@ -167,7 +165,7 @@ function panelVisible(el) {
     };
   });
   assert(afterReclick.p1, "re-click ЮЛ should return to физ");
-  assert(afterReclick.indivVisible, "indiv panel should return");
+  assert(!afterReclick.indivVisible, "indiv panel stays hidden on leasing физ path");
   assert(!afterReclick.firmsVisible, "firms should hide on физ");
   assert(!afterReclick.topHidden, "green msg should return");
   assert(afterReclick.badgeHidden, "badge should hide on физ");

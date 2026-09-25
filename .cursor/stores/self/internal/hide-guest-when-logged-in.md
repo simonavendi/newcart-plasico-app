@@ -18,3 +18,7 @@ When logged in, hide the entire guest checkout block under `#checkout-register`:
 - Logged out: guest title + fields visible — `media/guest-block-logged-out.png`
 - Logged in: guest block gone; profile CTA remains — `media/guest-block-logged-in.png`
 - Script: `_verify_hide_guest_logged_in.js` → PASS
+
+## Commits (main)
+- `1023026` — phone validator + notes/screenshots
+- `4ecccb3` — `index.html` / `poruchka.html` guest-hide sync

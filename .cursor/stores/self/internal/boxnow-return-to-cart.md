@@ -1,7 +1,7 @@
-# BOX NOW — return to cart after locker select
+﻿# BOX NOW — return to cart after locker select
 
 **Date:** 2026-09-24  
-**Branch:** `cursor/boxnow-return-to-cart-a244`  
+**Landed on:** `main` (`f33e830`, currently under tip `2062e1f`) — also PR #16 / `cursor/boxnow-return-to-cart-a244`  
 **Partner ID:** `18248`  
 **Reference:** [megamag.bg/checkout](https://megamag.bg/checkout) (mega-gamma.com/checkout is 404)
 

@@ -374,20 +374,63 @@ html.boxnow-locator-open,html.boxnow-locator-open body{
 header.cl.rel::before{content:"";display:block!important;position:absolute;left:0;right:0;top:0;height:30px;background:#000;z-index:1}
 #top-line{position:relative;z-index:99;height:30px;min-height:30px;line-height:30px;background:transparent;box-sizing:border-box}
 #top-line::after{content:"";position:absolute;top:0;bottom:0;left:50%;width:100vw;transform:translateX(-50%);background:#000;z-index:-1;pointer-events:none}
-/* Remove orange #user pill; profile sits on black bar */
+/* Top-line #user: guest only; no orange pill; profile moved beside cart */
 #user{background:transparent!important;padding:0 8px;position:relative;z-index:100}
-#user .top-profile-btn{display:-webkit-inline-box;display:-ms-inline-flexbox;display:inline-flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;width:26px;height:26px;padding:0;border:2px solid #55a630;border-radius:50%;background:#fff;color:#55a630;cursor:pointer;vertical-align:middle}
-#user .top-profile-btn:hover,#user .user-logged.is-open .top-profile-btn{background:#55a630;color:#fff}
-#user .top-profile-btn svg{display:block;width:14px;height:14px;fill:currentColor}
-#user .user-guest[hidden],#user .user-logged[hidden]{display:none!important}
-#user .user-logged{position:relative;list-style:none}
-#user .user-profile-menu{display:none;position:absolute;top:100%;right:0;left:auto;min-width:210px;margin:4px 0 0;padding:6px 0;list-style:none;background:#fff;border:1px solid #e6e6e6;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:300;box-sizing:border-box}
-#user .user-logged.is-open .user-profile-menu,#user .user-profile-menu.is-open{display:block}
-#user .user-profile-menu[hidden]{display:none!important}
-#user .user-profile-menu a,#user .user-profile-menu button{display:block;width:100%;box-sizing:border-box;padding:10px 14px;border:0;background:transparent;color:#222;font-family:"exo2",Tahoma,sans-serif;font-size:13px;line-height:1.3;text-align:left;text-decoration:none;cursor:pointer;white-space:nowrap}
-#user .user-profile-menu a:hover,#user .user-profile-menu button:hover{background:#f5f5f5;color:#55a630}
-#user .user-profile-menu .user-profile-menu__logout{border-top:1px solid #eee;color:#b00020}
-#user .user-profile-menu .user-profile-menu__logout:hover{background:#fff5f5;color:#b00020}
+#user .user-guest[hidden]{display:none!important}
+body.is-demo-logged-in #user{display:none!important}
+/* Profile + cart: absolute on #head right so they share cart row (no float wrap) */
+#head{position:relative}
+#head-cart-cluster{position:absolute;top:22px;right:-9px;float:none!important;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:end;-ms-flex-pack:end;justify-content:flex-end;gap:4px;margin:0;z-index:20}
+#head-cart-cluster #cart{float:none!important;margin:0!important;width:56px;height:39px;position:relative}
+/* Header profile LEFT of #cart — yellow circle matching cart.hp:before */
+#head-profile{display:none;width:56px;height:39px;margin:0;position:relative;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:0 0 auto}
+body.is-demo-logged-in #head-profile{display:block}
+#head-profile[hidden]{display:none!important}
+#head-profile.hp:before{content:"";position:absolute;z-index:0;background:yellow;width:50px;height:50px;margin:-5px 3px;border-radius:25px}
+#head-profile .top-profile-btn{position:relative;z-index:1;display:-webkit-inline-box;display:-ms-inline-flexbox;display:inline-flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;width:50px;height:50px;margin:-5px 3px;padding:0;border:0;border-radius:50%;background:transparent;color:#222;cursor:pointer;vertical-align:middle;box-sizing:border-box}
+#head-profile.is-open .top-profile-btn,#head-profile .top-profile-btn:hover{color:#000}
+#head-profile .top-profile-btn svg{display:block;width:26px;height:26px;fill:currentColor}
+#head-profile .user-profile-menu{display:none;position:absolute;top:100%;right:0;left:auto;min-width:210px;margin:10px 0 0;padding:6px 0;list-style:none;background:#fff;border:1px solid #e6e6e6;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:300;box-sizing:border-box}
+#head-profile.is-open .user-profile-menu,#head-profile .user-profile-menu.is-open{display:block}
+#head-profile .user-profile-menu[hidden]{display:none!important}
+#head-profile .user-profile-menu a,#head-profile .user-profile-menu button{display:block;width:100%;box-sizing:border-box;padding:10px 14px;border:0;background:transparent;color:#222;font-family:"exo2",Tahoma,sans-serif;font-size:13px;line-height:1.3;text-align:left;text-decoration:none;cursor:pointer;white-space:nowrap}
+#head-profile .user-profile-menu a:hover,#head-profile .user-profile-menu button:hover{background:#f5f5f5;color:#55a630}
+#head-profile .user-profile-menu .user-profile-menu__logout{border-top:1px solid #eee;color:#b00020}
+#head-profile .user-profile-menu .user-profile-menu__logout:hover{background:#fff5f5;color:#b00020}
+/* Tablet/narrow: shrink both so they fit beside phone without wrap */
+/* Mid desktop (.pw 990px): shrink both when profile shows so phone stays clear */
+@media only screen and (min-width:991px) and (max-width:1280px){
+body.is-demo-logged-in #head-cart-cluster{gap:2px}
+body.is-demo-logged-in #head-cart-cluster #cart{width:44px;height:32px}
+body.is-demo-logged-in #head-cart-cluster #cart.hp:before{width:40px;height:40px;margin:-4px 2px;border-radius:20px}
+body.is-demo-logged-in #head-cart-cluster #cart .cart-icon{margin:7px 0 0 7px;width:28px!important;height:20px!important}
+body.is-demo-logged-in #head-profile{width:44px;height:32px}
+body.is-demo-logged-in #head-profile.hp:before{width:40px;height:40px;margin:-4px 2px;border-radius:20px}
+body.is-demo-logged-in #head-profile .top-profile-btn{width:40px;height:40px;margin:-4px 2px}
+body.is-demo-logged-in #head-profile .top-profile-btn svg{width:22px;height:22px}
+}
+@media only screen and (max-width:990px){
+#head-cart-cluster{top:10px;right:0;gap:2px}
+#head-cart-cluster #cart{width:42px;height:30px}
+#head-cart-cluster #cart.hp:before{width:38px;height:38px;margin:-4px 2px;border-radius:19px}
+#head-cart-cluster #cart .cart-icon{margin:6px 0 0 6px;width:26px!important;height:18px!important}
+#head-cart-cluster #cart .dot{min-width:16px;line-height:16px;font-size:11px;top:-2px;right:-2px}
+#head-profile{width:42px;height:30px}
+#head-profile.hp:before{width:38px;height:38px;margin:-4px 2px;border-radius:19px}
+#head-profile .top-profile-btn{width:38px;height:38px;margin:-4px 2px}
+#head-profile .top-profile-btn svg{width:20px;height:20px}
+}
+@media only screen and (max-width:480px){
+#head-cart-cluster{top:8px;gap:1px}
+#head-cart-cluster #cart{width:36px;height:26px}
+#head-cart-cluster #cart.hp:before{width:32px;height:32px;margin:-3px 2px;border-radius:16px}
+#head-cart-cluster #cart .cart-icon{margin:4px 0 0 4px;width:22px!important;height:16px!important}
+#head-cart-cluster #cart .dot{min-width:14px;line-height:14px;font-size:10px}
+#head-profile{width:36px;height:26px}
+#head-profile.hp:before{width:32px;height:32px;margin:-3px 2px;border-radius:16px}
+#head-profile .top-profile-btn{width:32px;height:32px;margin:-3px 2px}
+#head-profile .top-profile-btn svg{width:17px;height:17px}
+}
 body.is-demo-logged-in #btn-account-auth{border-color:#55a630;background:#e8f6ec;color:#2e7d32}
 /* Allow checkout profile dropdown to escape .oh overflow:hidden on #checkout-register */
 #checkout #checkout-register{overflow:visible}
@@ -1189,10 +1232,14 @@ min-height:52px;box-sizing:border-box
         if (logged) el.setAttribute("hidden", "");
         else el.removeAttribute("hidden");
       });
-      document.querySelectorAll("#user .user-logged").forEach(function (el) {
-        if (logged) el.removeAttribute("hidden");
-        else el.setAttribute("hidden", "");
-      });
+      var headProfile = document.getElementById("head-profile");
+      if (headProfile) {
+        if (logged) headProfile.removeAttribute("hidden");
+        else {
+          headProfile.setAttribute("hidden", "");
+          headProfile.classList.remove("is-open");
+        }
+      }
       // Guest name/phone/email: hide when logged in; drop required so hidden inputs don't block submit
       document.querySelectorAll("#checkout-register .checkout-guest-fields input").forEach(function (el) {
         if (logged) {
@@ -1240,7 +1287,7 @@ min-height:52px;box-sizing:border-box
 
     var profileBtn = document.getElementById("btn-top-profile");
     var profileMenu = document.getElementById("user-profile-menu");
-    var profileLogged = profileBtn && profileBtn.closest ? profileBtn.closest(".user-logged") : null;
+    var profileLogged = document.getElementById("head-profile") || (profileBtn && profileBtn.closest ? profileBtn.closest(".user-logged") : null);
     var logoutBtn = document.getElementById("btn-top-logout");
     var checkoutProfileMenu = document.getElementById("checkout-profile-menu");
     var checkoutProfileActions = document.getElementById("co-profile-actions");
@@ -2569,17 +2616,6 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
  <div id=user class=fr>
  <ul>
  <li class=user-guest><span data-url=https://plasico.bg/account class="b pnt cbox" data-open-auth-modal>Вход</span><span> или </span><span data-url=https://plasico.bg/account class="b pnt cbox" data-open-auth-modal>Регистрация</span><span> или чрез </span><span class="sprp ggl-icon-sm fr" title=Google+ data-open-auth-modal></span><span class="sprp fb-icon-sm fr" title=Facebook data-open-auth-modal></span></li>
- <li class="user-logged rel" hidden>
- <button type=button class=top-profile-btn id=btn-top-profile aria-label="Профил — влезли сте" title="Профил" aria-haspopup=menu aria-expanded=false aria-controls=user-profile-menu>
- <svg viewBox="0 0 24 24" aria-hidden=true focusable=false><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v1.2c0 .7.5 1.2 1.2 1.2h16.8c.7 0 1.2-.5 1.2-1.2v-1.2c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
- </button>
- <ul class="abs user-profile-menu" id=user-profile-menu role=menu hidden>
- <li role=none><a role=menuitem href="https://plasico.bg/account">Профил</a></li>
- <li role=none><a role=menuitem href="https://plasico.bg/account">Предишни поръчки</a></li>
- <li role=none><a role=menuitem href="https://plasico.bg/account">Документи</a></li>
- <li role=none><button type=button role=menuitem class=user-profile-menu__logout id=btn-top-logout>Изход</button></li>
- </ul>
- </li>
  </ul>
  </div>
  
@@ -2605,10 +2641,23 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
  <a href="tel:0700 20 810" id=top-phone class=fl>
  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==" width=33 height=26 class="spr phone-icon fl" alt=Телефон>
  0700 20 810 </a>
- <span id=cart data-url=%D0%BF%D0%BE%D1%80%D1%8A%D1%87%D0%BA%D0%B0 class="fr pnt rel hp">
+ <span id=head-cart-cluster class="fr rel">
+ <span id=head-profile class="pnt rel hp user-logged" hidden>
+ <button type=button class=top-profile-btn id=btn-top-profile aria-label="Профил — влезли сте" title="Профил" aria-haspopup=menu aria-expanded=false aria-controls=user-profile-menu>
+ <svg viewBox="0 0 24 24" aria-hidden=true focusable=false><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v1.2c0 .7.5 1.2 1.2 1.2h16.8c.7 0 1.2-.5 1.2-1.2v-1.2c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+ </button>
+ <ul class="abs user-profile-menu" id=user-profile-menu role=menu hidden>
+ <li role=none><a role=menuitem href="https://plasico.bg/account">Профил</a></li>
+ <li role=none><a role=menuitem href="https://plasico.bg/account">Предишни поръчки</a></li>
+ <li role=none><a role=menuitem href="https://plasico.bg/account">Документи</a></li>
+ <li role=none><button type=button role=menuitem class=user-profile-menu__logout id=btn-top-logout>Изход</button></li>
+ </ul>
+ </span>
+ <span id=cart data-url=%D0%BF%D0%BE%D1%80%D1%8A%D1%87%D0%BA%D0%B0 class="pnt rel hp">
  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==" width=34 height=24 class="abs spr cart-icon" alt=Количка>
  <span class="abs dot">2</span>
  <span class="abs shadow-hider sf-hidden"></span>
+ </span>
  </span>
  <div id=leftmenu class=menu style=display:none>
  

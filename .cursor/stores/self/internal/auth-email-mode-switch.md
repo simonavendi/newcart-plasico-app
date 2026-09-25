@@ -1,11 +1,14 @@
 # Auth modal demo email-mode switch
 
-- **SHA:** `fd1c3bb` on `main`
+- **Feature SHA:** `9636f51` on `main` (switch base `fd1c3bb`)
 - **Files:** `index.html`, `poruchka.html`
-- **UI:** Segmented control `.auth-modal__demo-flow` sits on top of the modal shell (above `.auth-modal__dialog` / logo) with:
-  - `неразпознат имейл` → `data-auth-email-mode=unknown` → email continue opens `#auth-step-register`
-  - `разпознат имейл` → `data-auth-email-mode=known` → email continue opens `#auth-step-login`
-- **Persistence:** `sessionStorage` key `plasico-auth-email-mode`
-- **Live toggle:** Changing the switch while already on login/register jumps to the matching step
-- **OAuth:** FB / Google / Apple row unchanged
-- **Screens:** `.cursor/stores/self/media/auth-email-mode-switch.png`, `auth-email-mode-unknown-register.png`, `auth-email-mode-known-login.png`
+- **UI:** Segmented control `.auth-modal__demo-flow` above `.auth-modal__dialog`
+  - **неразпознат имейл** → `#auth-step-register` immediately with:
+    - chip `s.dimitrova@plasico.bg` + × clear
+    - status `няма открита регистрация`
+    - password + confirm
+    - CTA `Регистрирай се`
+  - **разпознат имейл** → `#auth-step-login` with same demo email + `намерена регистрация`
+- **× clear:** returns to `#auth-step-email` entry
+- **Help link:** `tel:070020810` preserved
+- **Screens:** `media/auth-unknown-register-step.png`, `media/auth-known-login-step.png`

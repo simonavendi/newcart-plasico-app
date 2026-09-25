@@ -16,3 +16,5 @@ Amount formatting (`formatEuro`) unchanged.
 `node _verify_leasing_summary_prefix.js` → PASS  
 Media: `media/leasing-summary-obsha-suma.png`  
 Local: http://127.0.0.1:8780/index.html
+
+Landed: `main` @ `b1041af`

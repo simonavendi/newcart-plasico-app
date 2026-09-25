@@ -37,6 +37,7 @@
 - Partner ID: **18248**
 - Auth modal: circle social icons + thank-you + top-bar profile (`a71bfa8`) — see `internal/auth-thanks-profile.md`; Facebook restored with Google/Apple
 - Header #user profile dropdown (BG) + no orange; #top-line full-bleed 30px — internal/profile-menu-header.md
+- Header + checkout profile menus: Simona 6 labels (История… / Смяна на парола / адреси / фирми / Рекламации / Изход) — `internal/profile-menu-renamed.md` + `media/profile-menu-renamed.png`
 - Header profile beside #cart (yellow circle, same row; mobile scale) — internal/profile-beside-cart.md
 - Header cart sprite wheels + guest phone/search/cart spacing (`main` @ `b956a26`) — see `internal/cart-icon-guest-gap.md`
 - Mobile: hide header black bar; sticky pinned header (`#head`) always — `internal/mobile-header-no-black-bar.md`

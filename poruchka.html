@@ -369,6 +369,17 @@ html.boxnow-locator-open,html.boxnow-locator-open body{
 .auth-modal__form{margin:0}
 .auth-modal__field{margin:0 0 12px}
 .auth-modal__field label{display:block;margin:0 0 6px;padding:0 4px;color:#444;font-size:13px}
+.auth-modal__field-head{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;-webkit-box-align:baseline;-ms-flex-align:baseline;align-items:baseline;-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between;gap:8px;margin:0 0 6px}
+.auth-modal__field-head label{margin:0;padding:0 4px}
+.auth-modal__forgot{margin:0;padding:0 4px;border:0;background:transparent;font:inherit;font-size:13px;line-height:1.35;color:#55a630;text-decoration:underline;cursor:pointer;white-space:nowrap}
+.auth-modal__forgot:hover{color:#4a9229}
+.auth-modal__forgot-sent{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;padding:12px 8px 8px;text-align:center;min-height:200px}
+.auth-modal__forgot-sent-tick{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;width:72px;height:72px;margin:0 0 16px;border-radius:50%;background:#e8f6ec;color:#55a630}
+.auth-modal__forgot-sent-tick svg{display:block;width:40px;height:40px}
+.auth-modal__forgot-sent-title{margin:0 0 14px;font-family:"exo2b",sans-serif;font-size:22px;line-height:1.25;color:#222;text-transform:none}
+.auth-modal__forgot-sent-text{margin:0 0 12px;font-size:14px;line-height:1.45;color:#444;max-width:320px}
+.auth-modal__forgot-sent-email{color:#222;word-break:break-all}
+.auth-modal__forgot-sent-thanks{margin:8px 0 0;font-family:"exo2b",sans-serif;font-size:15px;line-height:1.4;color:#55a630;max-width:320px}
 .auth-modal__field input{display:block;width:100%;padding:12px 18px;border:1px solid #d8d8d8;border-radius:999px;box-sizing:border-box;font:inherit;font-size:15px;background:#fff;color:#222}
 .auth-modal__field input:focus{outline:none;border-color:#55a630;box-shadow:0 0 0 2px rgba(85,166,48,.15)}
 .auth-modal__submit{display:block;width:100%;margin:4px 0 0;padding:13px 18px;border:0;border-radius:999px;background:#55a630;color:#fff;font-family:"exo2b",sans-serif;font-size:16px;line-height:1.2;cursor:pointer}
@@ -1491,6 +1502,7 @@ min-height:52px;box-sizing:border-box
       var stepLogin = document.getElementById("auth-step-login");
       var stepRegister = document.getElementById("auth-step-register");
       var stepThanks = document.getElementById("auth-step-thanks");
+      var stepForgotSent = document.getElementById("auth-step-forgot-sent");
       var emailInput = document.getElementById("auth-email");
       var emailForm = document.getElementById("auth-email-form");
       var loginForm = document.getElementById("auth-login-form");
@@ -1553,7 +1565,8 @@ min-height:52px;box-sizing:border-box
           email: stepEmail,
           login: stepLogin,
           register: stepRegister,
-          thanks: stepThanks
+          thanks: stepThanks,
+          "forgot-sent": stepForgotSent
         };
         Object.keys(steps).forEach(function (key) {
           var el = steps[key];
@@ -1566,7 +1579,7 @@ min-height:52px;box-sizing:border-box
           else brandEl.removeAttribute("hidden");
         }
         if (backBtn) {
-          if (which === "login" || which === "register") backBtn.removeAttribute("hidden");
+          if (which === "login" || which === "register" || which === "forgot-sent") backBtn.removeAttribute("hidden");
           else backBtn.setAttribute("hidden", "");
         }
         if (helpLink) {
@@ -1695,6 +1708,22 @@ min-height:52px;box-sizing:border-box
           var provider = social.getAttribute("data-auth-social") || "social";
           var email = (emailInput && emailInput.value) ? String(emailInput.value).trim() : (provider + "@demo.plasico.bg");
           completeDemoAuth(email, provider);
+          return;
+        }
+        var forgotBtn = t.closest("[data-auth-forgot]");
+        if (forgotBtn) {
+          e.preventDefault();
+          var forgotEmail = "";
+          if (loginEmailHidden && loginEmailHidden.value) forgotEmail = String(loginEmailHidden.value).trim();
+          if (!forgotEmail && loginEmailChip) {
+            var chipText = loginEmailChip.querySelector(".auth-modal__email-chip-text");
+            if (chipText) forgotEmail = String(chipText.textContent || "").trim();
+          }
+          if (!forgotEmail && emailInput && emailInput.value) forgotEmail = String(emailInput.value).trim();
+          if (!forgotEmail) forgotEmail = DEMO_AUTH_EMAIL;
+          var forgotEmailEl = modal.querySelector(".auth-modal__forgot-sent-email");
+          if (forgotEmailEl) forgotEmailEl.textContent = forgotEmail;
+          setAuthStep("forgot-sent");
           return;
         }
         var back = t.closest("[data-auth-back]");
@@ -7042,7 +7071,10 @@ window.__plasicoEnsureBoxNow = function () {
  <form class="auth-modal__form" id=auth-login-form method=post action=https://plasico.bg/account>
  <input id=login-email type=hidden name=logged_email value>
  <div class="auth-modal__field">
+ <div class="auth-modal__field-head">
  <label for=login-pass>Парола</label>
+ <button type=button class="auth-modal__forgot" data-auth-forgot>Забравена парола</button>
+ </div>
  <input id=login-pass type=password name=password value placeholder="••••••••" autocomplete=current-password required>
  </div>
  <button type=submit class="auth-modal__submit">Вход</button>
@@ -7116,6 +7148,17 @@ window.__plasicoEnsureBoxNow = function () {
  <p class="auth-modal__switch">Имаш акаунт? <button type=button data-auth-goto=login>Вход</button></p>
  </div>
 
+ <div class="auth-modal__step" id=auth-step-forgot-sent hidden>
+ <div class="auth-modal__forgot-sent" role=status>
+ <div class="auth-modal__forgot-sent-tick" aria-hidden=true>
+ <svg viewBox="0 0 72 72" focusable=false><circle cx="36" cy="36" r="34" fill="none" stroke="currentColor" stroke-width="3"/><path d="M20 37.5l10.5 10.5 21.5-24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+ </div>
+ <h2 class="auth-modal__forgot-sent-title">Паролата ви е изпратена</h2>
+ <p class="auth-modal__forgot-sent-text">Вашите данни за достъп до профила Ви, бяха изпратени до <strong class="auth-modal__forgot-sent-email"></strong></p>
+ <p class="auth-modal__forgot-sent-text">След логин с генерираната парола, можете да я смените от Вашия профил, меню Профил- Смяна на парола</p>
+ <p class="auth-modal__forgot-sent-thanks">Благодарим Ви че избрахте Plasico.bg!</p>
+ </div>
+ </div>
  <div class="auth-modal__step" id=auth-step-thanks hidden>
  <div class="auth-modal__thanks">
  <div class="auth-modal__thanks-smiley" aria-hidden=true>

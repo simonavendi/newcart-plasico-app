@@ -389,6 +389,17 @@ header.cl.rel::before{content:"";display:block!important;position:absolute;left:
 #user .user-profile-menu .user-profile-menu__logout{border-top:1px solid #eee;color:#b00020}
 #user .user-profile-menu .user-profile-menu__logout:hover{background:#fff5f5;color:#b00020}
 body.is-demo-logged-in #btn-account-auth{border-color:#55a630;background:#e8f6ec;color:#2e7d32}
+/* Allow checkout profile dropdown to escape .oh overflow:hidden on #checkout-register */
+#checkout #checkout-register{overflow:visible}
+#checkout .co-profile-cta{overflow:visible;position:relative;z-index:5}
+#checkout .co-profile-cta__actions{position:relative;z-index:6}
+#checkout .co-profile-menu{display:none;position:absolute;top:100%;left:0;right:auto;min-width:210px;margin:6px 0 0;padding:6px 0;list-style:none;background:#fff;border:1px solid #e6e6e6;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:320;box-sizing:border-box}
+#checkout .co-profile-cta__actions.is-open .co-profile-menu,#checkout .co-profile-menu.is-open{display:block}
+#checkout .co-profile-menu[hidden]{display:none!important}
+#checkout .co-profile-menu a,#checkout .co-profile-menu button{display:block;width:100%;box-sizing:border-box;padding:10px 14px;border:0;background:transparent;color:#222;font-family:"exo2",Tahoma,sans-serif;font-size:13px;line-height:1.3;text-align:left;text-decoration:none;cursor:pointer;white-space:nowrap}
+#checkout .co-profile-menu a:hover,#checkout .co-profile-menu button:hover{background:#f5f5f5;color:#55a630}
+#checkout .co-profile-menu .user-profile-menu__logout{border-top:1px solid #eee;color:#b00020}
+#checkout .co-profile-menu .user-profile-menu__logout:hover{background:#fff5f5;color:#b00020}
 /* Logged-in: hide guest checkout (title + name/phone/email); keep profile CTA */
 body.is-demo-logged-in #checkout-register .checkout-guest-title,
 body.is-demo-logged-in #checkout-register .checkout-guest-fields{display:none!important}
@@ -1201,10 +1212,27 @@ min-height:52px;box-sizing:border-box
         if (logged) {
           openBtn.textContent = "Профил";
           openBtn.setAttribute("aria-label", "Профил — влезли сте");
+          openBtn.setAttribute("aria-haspopup", "menu");
+          openBtn.setAttribute("aria-expanded", "false");
+          openBtn.setAttribute("aria-controls", "checkout-profile-menu");
+          openBtn.removeAttribute("data-open-auth-modal");
         } else {
           openBtn.textContent = "Вход/Регистрация";
           openBtn.setAttribute("aria-label", "Вход/Регистрация");
+          openBtn.setAttribute("aria-haspopup", "menu");
+          openBtn.setAttribute("aria-expanded", "false");
+          openBtn.setAttribute("aria-controls", "checkout-profile-menu");
+          openBtn.setAttribute("data-open-auth-modal", "");
         }
+      }
+      var coMenu = document.getElementById("checkout-profile-menu");
+      var coActions = document.getElementById("co-profile-actions");
+      if (!logged) {
+        if (coMenu) {
+          coMenu.setAttribute("hidden", "");
+          coMenu.classList.remove("is-open");
+        }
+        if (coActions) coActions.classList.remove("is-open");
       }
     }
 
@@ -1214,8 +1242,28 @@ min-height:52px;box-sizing:border-box
     var profileMenu = document.getElementById("user-profile-menu");
     var profileLogged = profileBtn && profileBtn.closest ? profileBtn.closest(".user-logged") : null;
     var logoutBtn = document.getElementById("btn-top-logout");
+    var checkoutProfileMenu = document.getElementById("checkout-profile-menu");
+    var checkoutProfileActions = document.getElementById("co-profile-actions");
+    var checkoutLogoutBtn = document.getElementById("btn-checkout-logout");
 
-    function closeProfileMenu() {
+    function closeCheckoutProfileMenu() {
+      if (checkoutProfileMenu) {
+        checkoutProfileMenu.setAttribute("hidden", "");
+        checkoutProfileMenu.classList.remove("is-open");
+      }
+      if (checkoutProfileActions) checkoutProfileActions.classList.remove("is-open");
+      if (openBtn) openBtn.setAttribute("aria-expanded", "false");
+    }
+    function openCheckoutProfileMenu() {
+      closeProfileMenuHeaderOnly();
+      if (checkoutProfileMenu) {
+        checkoutProfileMenu.removeAttribute("hidden");
+        checkoutProfileMenu.classList.add("is-open");
+      }
+      if (checkoutProfileActions) checkoutProfileActions.classList.add("is-open");
+      if (openBtn) openBtn.setAttribute("aria-expanded", "true");
+    }
+    function closeProfileMenuHeaderOnly() {
       if (profileMenu) {
         profileMenu.setAttribute("hidden", "");
         profileMenu.classList.remove("is-open");
@@ -1223,7 +1271,12 @@ min-height:52px;box-sizing:border-box
       if (profileLogged) profileLogged.classList.remove("is-open");
       if (profileBtn) profileBtn.setAttribute("aria-expanded", "false");
     }
+    function closeProfileMenu() {
+      closeProfileMenuHeaderOnly();
+      closeCheckoutProfileMenu();
+    }
     function openProfileMenu() {
+      closeCheckoutProfileMenu();
       if (profileMenu) {
         profileMenu.removeAttribute("hidden");
         profileMenu.classList.add("is-open");
@@ -1236,21 +1289,27 @@ min-height:52px;box-sizing:border-box
         e.preventDefault();
         e.stopPropagation();
         if (!profileMenu || profileMenu.hasAttribute("hidden")) openProfileMenu();
-        else closeProfileMenu();
+        else closeProfileMenuHeaderOnly();
       });
     }
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", function (e) {
-        e.preventDefault();
-        writeAuthState(null);
-        applyLoggedInUI(null);
-        closeProfileMenu();
-      });
-    }
-    document.addEventListener("click", function (e) {
-      if (!profileLogged || !profileLogged.classList.contains("is-open")) return;
-      if (e.target && profileLogged.contains(e.target)) return;
+    function doLogout(e) {
+      if (e) e.preventDefault();
+      writeAuthState(null);
+      applyLoggedInUI(null);
       closeProfileMenu();
+    }
+    if (logoutBtn) logoutBtn.addEventListener("click", doLogout);
+    if (checkoutLogoutBtn) checkoutLogoutBtn.addEventListener("click", doLogout);
+    document.addEventListener("click", function (e) {
+      var t = e.target;
+      var inHeader = profileLogged && t && profileLogged.contains(t);
+      var inCheckout = checkoutProfileActions && t && checkoutProfileActions.contains(t);
+      if (profileLogged && profileLogged.classList.contains("is-open") && !inHeader) {
+        closeProfileMenuHeaderOnly();
+      }
+      if (checkoutProfileActions && checkoutProfileActions.classList.contains("is-open") && !inCheckout) {
+        closeCheckoutProfileMenu();
+      }
     });
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape") closeProfileMenu();
@@ -1416,6 +1475,13 @@ min-height:52px;box-sizing:border-box
       }
       openBtn.addEventListener("click", function (e) {
         e.preventDefault();
+        e.stopPropagation();
+        if (readAuthState()) {
+          if (!checkoutProfileMenu || checkoutProfileMenu.hasAttribute("hidden")) openCheckoutProfileMenu();
+          else closeCheckoutProfileMenu();
+          return;
+        }
+        closeCheckoutProfileMenu();
         openModal();
       });
       modal.addEventListener("click", function (e) {
@@ -2574,8 +2640,14 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <div id=checkout-register class=oh>
  <aside class="co-profile-cta" aria-label="Профил">
  <p class="co-profile-cta__text">Направете си профил за да следите доставки, списък покупки, фактури, ел. касови бележки и др. <span class="co-profile-cta__optional">(незадължително)</span></p>
- <div class="co-profile-cta__actions">
- <button type=button class="checkout-auth-btn" id=btn-account-auth data-open-auth-modal>Вход/Регистрация</button>
+ <div class="co-profile-cta__actions" id=co-profile-actions>
+ <button type=button class="checkout-auth-btn" id=btn-account-auth data-open-auth-modal aria-haspopup=menu aria-expanded=false aria-controls=checkout-profile-menu>Вход/Регистрация</button>
+ <ul class="co-profile-menu" id=checkout-profile-menu role=menu hidden>
+ <li role=none><a role=menuitem href="https://plasico.bg/account">Профил</a></li>
+ <li role=none><a role=menuitem href="https://plasico.bg/account">Предишни поръчки</a></li>
+ <li role=none><a role=menuitem href="https://plasico.bg/account">Документи</a></li>
+ <li role=none><button type=button role=menuitem class=user-profile-menu__logout id=btn-checkout-logout>Изход</button></li>
+ </ul>
  </div>
  </aside>
  <h3 class="checkout-guest-title">Поръчка без регистрация</h3>

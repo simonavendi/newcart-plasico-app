@@ -24,3 +24,6 @@
 - Logged in: no orange on `#user`; black bar pixels edge-to-edge at y≈10
 - Click `#btn-top-profile` → menu; Изход → guest links restore
 - Script: `_verify_profile_menu.js.py` → PASS
+
+## Follow-up
+Checkout `#btn-account-auth` (logged in) reuses the same menu options — see `internal/checkout-profile-dropdown.md`.

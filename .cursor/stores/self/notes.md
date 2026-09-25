@@ -17,6 +17,7 @@
 - Partner ID: **18248**
 - Auth modal: circle Google/Apple + thank-you + top-bar profile (`a71bfa8`) — see `internal/auth-thanks-profile.md`; Facebook stays omitted
 - Header #user profile dropdown (BG) + no orange; #top-line full-bleed 30px — internal/profile-menu-header.md
+- Checkout `#btn-account-auth` logged-in profile dropdown (same options as header) — `internal/checkout-profile-dropdown.md`
 - Speedy/Econt office map locators + „Избери офис от карта“ — `internal/speedy-econt-office-locators.md`
 - Speedy/Econt office map: browser Back closes overlay (like BOX NOW) — wiring `e858e32`, docs/verify `bf00c50`; see `internal/speedy-econt-back-button.md`
 - Office map CTA nested in Speedy/Еконт `co-option-row` (`main` @ `9b7bd2d`) — `internal/office-map-cta-in-option.md`

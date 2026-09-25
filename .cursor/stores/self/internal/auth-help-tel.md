@@ -12,4 +12,4 @@
 Help link only — no other auth-modal edits (email-mode / register-login left alone).
 
 ## Landed
-`main` @ `7f78122`
+`main` @ `196eab7`

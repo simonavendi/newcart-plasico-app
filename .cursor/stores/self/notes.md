@@ -19,7 +19,7 @@
 - Auth modal: circle social icons + thank-you + top-bar profile (`a71bfa8`) — see `internal/auth-thanks-profile.md`; Facebook restored with Google/Apple
 - Header #user profile dropdown (BG) + no orange; #top-line full-bleed 30px — internal/profile-menu-header.md
 - Header profile beside #cart (yellow circle, same row; mobile scale) — internal/profile-beside-cart.md
-- Header cart sprite wheels + guest phone/search/cart spacing (no phantom profile gap) — see `internal/cart-icon-guest-gap.md`
+- Header cart sprite wheels + guest phone/search/cart spacing (`main` @ `b956a26`) — see `internal/cart-icon-guest-gap.md`
 - Mobile: hide header black bar; sticky pinned header (`#head`) always — `internal/mobile-header-no-black-bar.md`
 - Mobile `#head` utilities (phone/search/profile/cart) one aligned row — `internal/mobile-header-icons-aligned.md`
 - Checkout `#btn-account-auth` logged-in profile dropdown (same options as header) — `internal/checkout-profile-dropdown.md`

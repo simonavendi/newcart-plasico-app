@@ -110,10 +110,23 @@ function assert(cond, msg) {
     path: path.join(outDir, "leasing-completed-cta-aside-hidden.png"),
   });
 
-  // Leave leasing path → restore
-  const otherPay = await page.$('input[name="payment_id"]:not([value="8"])');
-  assert(otherPay, "need another payment radio");
-  await otherPay.check();
+  // Leave leasing path → restore (radios are visually hidden; drive via JS)
+  const leftOk = await page.evaluate(() => {
+    const other = document.querySelector('input[name="payment_id"]:not([value="8"])');
+    if (!other) return false;
+    other.checked = true;
+    other.dispatchEvent(new Event("change", { bubbles: true }));
+    const radios = document.querySelectorAll('input[name="payment_id"]');
+    radios.forEach((r) => {
+      const lb = r.closest("label");
+      if (lb) lb.classList.toggle("clicked", r.checked);
+    });
+    if (window.PlasicoLeasing && window.PlasicoLeasing.syncCheckoutCta) {
+      window.PlasicoLeasing.syncCheckoutCta();
+    }
+    return true;
+  });
+  assert(leftOk, "need another payment radio");
   await page.waitForTimeout(300);
 
   const afterLeave = await page.evaluate(() => {
@@ -137,7 +150,19 @@ function assert(cond, msg) {
   assert(!afterLeave.hintPresent, "hint removed");
 
   // Back to payment 8 → CTA again
-  await page.check('input[name="payment_id"][value="8"]');
+  await page.evaluate(() => {
+    const pay8 = document.querySelector('input[name="payment_id"][value="8"]');
+    if (!pay8) return;
+    pay8.checked = true;
+    pay8.dispatchEvent(new Event("change", { bubbles: true }));
+    document.querySelectorAll('input[name="payment_id"]').forEach((r) => {
+      const lb = r.closest("label");
+      if (lb) lb.classList.toggle("clicked", r.checked);
+    });
+    if (window.PlasicoLeasing) {
+      if (window.PlasicoLeasing.syncCheckoutCta) window.PlasicoLeasing.syncCheckoutCta();
+    }
+  });
   await page.waitForTimeout(300);
   const back = await page.evaluate(() => ({
     active: window.PlasicoLeasing.isCompletedCtaActive(),

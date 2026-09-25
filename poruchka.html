@@ -370,10 +370,24 @@ html.boxnow-locator-open,html.boxnow-locator-open body{
 .auth-modal__thanks-smiley{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;width:72px;height:72px;margin:0 0 18px;border-radius:50%;background:#e8f6ec;color:#55a630}
 .auth-modal__thanks-smiley svg{display:block;width:40px;height:40px}
 .auth-modal__thanks-text{margin:0;font-family:"exo2b",sans-serif;font-size:18px;line-height:1.4;color:#222;max-width:280px}
-#user .top-profile-btn{display:-webkit-inline-box;display:-ms-inline-flexbox;display:inline-flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;width:34px;height:34px;padding:0;border:2px solid #55a630;border-radius:50%;background:#fff;color:#55a630;cursor:pointer;vertical-align:middle}
-#user .top-profile-btn:hover{background:#55a630;color:#fff}
-#user .top-profile-btn svg{display:block;width:18px;height:18px;fill:currentColor}
+/* Top bar: keep 30px like live Plasico so header::before full-bleed matches */
+header.cl.rel::before{content:"";display:block!important;position:absolute;left:0;right:0;top:0;height:30px;background:#000;z-index:1}
+#top-line{position:relative;z-index:99;height:30px;min-height:30px;line-height:30px;background:transparent;box-sizing:border-box}
+#top-line::after{content:"";position:absolute;top:0;bottom:0;left:50%;width:100vw;transform:translateX(-50%);background:#000;z-index:-1;pointer-events:none}
+/* Remove orange #user pill; profile sits on black bar */
+#user{background:transparent!important;padding:0 8px;position:relative;z-index:100}
+#user .top-profile-btn{display:-webkit-inline-box;display:-ms-inline-flexbox;display:inline-flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;width:26px;height:26px;padding:0;border:2px solid #55a630;border-radius:50%;background:#fff;color:#55a630;cursor:pointer;vertical-align:middle}
+#user .top-profile-btn:hover,#user .user-logged.is-open .top-profile-btn{background:#55a630;color:#fff}
+#user .top-profile-btn svg{display:block;width:14px;height:14px;fill:currentColor}
 #user .user-guest[hidden],#user .user-logged[hidden]{display:none!important}
+#user .user-logged{position:relative;list-style:none}
+#user .user-profile-menu{display:none;position:absolute;top:100%;right:0;left:auto;min-width:210px;margin:4px 0 0;padding:6px 0;list-style:none;background:#fff;border:1px solid #e6e6e6;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:300;box-sizing:border-box}
+#user .user-logged.is-open .user-profile-menu,#user .user-profile-menu.is-open{display:block}
+#user .user-profile-menu[hidden]{display:none!important}
+#user .user-profile-menu a,#user .user-profile-menu button{display:block;width:100%;box-sizing:border-box;padding:10px 14px;border:0;background:transparent;color:#222;font-family:"exo2",Tahoma,sans-serif;font-size:13px;line-height:1.3;text-align:left;text-decoration:none;cursor:pointer;white-space:nowrap}
+#user .user-profile-menu a:hover,#user .user-profile-menu button:hover{background:#f5f5f5;color:#55a630}
+#user .user-profile-menu .user-profile-menu__logout{border-top:1px solid #eee;color:#b00020}
+#user .user-profile-menu .user-profile-menu__logout:hover{background:#fff5f5;color:#b00020}
 body.is-demo-logged-in #btn-account-auth{border-color:#55a630;background:#e8f6ec;color:#2e7d32}
 /* Logged-in: hide guest checkout (title + name/phone/email); keep profile CTA */
 body.is-demo-logged-in #checkout-register .checkout-guest-title,
@@ -1195,6 +1209,52 @@ min-height:52px;box-sizing:border-box
     }
 
     applyLoggedInUI(readAuthState());
+
+    var profileBtn = document.getElementById("btn-top-profile");
+    var profileMenu = document.getElementById("user-profile-menu");
+    var profileLogged = profileBtn && profileBtn.closest ? profileBtn.closest(".user-logged") : null;
+    var logoutBtn = document.getElementById("btn-top-logout");
+
+    function closeProfileMenu() {
+      if (profileMenu) {
+        profileMenu.setAttribute("hidden", "");
+        profileMenu.classList.remove("is-open");
+      }
+      if (profileLogged) profileLogged.classList.remove("is-open");
+      if (profileBtn) profileBtn.setAttribute("aria-expanded", "false");
+    }
+    function openProfileMenu() {
+      if (profileMenu) {
+        profileMenu.removeAttribute("hidden");
+        profileMenu.classList.add("is-open");
+      }
+      if (profileLogged) profileLogged.classList.add("is-open");
+      if (profileBtn) profileBtn.setAttribute("aria-expanded", "true");
+    }
+    if (profileBtn) {
+      profileBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!profileMenu || profileMenu.hasAttribute("hidden")) openProfileMenu();
+        else closeProfileMenu();
+      });
+    }
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        writeAuthState(null);
+        applyLoggedInUI(null);
+        closeProfileMenu();
+      });
+    }
+    document.addEventListener("click", function (e) {
+      if (!profileLogged || !profileLogged.classList.contains("is-open")) return;
+      if (e.target && profileLogged.contains(e.target)) return;
+      closeProfileMenu();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeProfileMenu();
+    });
 
     if (modal && openBtn) {
       var lastFocus = null;
@@ -2443,10 +2503,16 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
  <div id=user class=fr>
  <ul>
  <li class=user-guest><span data-url=https://plasico.bg/account class="b pnt cbox" data-open-auth-modal>Вход</span><span> или </span><span data-url=https://plasico.bg/account class="b pnt cbox" data-open-auth-modal>Регистрация</span><span> или чрез </span><span class="sprp ggl-icon-sm fr" title=Google+ data-open-auth-modal></span><span class="sprp fb-icon-sm fr" title=Facebook data-open-auth-modal></span></li>
- <li class=user-logged hidden>
- <button type=button class=top-profile-btn id=btn-top-profile aria-label="Профил — влезли сте" title="Профил">
+ <li class="user-logged rel" hidden>
+ <button type=button class=top-profile-btn id=btn-top-profile aria-label="Профил — влезли сте" title="Профил" aria-haspopup=menu aria-expanded=false aria-controls=user-profile-menu>
  <svg viewBox="0 0 24 24" aria-hidden=true focusable=false><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v1.2c0 .7.5 1.2 1.2 1.2h16.8c.7 0 1.2-.5 1.2-1.2v-1.2c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
  </button>
+ <ul class="abs user-profile-menu" id=user-profile-menu role=menu hidden>
+ <li role=none><a role=menuitem href="https://plasico.bg/account">Профил</a></li>
+ <li role=none><a role=menuitem href="https://plasico.bg/account">Предишни поръчки</a></li>
+ <li role=none><a role=menuitem href="https://plasico.bg/account">Документи</a></li>
+ <li role=none><button type=button role=menuitem class=user-profile-menu__logout id=btn-top-logout>Изход</button></li>
+ </ul>
  </li>
  </ul>
  </div>

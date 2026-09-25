@@ -3,7 +3,8 @@
 - BG phone validator on `#field-phone` / `.telephone` / recipient — `main` @ `09f232a`; see `internal/bg-phone-validator.md`
 - Bank transfer: IBAN/beneficiary details panel when selected — `internal/bank-transfer-payment-details.md`
 - Invoice individual „Копирай от горните данни“ wired — `internal/copy-invoice-from-above.md`
-- Auth modal: Facebook OAuth removed (Google + Apple kept) — `internal/remove-facebook-oauth.md` (main clear since `c949930`; WIP race cleaned)
+- Auth modal: Facebook OAuth circle restored (FB + Google + Apple) — `internal/auth-facebook-oauth-restore.md` (supersedes remove note)
+- Auth modal: Facebook OAuth removed (Google + Apple kept) — `internal/remove-facebook-oauth.md` (historical; restored later)
 - Aside cart Ozone rows: delivery from `api/delivery-eta.json`, FLASH 10% promo lines, restored qty line totals — `internal/cart-delivery-flash-promo.md`
 - Aside cart qty +/−/del wired locally (FLASH line/grand + leasing teaser) — `internal/cart-qty-selectors.md`
 - BOX NOW fullscreen + Izbor select: local `boxnow-fullscreen-map.html` (main.css + mapType=popup) — `internal/boxnow-fullscreen-keep-select.md` (supersedes popup.html modal regression from mega-gamma fix)
@@ -15,7 +16,7 @@
 - User preference: always commit to **main**
 - Localhost: http://127.0.0.1:8780/index.html
 - Partner ID: **18248**
-- Auth modal: circle Google/Apple + thank-you + top-bar profile (`a71bfa8`) — see `internal/auth-thanks-profile.md`; Facebook stays omitted
+- Auth modal: circle social icons + thank-you + top-bar profile (`a71bfa8`) — see `internal/auth-thanks-profile.md`; Facebook restored with Google/Apple
 - Header #user profile dropdown (BG) + no orange; #top-line full-bleed 30px — internal/profile-menu-header.md
 - Header profile beside #cart (yellow circle, same row; mobile scale) — internal/profile-beside-cart.md
 - Mobile: hide header black bar; sticky pinned header (`#head`) always — `internal/mobile-header-no-black-bar.md`

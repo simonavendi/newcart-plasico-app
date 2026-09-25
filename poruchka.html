@@ -362,6 +362,7 @@ html.boxnow-locator-open,html.boxnow-locator-open body{
 .auth-modal__social-icon{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;width:100%;height:100%;font-family:Arial,Helvetica,sans-serif;font-size:20px;font-weight:700;line-height:1}
 .auth-modal__social-icon svg{display:block;width:18px;height:18px;fill:currentColor}
 .auth-modal__social-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.auth-modal__social--facebook{background:#3b5998}
 .auth-modal__social--google{background:#dd4b39}
 .auth-modal__social--apple{background:#111}
 .auth-modal__help{display:block;margin:16px 0 0;font-size:14px;line-height:1.3;color:#55a630;text-decoration:none;text-align:center}
@@ -6064,6 +6065,10 @@ window.__plasicoEnsureBoxNow = function () {
  </div>
  <p class="auth-modal__social-hint">използвайте твоя социален акаунт</p>
  <div class="auth-modal__oauth">
+ <a href=# class="auth-modal__social auth-modal__social--facebook" aria-label=Facebook data-auth-social=facebook>
+ <span class="auth-modal__social-icon" aria-hidden=true>f</span>
+ <span class="auth-modal__social-label">Facebook</span>
+ </a>
  <a href=# class="auth-modal__social auth-modal__social--google" aria-label=Google data-auth-social=google>
  <span class="auth-modal__social-icon" aria-hidden=true>G</span>
  <span class="auth-modal__social-label">Google</span>

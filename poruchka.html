@@ -446,7 +446,8 @@ body.is-demo-logged-in #head-profile .top-profile-btn svg{width:22px;height:22px
 }
 @media only screen and (max-width:990px){
 /* Align profile+cart with phone/search (top:18 h:27 → cy≈31.5); leave click gaps */
-#head-cart-cluster{top:13px;right:2px;gap:8px;height:38px;-webkit-box-align:center;-ms-flex-align:center;align-items:center}
+/* right:12 — breathing room from viewport edge (was 2, flush) */
+#head-cart-cluster{top:13px;right:12px;gap:8px;height:38px;-webkit-box-align:center;-ms-flex-align:center;align-items:center}
 #head-cart-cluster #cart{width:38px;height:38px;overflow:visible}
 #head-cart-cluster #cart.hp:before{width:38px;height:38px;margin:0;border-radius:19px;left:0;top:0}
 /* Native 34x24 sprite; margin centers in 38px yellow circle */
@@ -456,15 +457,15 @@ body.is-demo-logged-in #head-profile .top-profile-btn svg{width:22px;height:22px
 #head-profile.hp:before{width:38px;height:38px;margin:0;border-radius:19px;left:0;top:0}
 #head-profile .top-profile-btn{width:38px;height:38px;margin:0}
 #head-profile .top-profile-btn svg{width:20px;height:20px}
-/* Guest: cart-only cluster (~40px) — tighten phone/search vs base right:65/75 */
-#search{right:48px!important}
-#top-phone{right:83px!important}
+/* Guest: cart-only cluster — keep ~8px gaps; +10 vs prior to match cluster right */
+#search{right:58px!important}
+#top-phone{right:93px!important}
 /* Profile adds ~46px; shift phone+search left so nothing overlaps */
-body.is-demo-logged-in #search{right:100px!important}
-body.is-demo-logged-in #top-phone{right:135px!important}
+body.is-demo-logged-in #search{right:110px!important}
+body.is-demo-logged-in #top-phone{right:145px!important}
 }
 @media only screen and (max-width:480px){
-#head-cart-cluster{top:16px;right:2px;gap:6px;height:32px}
+#head-cart-cluster{top:16px;right:12px;gap:6px;height:32px}
 #head-cart-cluster #cart{width:32px;height:32px;overflow:visible}
 #head-cart-cluster #cart.hp:before{width:32px;height:32px;margin:0;border-radius:16px;left:0;top:0}
 /* Scale native sprite into 32px circle without clipping wheels */
@@ -474,10 +475,10 @@ body.is-demo-logged-in #top-phone{right:135px!important}
 #head-profile.hp:before{width:32px;height:32px;margin:0;border-radius:16px;left:0;top:0}
 #head-profile .top-profile-btn{width:32px;height:32px;margin:0}
 #head-profile .top-profile-btn svg{width:17px;height:17px}
-#search{right:42px!important}
-#top-phone{right:77px!important}
-body.is-demo-logged-in #search{right:86px!important}
-body.is-demo-logged-in #top-phone{right:121px!important}
+#search{right:52px!important}
+#top-phone{right:87px!important}
+body.is-demo-logged-in #search{right:96px!important}
+body.is-demo-logged-in #top-phone{right:131px!important}
 }
 body.is-demo-logged-in #btn-account-auth{border-color:#55a630;background:#e8f6ec;color:#2e7d32}
 /* Allow checkout profile dropdown to escape .oh overflow:hidden on #checkout-register */

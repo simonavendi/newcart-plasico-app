@@ -36,7 +36,7 @@
 - Header cart sprite wheels + guest phone/search/cart spacing (`main` @ `b956a26`) — see `internal/cart-icon-guest-gap.md`
 - Mobile: hide header black bar; sticky pinned header (`#head`) always — `internal/mobile-header-no-black-bar.md`
 - Mobile `#head` utilities (phone/search/profile/cart) one aligned row — `internal/mobile-header-icons-aligned.md`
-- Mobile `#head` utilities: 12px right inset from viewport edge (cluster + phone/search shift) — `internal/mobile-header-edge-padding.md`
+- Mobile `#head` utilities: 12px right inset from viewport edge (cluster + phone/search shift) — `main` @ `9f1c71a`; see `internal/mobile-header-edge-padding.md`
 - Checkout `#btn-account-auth` logged-in profile dropdown (same options as header) — `internal/checkout-profile-dropdown.md`
 - Speedy/Econt office map locators + „Избери офис от карта“ — `internal/speedy-econt-office-locators.md`
 - Speedy/Econt office map: browser Back closes overlay (like BOX NOW) — wiring `e858e32`, docs/verify `bf00c50`; see `internal/speedy-econt-back-button.md`

@@ -16,6 +16,9 @@ Phone / search / cart sit flush against the right viewport edge on mobile — no
 - Left hamburger (`.navbtn` ~5px) unchanged; cart wheels / profile-beside-cart rules untouched
 
 ## Verify
-- Guest 390: cart right edge ≥10px from viewport; gaps phone/search/cart still even
-- Logged-in 390: profile left of cart; same edge inset
+- `_verify_mobile_header_edge_padding.py` → PASS (guest 390–768: `clusterRight=12px`, `edgePad=12`, phone/search/cart gaps=8; logged-in profile left of cart)
+- `_verify_cart_icon_guest_gap.py` → PASS (wheels 34×24; guest gaps even)
 - Media: `media/mobile-header-edge-padding-390.png`
+
+## SHA
+`main` @ `9f1c71a`

@@ -21,4 +21,5 @@ Differences vs normal checkout:
 
 ## Verify
 `node _verify_boxnowno.js` @ http://127.0.0.1:8780/boxnowno.html  
-Screenshot: `media/boxnowno-grey-boxnow.png`
+Screenshot: `media/boxnowno-grey-boxnow.png`  
+Commit: `7b84fc0` on `main`

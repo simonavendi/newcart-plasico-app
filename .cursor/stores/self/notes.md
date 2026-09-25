@@ -1,6 +1,6 @@
 # plasico cart notes
 
-- BOX NOW fullscreen close blocked: host chrome bar (← НАЗАД + ×) above iframe; sticky header PE off while open — see `internal/boxnow-close-overlay-fix.md` + `media/boxnow-close-unblocked.png` (white timestamp bar = Cursor preview chrome, not app HTML)
+- BOX NOW fullscreen close blocked: host chrome bar (← НАЗАД + ×) above iframe; sticky header PE off while open — `main` @ `4c62022`; see `internal/boxnow-close-overlay-fix.md` + `media/boxnow-close-unblocked.png` (white timestamp bar = Cursor preview chrome, not app HTML)
 - Aside cart discount + grand total amounts Plasico green `#55a630` (was red); labels unchanged — see `internal/cart-totals-green.md` + `media/cart-totals-green.png`
 - Leasing ЮЛ click → firm fields + red МОЛ badge (pointerdown fix; was stuck on indiv panel) — `main` @ `5f75018`; see `internal/leasing-mol-badge-fix.md` + `media/leasing-mol-badge-visible.png`
 - Leasing invoice green notice gated on **approved credit** + PostBank method; Физическо лице hidden on that path; Копирай always usable — `main` @ `00a6b7e`; see `internal/leasing-invoice-msg-gated.md` + `media/leasing-invoice-msg-gated.png`

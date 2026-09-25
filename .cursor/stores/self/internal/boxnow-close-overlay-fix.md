@@ -1,7 +1,7 @@
 # BOX NOW — fullscreen close unblocked
 
 **Date:** 2026-09-25  
-**Branch:** `main`  
+**Branch:** `main` @ `4c62022`  
 **Partner ID:** `18248`  
 **Local:** http://127.0.0.1:8780/index.html  
 **Live:** https://newcart-plasico-app.vercel.app/

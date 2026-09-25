@@ -586,11 +586,11 @@ min-height:52px;box-sizing:border-box
 #checkout .co-option-row__hint{display:block;font-size:13px;color:#666;margin-top:2px}
 #checkout .co-option-row__badge{font-style:normal;font-size:12px;color:#ff6100;margin-left:0}
 #checkout .co-option-row__price{white-space:nowrap;font-weight:bold;color:#000}
-/* Invoice checkbox accent (poruchka behavior, Plasico colors) */
-#checkout .co-invoice-check{display:flex;gap:10px;align-items:flex-start;margin:14px 0;cursor:pointer;padding:12px 14px;border:1px solid #c5d9f0;border-radius:6px;background:#f3f8fd;box-sizing:border-box;transition:border-color .15s,background .15s}
+/* Invoice checkbox accent (poruchka behavior, Plasico colors) — larger tick + full-card hit */
+#checkout .co-invoice-check{display:flex;gap:12px;align-items:flex-start;margin:14px 0;cursor:pointer;padding:12px 14px;border:1px solid #c5d9f0;border-radius:6px;background:#f3f8fd;box-sizing:border-box;transition:border-color .15s,background .15s;width:100%;-webkit-user-select:none;user-select:none}
 #checkout .co-invoice-check:has(input:checked),#checkout .co-invoice-check.is-checked{border-color:#3b82f6;background:#eff6ff}
-#checkout .co-invoice-check input[type=checkbox]{margin-top:3px;flex:0 0 auto}
-#checkout .co-invoice-check__copy{display:block;min-width:0}
+#checkout .co-invoice-check input[type=checkbox]{margin-top:2px;flex:0 0 auto;width:20px!important;height:20px!important;min-width:20px;min-height:20px;cursor:pointer;accent-color:#3b82f6}
+#checkout .co-invoice-check__copy{display:block;min-width:0;flex:1 1 auto;cursor:pointer}
 #checkout .co-invoice-check__title{display:block;font-weight:bold;color:#000;font-size:15px}
 #checkout .co-invoice-check__hint{display:block;font-size:13px;color:#666;margin-top:3px;line-height:1.4}
 #checkout .co-invoice-check--compact{margin:0 0 10px;padding:10px 12px}
@@ -630,11 +630,13 @@ min-height:52px;box-sizing:border-box
 #checkout #step-ship-details #alternate-recipient-fields[hidden],
 #checkout #step-ship-details #alternate-recipient-fields.hide{display:none!important}
 #checkout #step-payment h2:before{content:"04";display:inline-block;margin-right:10px;padding:2px 8px;border-radius:6px;background:#e8f6ec;color:#2e7d32;font-size:14px;font-family:"exo2b",sans-serif;vertical-align:middle;position:relative;top:-2px}
-/* Terms consent: native required checkbox (visible tick; no fake toggle / no decorative *) */
-#checkout #step-confirm > .cl label.conditions > .fbox{position:relative;display:inline-flex;align-items:flex-start;gap:6px;padding-top:0}
-#checkout #step-confirm label.conditions input[type=checkbox][name=approve_conditions]{position:relative!important;visibility:visible!important;opacity:1!important;width:auto!important;height:auto!important;margin:2px 0 0 0;flex-shrink:0;cursor:pointer;accent-color:#679F08}
-#checkout #step-confirm label.conditions .lb{padding-left:0;min-height:0}
+/* Terms/phone consent: larger native checkbox; whole label row toggles (links stay clickable) */
+#checkout #step-confirm > .cl label.conditions > .fbox{position:relative;display:flex;align-items:flex-start;gap:10px;padding-top:0;width:100%;box-sizing:border-box}
+#checkout #step-confirm label.conditions input[type=checkbox],
+#checkout #step-confirm label.conditions input[type=checkbox][name=approve_conditions]{position:relative!important;visibility:visible!important;opacity:1!important;width:20px!important;height:20px!important;min-width:20px;min-height:20px;margin:1px 0 0 0;flex-shrink:0;cursor:pointer;accent-color:#679F08}
+#checkout #step-confirm label.conditions .lb{padding-left:0;min-height:0;flex:1 1 auto;cursor:pointer}
 #checkout #step-confirm label.conditions .lb:before{content:none!important;display:none!important;width:0!important;height:0!important;border:0!important;background:none!important}
+#checkout #step-confirm label.conditions .lb .cbox{cursor:pointer}
 
 /* Phone confirm: grey text (override Plasico .conditions.phonecall .lb {color:red}) */
 #checkout #step-confirm label.conditions.phonecall,
@@ -698,7 +700,7 @@ min-height:52px;box-sizing:border-box
 #checkout #step-confirm.checkout-step.bgff{padding:16px 18px}
 #checkout #step-confirm > .cl{margin:0;padding:0;float:none;width:100%}
 #checkout #step-confirm > .cl > .fr{float:none!important;width:100%!important;margin:0;padding:0}
-#checkout #step-confirm .conditions{display:block;margin:0 0 10px;padding:0}
+#checkout #step-confirm .conditions{display:block;margin:0 0 10px;padding:0;cursor:pointer;width:100%;box-sizing:border-box}
 #checkout #step-confirm .checkout-finish.btn{margin-top:12px}
 #checkout #checkout-payments>section>h2:before,
 #checkout #checkout-payments h2:before{content:"04";display:inline-block;margin-right:10px;padding:2px 8px;border-radius:6px;background:#e8f6ec;color:#2e7d32;font-size:14px;font-family:"exo2b",sans-serif;vertical-align:middle;position:relative;top:-2px}
@@ -3566,7 +3568,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
  </div>
 <aside class="checkout-layout__aside" aria-label="Обобщение на поръчката">
 <div class="checkout-layout__aside-sticky">
-<h2 id=checkout-cart>ПРОДУКТИ в количката</h2>
+<h2 id=checkout-cart>Поръчка</h2>
  <div class=bgff>
  <table id=cart-table cellpadding=0 cellspacing=0>
  <tbody><tr>

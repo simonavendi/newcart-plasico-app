@@ -1,5 +1,6 @@
 # plasico cart notes
 
+- Aside cart discount + grand total amounts Plasico green `#55a630` (was red); labels unchanged — see `internal/cart-totals-green.md` + `media/cart-totals-green.png`
 - Leasing ЮЛ click → firm fields + red МОЛ badge (pointerdown fix; was stuck on indiv panel) — `main` @ `5f75018`; see `internal/leasing-mol-badge-fix.md` + `media/leasing-mol-badge-visible.png`
 - Leasing invoice green notice gated on **approved credit** + PostBank method; Физическо лице hidden on that path; Копирай always usable — `main` @ `00a6b7e`; see `internal/leasing-invoice-msg-gated.md` + `media/leasing-invoice-msg-gated.png`
 - Auth login **Забравена парола**: in-modal success (tick + email copy, no navigate) — see `internal/auth-forgot-password.md` + `media/auth-forgot-password.png`

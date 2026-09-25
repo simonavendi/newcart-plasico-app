@@ -1,5 +1,6 @@
 # plasico cart notes
 
+- Auth modal demo pills: **default** | неразпознат | разпознат — default opens `#auth-step-email`; see `internal/auth-demo-default-toggle.md`
 - Auth email step submit: **Продължи** (was „Продължи с поръчката“) — see `internal/auth-email-submit-continue.md`
 - Auth modal help link: two-line phone CTA (`<br>`) + `tel:070020810` — `main` @ `196eab7`; see `internal/auth-help-tel.md`
 - Auth modal **разпознат имейл** login: chip + green tick + „разпознат имейл“ + one password + „Вход“ — `main` @ `5ed2056`; see `internal/auth-known-login-recognized.md`

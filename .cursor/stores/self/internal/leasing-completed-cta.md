@@ -24,3 +24,5 @@ CTA active when filled **and** (`payment_id=8` checked **or** no payment selecte
 
 ## Verify
 `node _verify_leasing_completed_cta.js` → media `leasing-completed-cta-*.png`
+
+Landed: `main` @ `0fbe764` (impl) / `3c62114` (verify + shots)

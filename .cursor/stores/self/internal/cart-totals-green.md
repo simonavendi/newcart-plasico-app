@@ -19,4 +19,5 @@ Both amount cells share class `r nw` with the labels, so selectors use `:last-ch
 ## Verify
 `python _verify_cart_totals_green.py` @ http://127.0.0.1:8780/index.html  
 Computed: discount amount + grand amount/span = `rgb(85, 166, 48)`  
-Screenshot: `media/cart-totals-green.png`
+Screenshot: `media/cart-totals-green.png`  
+Commit: `4738dd5` on `main`

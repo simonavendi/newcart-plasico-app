@@ -1,6 +1,6 @@
 # plasico cart notes
 
-- Aside discount amount: info badge + tooltip (auto-applied promo) — see `internal/aside-discount-info-tooltip.md`
+- Aside discount amount: info badge + tooltip (auto-applied promo) — `main` @ `eb6f2a2`; see `internal/aside-discount-info-tooltip.md`
 - Checkout tickboxes bigger (20px) + full label/card hit areas (terms + invoice) — `main` @ `6e68a20`; see `internal/bigger-clickable-checkboxes.md`
 - Auth modal UX polish: equal demo pills + shared logo on login/register + ← НАЗАД → default email — `main` @ `bc29a90` (docs `e8c29f0`); see `internal/auth-modal-ux-polish.md`
 - Auth login + register: FB/Google/Apple OAuth under both submit buttons (match email step) — `main` @ `8388a7c`; see `internal/auth-login-register-oauth.md`

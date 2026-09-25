@@ -17,4 +17,5 @@ On `aside.checkout-layout__aside table#cart-table tfoot tr.totals.discount td.r.
 
 ## Verify
 `node _verify_discount_info.js` @ http://127.0.0.1:8780/index.html  
-Screenshot: `media/aside-discount-info-tooltip.png`
+Screenshot: `media/aside-discount-info-tooltip.png`  
+Commit: `eb6f2a2` on `main`

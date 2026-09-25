@@ -820,11 +820,8 @@ min-height:52px;box-sizing:border-box
       row.classList.add("is-disabled");
       row.setAttribute("aria-disabled", "true");
       if (cod.checked) {
+        /* Clear COD only — do not auto-select another payment */
         cod.checked = false;
-        var fallback =
-          document.querySelector('input[name="payment_id"][value="7"]:not([disabled])') ||
-          document.querySelector('input[name="payment_id"]:not([disabled])');
-        if (fallback) fallback.checked = true;
       }
     } else {
       cod.disabled = false;
@@ -3409,8 +3406,8 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 </span>
 </span>
 </label>
-<label class="co-option-row clicked">
-<input type=radio name=payment_id value=7 autocomplete=off checked>
+<label class="co-option-row">
+<input type=radio name=payment_id value=7 autocomplete=off>
 <span class="co-option-row__body">
 <span class="co-option-row__copy">
 <span class="co-option-row__title">Банков превод</span>
@@ -3418,7 +3415,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 </span>
 </span>
 </label>
-<div id=bank-transfer-details class="bank-transfer-details" role=region aria-label="Данни за банков превод">
+<div id=bank-transfer-details class="bank-transfer-details hide sf-hidden" hidden role=region aria-label="Данни за банков превод">
 <p class="bank-transfer-details__lead">Преведи сумата по следната сметка (SEPA):</p>
 <dl class="bank-transfer-details__list">
 <div class="bank-transfer-details__row">

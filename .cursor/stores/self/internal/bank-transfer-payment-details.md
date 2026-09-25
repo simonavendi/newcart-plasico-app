@@ -9,7 +9,7 @@ When **Банков превод** (`payment_id=7`) is selected under `#checkout
 
 ## UI
 - Panel `#bank-transfer-details` directly under the Банков превод option row
-- Visible when `payment_id=7` (default); hidden for other payments via `syncPayment()`
+- Visible only when user selects `payment_id=7`; hidden on load / other payments via `syncPayment()` (no payment preselected — see `no-payment-preselect.md`)
 - Row keeps short SEPA hint; proforma email note moved into the panel footer
 
 ## Data (Plasico / demo)

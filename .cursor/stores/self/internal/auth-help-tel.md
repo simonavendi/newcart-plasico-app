@@ -3,12 +3,13 @@
 ## Change
 `a.auth-modal__help` in `#auth-modal` (index.html + poruchka.html):
 
-- Text: `Имаш ли нужда от помощ? - Обади се на 0700 20 810.`
+- Line 1: `Имаш ли нужда от помощ?`
+- Line 2: `Обади се на 0700 20 810.` (`<br>` between lines; no mid-line dash)
 - `href`: `tel:070020810` (digits-only URI; whole link opens dialer)
-- CSS: slight horizontal padding + line-height 1.35 so the longer label wraps cleanly
+- CSS: slight horizontal padding + line-height 1.45 for the two-line label
 
 ## Scope
-Help link only — no other auth-modal edits (email-mode switch left alone).
+Help link only — no other auth-modal edits (email-mode / register-login left alone).
 
 ## Landed
-`main` @ `7310b43`
+`main` @ `7f78122`

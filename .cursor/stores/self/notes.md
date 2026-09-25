@@ -1,5 +1,6 @@
 # plasico cart notes
 
+- Leasing-complete → invoice autofill (физ. лице + green notice; ЮЛ МОЛ + red badge) — `main` @ `8d96350`; see `internal/leasing-invoice-autofill.md` + `media/leasing-invoice-autofill.png`
 - `/boxnowno` checkout copy: BOX NOW greyed + size tip + default Speedy office — `main` @ `7b84fc0`; see `internal/boxnowno-page.md` + `media/boxnowno-grey-boxnow.png`
 - Agent store: checkout/auth/header/leasing evidence + internal notes landed on `main` @ `b7c0c0f` (docs/media only; product already at tip) — see `internal/` for auth, Box Now, leasing, terms, carrier logos, bank/phone
 - Leasing `#pl-leasing-summary`: prefix **Обща сума: ** — `main` @ `b1041af`; see `internal/leasing-summary-obsha-suma.md` + `media/leasing-summary-obsha-suma.png`

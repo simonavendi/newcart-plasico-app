@@ -1178,7 +1178,7 @@ min-height:52px;box-sizing:border-box
         }
 
         var discountRow = table.querySelector("tr.totals.discount");
-        var discountSpan = discountRow ? discountRow.querySelector("td + td span") : null;
+        var discountSpan = discountRow ? discountRow.querySelector("td + td > span:not(.aside-discount-tip)") : null;
         if (discountRow) {
           if (rate > 0 && rows.length) {
             discountRow.removeAttribute("hidden");
@@ -1239,68 +1239,76 @@ min-height:52px;box-sizing:border-box
 
     /* Aside discount info badge + tooltip (auto-applied promo explanation) */
     (function () {
-      var btn = document.getElementById("aside-discount-info");
-      var tip = document.getElementById("aside-discount-tip");
-      if (!btn || !tip) return;
+      function bindDiscountInfo() {
+        var btn = document.getElementById("aside-discount-info");
+        var tip = document.getElementById("aside-discount-tip");
+        if (!btn || !tip || btn.getAttribute("data-bound") === "1") return;
+        btn.setAttribute("data-bound", "1");
 
-      var open = false;
-      var hoverCloseTimer = null;
-      var canHover = function () {
-        try {
-          return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-        } catch (err) {
-          return true;
+        var open = false;
+        var ignoreDocClick = false;
+        var hoverCloseTimer = null;
+
+        function canHover() {
+          try {
+            return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+          } catch (err) {
+            return true;
+          }
         }
-      };
 
-      function setOpen(next) {
-        open = !!next;
-        if (open) tip.removeAttribute("hidden");
-        else tip.setAttribute("hidden", "");
-        btn.setAttribute("aria-expanded", open ? "true" : "false");
-      }
+        function setOpen(next) {
+          open = !!next;
+          if (open) tip.removeAttribute("hidden");
+          else tip.setAttribute("hidden", "");
+          btn.setAttribute("aria-expanded", open ? "true" : "false");
+        }
 
-      btn.addEventListener("click", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        setOpen(!open);
-      });
+        btn.addEventListener("click", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          setOpen(!open);
+          ignoreDocClick = true;
+          setTimeout(function () {
+            ignoreDocClick = false;
+          }, 0);
+        });
 
-      btn.addEventListener("mouseenter", function () {
-        if (!canHover()) return;
-        clearTimeout(hoverCloseTimer);
-        setOpen(true);
-      });
+        btn.addEventListener("mouseenter", function () {
+          if (!canHover()) return;
+          clearTimeout(hoverCloseTimer);
+          setOpen(true);
+        });
 
-      function scheduleHoverClose() {
-        if (!canHover()) return;
-        clearTimeout(hoverCloseTimer);
-        hoverCloseTimer = setTimeout(function () {
-          if (!btn.matches(":hover") && !tip.matches(":hover")) setOpen(false);
-        }, 140);
-      }
+        function scheduleHoverClose() {
+          if (!canHover()) return;
+          clearTimeout(hoverCloseTimer);
+          hoverCloseTimer = setTimeout(function () {
+            if (!btn.matches(":hover") && !tip.matches(":hover")) setOpen(false);
+          }, 140);
+        }
 
-      btn.addEventListener("mouseleave", scheduleHoverClose);
-      tip.addEventListener("mouseenter", function () {
-        clearTimeout(hoverCloseTimer);
-        setOpen(true);
-      });
-      tip.addEventListener("mouseleave", scheduleHoverClose);
+        btn.addEventListener("mouseleave", scheduleHoverClose);
+        tip.addEventListener("mouseenter", function () {
+          clearTimeout(hoverCloseTimer);
+          setOpen(true);
+        });
+        tip.addEventListener("mouseleave", scheduleHoverClose);
 
-      document.addEventListener(
-        "click",
-        function (e) {
-          if (!open) return;
+        document.addEventListener("click", function (e) {
+          if (ignoreDocClick || !open) return;
           var t = e.target;
           if (btn === t || btn.contains(t) || tip === t || tip.contains(t)) return;
           setOpen(false);
-        },
-        true
-      );
+        });
 
-      document.addEventListener("keydown", function (e) {
-        if (e.key === "Escape" && open) setOpen(false);
-      });
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && open) setOpen(false);
+        });
+      }
+
+      bindDiscountInfo();
+      document.addEventListener("DOMContentLoaded", bindDiscountInfo);
     })();
 
     var promoBtn = document.getElementById("promo-code-toggle");

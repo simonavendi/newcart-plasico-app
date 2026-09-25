@@ -263,7 +263,15 @@ html.boxnow-locator-open,html.boxnow-locator-open body{
 #checkout .checkout-layout__aside #cart-table .line-promo .precision{display:inline!important;font-size:inherit;color:inherit;font-family:inherit;font-weight:inherit;letter-spacing:0}
 #checkout .checkout-layout__aside #cart-table .oldprice{font-size:11px;margin-bottom:2px}
 #checkout .checkout-layout__aside #cart-table .totals.discount td{text-transform:none;font-size:13px;color:#555}
-#checkout .checkout-layout__aside #cart-table .totals.discount td+td{color:#c0392b}
+#checkout .checkout-layout__aside #cart-table .totals.discount td+td{position:relative;color:#c0392b;overflow:visible}
+#checkout .checkout-layout__aside .aside-discount-info{display:inline-flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;width:15px;height:15px;margin:0 0 0 5px;padding:0;border:1.5px solid #c0392b;border-radius:50%;background:#fff;color:#c0392b;font:700 10px/1 "exo2b",sans-serif;letter-spacing:0;text-transform:none;cursor:pointer;vertical-align:middle;position:relative;top:-1px;-webkit-box-sizing:border-box;box-sizing:border-box}
+#checkout .checkout-layout__aside .aside-discount-info:hover,
+#checkout .checkout-layout__aside .aside-discount-info:focus-visible,
+#checkout .checkout-layout__aside .aside-discount-info[aria-expanded=true]{background:#c0392b;color:#fff;outline:0}
+#checkout .checkout-layout__aside .aside-discount-info:focus-visible{box-shadow:0 0 0 2px rgba(255,97,0,.35)}
+#checkout .checkout-layout__aside .aside-discount-tip{position:absolute;right:0;bottom:calc(100% + 10px);z-index:30;width:min(250px,calc(100vw - 40px));padding:10px 12px;border:1px solid #e6e6e6;border-radius:6px;background:#fff;color:#444;font-size:12px;font-weight:400;line-height:1.45;text-align:left;text-transform:none;white-space:normal;letter-spacing:0;box-shadow:0 6px 18px rgba(0,0,0,.12)}
+#checkout .checkout-layout__aside .aside-discount-tip::after{content:"";position:absolute;right:14px;top:100%;border:7px solid transparent;border-top-color:#fff;filter:drop-shadow(0 1px 0 #e6e6e6)}
+#checkout .checkout-layout__aside .aside-discount-tip[hidden]{display:none!important}
 #checkout .checkout-layout__aside #cart-table .price{font-size:13px}
 #checkout .checkout-layout__aside #cart-table .subtotal{font-size:16px;letter-spacing:0}
 #checkout .checkout-layout__aside #cart-table .quan{font-size:15px}
@@ -1170,7 +1178,7 @@ min-height:52px;box-sizing:border-box
         }
 
         var discountRow = table.querySelector("tr.totals.discount");
-        var discountSpan = discountRow ? discountRow.querySelector("td + td span") : null;
+        var discountSpan = discountRow ? discountRow.querySelector("td + td > span:not(.aside-discount-tip)") : null;
         if (discountRow) {
           if (rate > 0 && rows.length) {
             discountRow.removeAttribute("hidden");
@@ -1227,6 +1235,80 @@ min-height:52px;box-sizing:border-box
         },
         true
       );
+    })();
+
+    /* Aside discount info badge + tooltip (auto-applied promo explanation) */
+    (function () {
+      function bindDiscountInfo() {
+        var btn = document.getElementById("aside-discount-info");
+        var tip = document.getElementById("aside-discount-tip");
+        if (!btn || !tip || btn.getAttribute("data-bound") === "1") return;
+        btn.setAttribute("data-bound", "1");
+
+        var open = false;
+        var ignoreDocClick = false;
+        var hoverCloseTimer = null;
+
+        function canHover() {
+          try {
+            return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+          } catch (err) {
+            return true;
+          }
+        }
+
+        function setOpen(next) {
+          open = !!next;
+          if (open) tip.removeAttribute("hidden");
+          else tip.setAttribute("hidden", "");
+          btn.setAttribute("aria-expanded", open ? "true" : "false");
+        }
+
+        btn.addEventListener("click", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          setOpen(!open);
+          ignoreDocClick = true;
+          setTimeout(function () {
+            ignoreDocClick = false;
+          }, 0);
+        });
+
+        btn.addEventListener("mouseenter", function () {
+          if (!canHover()) return;
+          clearTimeout(hoverCloseTimer);
+          setOpen(true);
+        });
+
+        function scheduleHoverClose() {
+          if (!canHover()) return;
+          clearTimeout(hoverCloseTimer);
+          hoverCloseTimer = setTimeout(function () {
+            if (!btn.matches(":hover") && !tip.matches(":hover")) setOpen(false);
+          }, 140);
+        }
+
+        btn.addEventListener("mouseleave", scheduleHoverClose);
+        tip.addEventListener("mouseenter", function () {
+          clearTimeout(hoverCloseTimer);
+          setOpen(true);
+        });
+        tip.addEventListener("mouseleave", scheduleHoverClose);
+
+        document.addEventListener("click", function (e) {
+          if (ignoreDocClick || !open) return;
+          var t = e.target;
+          if (btn === t || btn.contains(t) || tip === t || tip.contains(t)) return;
+          setOpen(false);
+        });
+
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && open) setOpen(false);
+        });
+      }
+
+      bindDiscountInfo();
+      document.addEventListener("DOMContentLoaded", bindDiscountInfo);
     })();
 
     var promoBtn = document.getElementById("promo-code-toggle");
@@ -3557,7 +3639,10 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
  <tr class="totals discount">
  <td class="r nw" colspan=5>Отстъпка FLASH (−10%)</td>
  <td class="r nw">
- <span>−69.00</span> €&nbsp;&nbsp;&nbsp; </td>
+ <span>−69.00</span> €
+ <button type=button class=aside-discount-info id=aside-discount-info aria-label="Информация за автоматичния промокод" title="Информация за автоматичния промокод" aria-expanded=false aria-controls=aside-discount-tip>i</button>
+ <span id=aside-discount-tip class=aside-discount-tip role=tooltip hidden>Този промокод беше автоматично добавен, защото имате продукт в количката, който отговаря на тази оферта.</span>
+ </td>
  </tr>
  <tr class="totals grand">
  <td class="r nw" colspan=5>Сума за плащане с ДДС</td>

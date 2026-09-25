@@ -8,7 +8,7 @@
     - status `няма открита регистрация`
     - password + confirm
     - CTA `Регистрирай се`
-  - **разпознат имейл** → `#auth-step-login` with same demo email + `намерена регистрация`
+  - **разпознат имейл** → `#auth-step-login` with same demo email + status `разпознат имейл` + green tick (see `auth-known-login-recognized.md`)
 - **× clear:** returns to `#auth-step-email` entry
 - **Help link:** `tel:070020810` preserved
 - **Screens:** `media/auth-unknown-register-step.png`, `media/auth-known-login-step.png`

@@ -348,7 +348,12 @@ html.boxnow-locator-open,html.boxnow-locator-open body{
 .auth-modal__email-chip-text{min-width:0;font-size:14px;line-height:1.35;color:#222;word-break:break-all;text-align:center}
 .auth-modal__email-chip-clear{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;width:28px;height:28px;margin:0;padding:0;border:0;border-radius:50%;background:transparent;color:#999;font:inherit;font-size:20px;line-height:1;cursor:pointer;-ms-flex-negative:0;flex-shrink:0}
 .auth-modal__email-chip-clear:hover{color:#333;background:rgba(0,0,0,.06)}
-.auth-modal__email-status{margin:0 0 16px;font-size:13px;line-height:1.35;text-align:center;color:#888}
+.auth-modal__email-status{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;gap:6px;margin:0 0 16px;font-size:13px;line-height:1.35;text-align:center;color:#888}
+.auth-modal__email-status-icon{display:-webkit-inline-box;display:-ms-inline-flexbox;display:inline-flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;width:18px;height:18px;-ms-flex-negative:0;flex-shrink:0;line-height:1;font-size:16px}
+.auth-modal__email-status-icon svg{display:block;width:16px;height:16px}
+.auth-modal__email-status--known{color:#55a630}
+.auth-modal__email-status--known .auth-modal__email-status-icon{color:#55a630}
+.auth-modal__email-status--unknown .auth-modal__email-status-icon{color:#b0b0b0;font-size:18px}
 .auth-modal__back{display:inline-block;margin:0 0 8px;padding:0;border:0;background:transparent;color:#55a630;font:inherit;font-size:13px;cursor:pointer;text-decoration:underline}
 .auth-modal__back:hover{color:#4a9229}
 .auth-modal__form{margin:0}
@@ -6183,7 +6188,7 @@ window.__plasicoEnsureBoxNow = function () {
  <span class="auth-modal__email-chip-text"></span>
  <button type=button class="auth-modal__email-chip-clear" data-auth-clear-email aria-label="Изчисти имейл">×</button>
  </div>
- <p class="auth-modal__email-status" id=auth-login-status>намерена регистрация</p>
+ <p class="auth-modal__email-status auth-modal__email-status--known" id=auth-login-status role=status><span class="auth-modal__email-status-icon" aria-hidden=true><svg viewBox="0 0 16 16" focusable=false><circle cx="8" cy="8" r="7.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4.4 8.1l2.3 2.3 4.9-4.9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>разпознат имейл</span></p>
  <form class="auth-modal__form" id=auth-login-form method=post action=https://plasico.bg/account>
  <input id=login-email type=hidden name=logged_email value>
  <div class="auth-modal__field">
@@ -6204,7 +6209,7 @@ window.__plasicoEnsureBoxNow = function () {
  <span class="auth-modal__email-chip-text"></span>
  <button type=button class="auth-modal__email-chip-clear" data-auth-clear-email aria-label="Изчисти имейл">×</button>
  </div>
- <p class="auth-modal__email-status" id=auth-register-status>няма открита регистрация</p>
+ <p class="auth-modal__email-status auth-modal__email-status--unknown" id=auth-register-status role=status><span>няма открита регистрация</span><span class="auth-modal__email-status-icon" aria-hidden=true>×</span></p>
  <form class="auth-modal__form" id=auth-register-form method=post action=https://plasico.bg/account>
  <input id=register-email type=hidden name=email value>
  <div class="auth-modal__field">

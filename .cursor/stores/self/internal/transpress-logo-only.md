@@ -26,5 +26,5 @@ On the Transpress **courier option** only (`index.html` + `poruchka.html`):
 
 - Local `:8780`: `python _verify_transpress_logo_only.py` → PASS
 - Screenshot: `.cursor/stores/self/media/transpress-logo-only-fixed.png`
-- Live: https://newcart-plasico-app.vercel.app/
-- Pushed `main` @ `6940f14`
+- Live: https://newcart-plasico-app.vercel.app/ → PASS (empty `innerText`, logo visible, Speedy + Град unchanged)
+- Pushed `main` @ `6940f14` (notes SHA `b6f9948`)

@@ -344,6 +344,11 @@ html.boxnow-locator-open,html.boxnow-locator-open body{
 .auth-modal__prompt{margin:0 0 16px;font-size:15px;line-height:1.35;text-align:center;color:#222}
 .auth-modal__title{margin:4px 0 8px;font-family:"exo2b",sans-serif;font-size:24px;line-height:1.2;text-align:center;text-transform:none;color:#222}
 .auth-modal__email-chip{margin:0 0 16px;font-size:14px;line-height:1.35;text-align:center;color:#666;word-break:break-all}
+.auth-modal__email-chip-row{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;gap:8px;margin:0 0 8px;padding:10px 14px;border:1px solid #d8d8d8;border-radius:999px;background:#f7f7f7;box-sizing:border-box}
+.auth-modal__email-chip-text{min-width:0;font-size:14px;line-height:1.35;color:#222;word-break:break-all;text-align:center}
+.auth-modal__email-chip-clear{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;width:28px;height:28px;margin:0;padding:0;border:0;border-radius:50%;background:transparent;color:#999;font:inherit;font-size:20px;line-height:1;cursor:pointer;-ms-flex-negative:0;flex-shrink:0}
+.auth-modal__email-chip-clear:hover{color:#333;background:rgba(0,0,0,.06)}
+.auth-modal__email-status{margin:0 0 16px;font-size:13px;line-height:1.35;text-align:center;color:#888}
 .auth-modal__back{display:inline-block;margin:0 0 8px;padding:0;border:0;background:transparent;color:#55a630;font:inherit;font-size:13px;cursor:pointer;text-decoration:underline}
 .auth-modal__back:hover{color:#4a9229}
 .auth-modal__form{margin:0}
@@ -1421,6 +1426,8 @@ min-height:52px;box-sizing:border-box
         return "unknown";
       }
 
+      var DEMO_AUTH_EMAIL = "s.dimitrova@plasico.bg";
+
       function setAuthEmailMode(mode, jumpStep) {
         if (mode !== "known" && mode !== "unknown") mode = "unknown";
         if (demoFlow) {
@@ -1432,12 +1439,16 @@ min-height:52px;box-sizing:border-box
         }
         try { sessionStorage.setItem(AUTH_EMAIL_MODE_KEY, mode); } catch (err) {}
         if (jumpStep) {
-          var onLogin = stepLogin && !stepLogin.hasAttribute("hidden");
-          var onRegister = stepRegister && !stepRegister.hasAttribute("hidden");
-          if (onLogin || onRegister) {
-            setAuthStep(mode === "known" ? "login" : "register");
-          }
+          applyDemoEmailMode(mode);
         }
+      }
+
+      function applyDemoEmailMode(mode) {
+        var m = mode || getAuthEmailMode();
+        var email = DEMO_AUTH_EMAIL;
+        if (emailInput) emailInput.value = email;
+        syncEmailChips(email);
+        setAuthStep(m === "known" ? "login" : "register");
       }
 
       function setAuthStep(which) {
@@ -1463,16 +1474,23 @@ min-height:52px;box-sizing:border-box
           var pass = document.getElementById("login-pass");
           if (pass) setTimeout(function () { pass.focus(); }, 0);
         } else if (which === "register") {
-          var name = document.getElementById("register-name");
-          if (name) setTimeout(function () { name.focus(); }, 0);
+          var passR = document.getElementById("register-pass");
+          if (passR) setTimeout(function () { passR.focus(); }, 0);
         }
+      }
+
+      function setChipText(chipEl, email) {
+        if (!chipEl) return;
+        var textEl = chipEl.querySelector(".auth-modal__email-chip-text");
+        if (textEl) textEl.textContent = email || "";
+        else chipEl.textContent = email || "";
       }
 
       function syncEmailChips(email) {
         if (loginEmailHidden) loginEmailHidden.value = email;
         if (registerEmailHidden) registerEmailHidden.value = email;
-        if (loginEmailChip) loginEmailChip.textContent = email;
-        if (registerEmailChip) registerEmailChip.textContent = email;
+        setChipText(loginEmailChip, email);
+        setChipText(registerEmailChip, email);
       }
 
       function resetAuthModal() {
@@ -1480,8 +1498,7 @@ min-height:52px;box-sizing:border-box
         if (emailForm) emailForm.reset();
         if (loginForm) loginForm.reset();
         if (registerForm) registerForm.reset();
-        syncEmailChips("");
-        setAuthStep("email");
+        applyDemoEmailMode(getAuthEmailMode());
       }
 
       function completeDemoAuth(email, method) {
@@ -1529,11 +1546,21 @@ min-height:52px;box-sizing:border-box
       if (registerForm) {
         registerForm.addEventListener("submit", function (e) {
           e.preventDefault();
+          var pass = document.getElementById("register-pass");
+          var confirm = document.getElementById("register-pass-confirm");
+          if (pass && confirm && pass.value !== confirm.value) {
+            if (typeof confirm.setCustomValidity === "function") {
+              confirm.setCustomValidity("Паролите не съвпадат");
+            }
+            registerForm.reportValidity();
+            if (typeof confirm.setCustomValidity === "function") confirm.setCustomValidity("");
+            return;
+          }
           if (!registerForm.checkValidity()) {
             registerForm.reportValidity();
             return;
           }
-          var email = (registerEmailHidden && registerEmailHidden.value) || (emailInput && emailInput.value) || "";
+          var email = (registerEmailHidden && registerEmailHidden.value) || (emailInput && emailInput.value) || DEMO_AUTH_EMAIL;
           completeDemoAuth(String(email).trim(), "register");
         });
       }
@@ -1545,6 +1572,16 @@ min-height:52px;box-sizing:border-box
         if (modeBtn && demoFlow && demoFlow.contains(modeBtn)) {
           e.preventDefault();
           setAuthEmailMode(modeBtn.getAttribute("data-auth-email-mode"), true);
+          return;
+        }
+        var clearEmail = t.closest("[data-auth-clear-email]");
+        if (clearEmail) {
+          e.preventDefault();
+          if (emailForm) emailForm.reset();
+          if (loginForm) loginForm.reset();
+          if (registerForm) registerForm.reset();
+          syncEmailChips("");
+          setAuthStep("email");
           return;
         }
         var social = t.closest("[data-auth-social]");
@@ -1575,8 +1612,8 @@ min-height:52px;box-sizing:border-box
           return;
         }
         lastFocus = document.activeElement;
-        resetAuthModal();
         setAuthEmailMode(getAuthEmailMode(), false);
+        resetAuthModal();
         modal.removeAttribute("hidden");
         modal.setAttribute("aria-hidden", "false");
         document.body.classList.add("auth-modal-open");
@@ -6144,7 +6181,11 @@ window.__plasicoEnsureBoxNow = function () {
  <div class="auth-modal__step" id=auth-step-login hidden>
  <button type=button class="auth-modal__back" data-auth-back>← Назад</button>
  <h2 class="auth-modal__title">Вход</h2>
- <p class="auth-modal__email-chip" id=auth-login-email-chip></p>
+ <div class="auth-modal__email-chip-row" id=auth-login-email-chip>
+ <span class="auth-modal__email-chip-text"></span>
+ <button type=button class="auth-modal__email-chip-clear" data-auth-clear-email aria-label="Изчисти имейл">×</button>
+ </div>
+ <p class="auth-modal__email-status" id=auth-login-status>намерена регистрация</p>
  <form class="auth-modal__form" id=auth-login-form method=post action=https://plasico.bg/account>
  <input id=login-email type=hidden name=logged_email value>
  <div class="auth-modal__field">
@@ -6157,15 +6198,17 @@ window.__plasicoEnsureBoxNow = function () {
  </div>
 
  <div class="auth-modal__step" id=auth-step-register hidden>
- <button type=button class="auth-modal__back" data-auth-back>← Назад</button>
- <h2 class="auth-modal__title">Регистрация</h2>
- <p class="auth-modal__email-chip" id=auth-register-email-chip></p>
+ <a class="auth-modal__brand" href=https://plasico.bg/ tabindex=-1>
+ <img src=assets/plasico-logo.png width=174 height=40 alt=Plasico>
+ </a>
+ <h2 class="auth-modal__greeting">Здравей!</h2>
+ <div class="auth-modal__email-chip-row" id=auth-register-email-chip>
+ <span class="auth-modal__email-chip-text"></span>
+ <button type=button class="auth-modal__email-chip-clear" data-auth-clear-email aria-label="Изчисти имейл">×</button>
+ </div>
+ <p class="auth-modal__email-status" id=auth-register-status>няма открита регистрация</p>
  <form class="auth-modal__form" id=auth-register-form method=post action=https://plasico.bg/account>
  <input id=register-email type=hidden name=email value>
- <div class="auth-modal__field">
- <label for=register-name>Име</label>
- <input id=register-name type=text name=name value placeholder="Иван Иванов" autocomplete=name required>
- </div>
  <div class="auth-modal__field">
  <label for=register-pass>Парола</label>
  <input id=register-pass type=password name=password value placeholder="••••••••" autocomplete=new-password required>
@@ -6174,7 +6217,7 @@ window.__plasicoEnsureBoxNow = function () {
  <label for=register-pass-confirm>Повторете паролата</label>
  <input id=register-pass-confirm type=password name=confirm value placeholder="••••••••" autocomplete=new-password required>
  </div>
- <button type=submit class="auth-modal__submit">Регистрация</button>
+ <button type=submit class="auth-modal__submit">Регистрирай се</button>
  </form>
  <p class="auth-modal__switch">Имаш акаунт? <button type=button data-auth-goto=login>Вход</button></p>
  </div>

@@ -410,9 +410,10 @@ body.is-demo-logged-in #head-profile{display:block}
 /* Mid desktop (.pw 990px): shrink both when profile shows so phone stays clear */
 @media only screen and (min-width:991px) and (max-width:1280px){
 body.is-demo-logged-in #head-cart-cluster{gap:2px}
-body.is-demo-logged-in #head-cart-cluster #cart{width:44px;height:32px}
+body.is-demo-logged-in #head-cart-cluster #cart{width:44px;height:32px;overflow:visible}
 body.is-demo-logged-in #head-cart-cluster #cart.hp:before{width:40px;height:40px;margin:-4px 2px;border-radius:20px}
-body.is-demo-logged-in #head-cart-cluster #cart .cart-icon{margin:7px 0 0 7px;width:28px!important;height:20px!important}
+/* Keep native 34x24 sprite frame — smaller w/h clips .spr wheels */
+body.is-demo-logged-in #head-cart-cluster #cart .cart-icon{margin:8px 0 0 3px;width:34px!important;height:24px!important}
 body.is-demo-logged-in #head-profile{width:44px;height:32px}
 body.is-demo-logged-in #head-profile.hp:before{width:40px;height:40px;margin:-4px 2px;border-radius:20px}
 body.is-demo-logged-in #head-profile .top-profile-btn{width:40px;height:40px;margin:-4px 2px}
@@ -421,28 +422,35 @@ body.is-demo-logged-in #head-profile .top-profile-btn svg{width:22px;height:22px
 @media only screen and (max-width:990px){
 /* Align profile+cart with phone/search (top:18 h:27 → cy≈31.5); leave click gaps */
 #head-cart-cluster{top:13px;right:2px;gap:8px;height:38px;-webkit-box-align:center;-ms-flex-align:center;align-items:center}
-#head-cart-cluster #cart{width:38px;height:38px}
+#head-cart-cluster #cart{width:38px;height:38px;overflow:visible}
 #head-cart-cluster #cart.hp:before{width:38px;height:38px;margin:0;border-radius:19px;left:0;top:0}
-#head-cart-cluster #cart .cart-icon{margin:10px 0 0 7px;width:24px!important;height:18px!important}
+/* Native 34x24 sprite; margin centers in 38px yellow circle */
+#head-cart-cluster #cart .cart-icon{margin:7px 0 0 2px;width:34px!important;height:24px!important}
 #head-cart-cluster #cart .dot{min-width:16px;line-height:16px;font-size:11px;top:-2px;right:-2px}
 #head-profile{width:38px;height:38px}
 #head-profile.hp:before{width:38px;height:38px;margin:0;border-radius:19px;left:0;top:0}
 #head-profile .top-profile-btn{width:38px;height:38px;margin:0}
 #head-profile .top-profile-btn svg{width:20px;height:20px}
+/* Guest: cart-only cluster (~40px) — tighten phone/search vs base right:65/75 */
+#search{right:48px!important}
+#top-phone{right:83px!important}
 /* Profile adds ~46px; shift phone+search left so nothing overlaps */
 body.is-demo-logged-in #search{right:100px!important}
 body.is-demo-logged-in #top-phone{right:135px!important}
 }
 @media only screen and (max-width:480px){
 #head-cart-cluster{top:16px;right:2px;gap:6px;height:32px}
-#head-cart-cluster #cart{width:32px;height:32px}
+#head-cart-cluster #cart{width:32px;height:32px;overflow:visible}
 #head-cart-cluster #cart.hp:before{width:32px;height:32px;margin:0;border-radius:16px;left:0;top:0}
-#head-cart-cluster #cart .cart-icon{margin:8px 0 0 5px;width:22px!important;height:16px!important}
+/* Scale native sprite into 32px circle without clipping wheels */
+#head-cart-cluster #cart .cart-icon{margin:6px 0 0 2px;width:34px!important;height:24px!important;-webkit-transform:scale(0.82);transform:scale(0.82);-webkit-transform-origin:top left;transform-origin:top left}
 #head-cart-cluster #cart .dot{min-width:14px;line-height:14px;font-size:10px}
 #head-profile{width:32px;height:32px}
 #head-profile.hp:before{width:32px;height:32px;margin:0;border-radius:16px;left:0;top:0}
 #head-profile .top-profile-btn{width:32px;height:32px;margin:0}
 #head-profile .top-profile-btn svg{width:17px;height:17px}
+#search{right:42px!important}
+#top-phone{right:77px!important}
 body.is-demo-logged-in #search{right:86px!important}
 body.is-demo-logged-in #top-phone{right:121px!important}
 }

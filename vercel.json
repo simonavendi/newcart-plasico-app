@@ -1,4 +1,10 @@
 {
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/api/v1/public/chat/:path*",
+      "destination": "https://os.4chairs.bg/api/v1/public/chat/:path*"
+    }
+  ]
 }

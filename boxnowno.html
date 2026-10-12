@@ -474,6 +474,18 @@ border-color:#e8e8e8;background:#f5f5f5
 .auth-modal__field input{display:block;width:100%;padding:12px 18px;border:1px solid #d8d8d8;border-radius:999px;box-sizing:border-box;font:inherit;font-size:15px;background:#fff;color:#222}
 .auth-modal__field input:focus{outline:none;border-color:#55a630;box-shadow:0 0 0 2px rgba(85,166,48,.15)}
 .auth-modal__submit{display:block;width:100%;margin:4px 0 0;padding:13px 18px;border:0;border-radius:999px;background:#55a630;color:#fff;font-family:"exo2b",sans-serif;font-size:16px;line-height:1.2;cursor:pointer}
+.auth-modal__checks{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;gap:10px;margin:4px 0 14px}
+.auth-modal__check{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start;gap:10px;margin:0;padding:0;font-size:13px;line-height:1.4;color:#444;text-align:left}
+.auth-modal__check-text{min-width:0;flex:1 1 auto}
+.auth-modal__check-text>label{display:inline;margin:0;padding:0;font:inherit;font-size:inherit;line-height:inherit;color:inherit;cursor:pointer}
+#checkout #step-confirm label.conditions .lb .cbox,#checkout #step-confirm label.conditions .lb a.co-conditions__link{color:#55a630;text-decoration:underline;cursor:pointer}
+#checkout #step-confirm label.conditions .lb .cbox:hover,#checkout #step-confirm label.conditions .lb a.co-conditions__link:hover{color:#4a9229}
+.auth-modal__check input{position:relative;-ms-flex-negative:0;flex-shrink:0;width:18px;height:18px;margin:1px 0 0;padding:0;border:1px solid #c8c8c8;border-radius:3px;background:#fff;appearance:none;-webkit-appearance:none;cursor:pointer;box-sizing:border-box}
+.auth-modal__check input:checked{background:#55a630;border-color:#55a630}
+.auth-modal__check input:checked::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);box-sizing:border-box}
+.auth-modal__check input:focus-visible{outline:2px solid rgba(85,166,48,.45);outline-offset:2px}
+.auth-modal__check-link{color:#55a630;text-decoration:underline}
+.auth-modal__check-link:hover{color:#4a9229}
 .auth-modal__submit:hover{background:#4a9229}
 .auth-modal__helper{margin:16px 0 0;font-size:13px;line-height:1.45;text-align:center;color:#555}
 .auth-modal__switch{margin:14px 0 0;font-size:13px;line-height:1.4;text-align:center;color:#666}
@@ -1237,6 +1249,39 @@ min-height:52px;box-sizing:border-box
 
 
   ready(function () {
+  /* Consent links inside labels: open URL without toggling the checkbox */
+  if (!window.__plasicoConsentLinkWired) {
+    window.__plasicoConsentLinkWired = true;
+    document.addEventListener("click", function (e) {
+      var t = e.target;
+      if (!t || !t.closest) return;
+      var link = t.closest(
+        "a.auth-modal__check-link, a.co-conditions__link, a.pl-leasing-apply-link, " +
+        "label.conditions .lb .cbox, label.conditions .lb a.cbox"
+      );
+      if (!link) return;
+      var label = link.closest("label");
+      var input = null;
+      if (label) {
+        input = label.control || label.querySelector('input[type="checkbox"]');
+      }
+      if (!input) {
+        var row = link.closest(".auth-modal__check, .pl-leasing-apply-check");
+        if (row) input = row.querySelector('input[type="checkbox"]');
+      }
+      var prev = input ? !!input.checked : null;
+      var href = link.getAttribute("href") || link.getAttribute("data-url") || "";
+      if (href && href.indexOf("http") !== 0 && href.indexOf("//") !== 0 && href.charAt(0) !== "#") {
+        href = href.charAt(0) === "/" ? "https://plasico.bg" + href : "https://plasico.bg/" + href;
+      }
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      if (href) {
+        try { window.open(href, "_blank", "noopener,noreferrer"); } catch (err) {}
+      }
+      if (input) input.checked = prev;
+    }, true);
+  }
     /* Local demo: aside cart qty (+/−/del) updates line totals, FLASH discount, grand total, leasing teaser */
     (function wireCartQtySelectors() {
       var table = document.querySelector("#checkout #cart-table") || document.getElementById("cart-table");
@@ -3908,7 +3953,6 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <section class="checkout-step bgff" id=step-payment data-step=4>
 <div id=checkout-payments class="cl checkout-payments">
 <h2 id=checkout-payment>Метод на плащане</h2>
-<p class="checkout-step__lead">Всички плащания са защитени с 3D Secure.</p>
 
 <input type=hidden name=person id=checkout-person-value value=1>
 
@@ -4060,7 +4104,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
  <span class="er sf-hidden">Моля изберете!</span>
  <span class=fbox>
  <input type=checkbox name=approve_conditions autocomplete=off value=1 required>
- <span class=lb>Имам навършени 18 години и съм съгласен с <span data-url="help?info=52" class=cbox>общите условия и начина на обработка на личните ми данни</span> <span class="co-conditions__req">(задължително)</span></span>
+ <span class=lb>Имам навършени 18 години и съм съгласен с <a href="https://plasico.bg/help?info=52" target=_blank rel="noopener noreferrer" class="cbox co-conditions__link">общите условия и начина на обработка на личните ми данни</a> <span class="co-conditions__req">(задължително)</span></span>
  </span>
  </label>
   <div class="co-phone-confirm" id=phonecall-confirm-block>
@@ -4230,7 +4274,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
  <span class="er sf-hidden">Моля изберете!</span>
  <span class=fbox>
  <input type=checkbox name=approve_conditions autocomplete=off value=1>
- <span class=lb>Имам навършени 18 години и съм съгласен с <span data-url="help?info=52" class=cbox>общите условия и начина на обработка на личните ми данни</span></span>
+ <span class=lb>Имам навършени 18 години и съм съгласен с <a href="https://plasico.bg/help?info=52" target=_blank rel="noopener noreferrer" class="cbox co-conditions__link">общите условия и начина на обработка на личните ми данни</a></span>
  </span>
  </label>
  <input type=text name=email placeholder="Въведи ел. поща..." value class=fl data-placeholder="Въведи ел. поща...">
@@ -8229,6 +8273,20 @@ window.__plasicoEnsureBoxNow = function () {
  </div>
  <input id=login-pass type=password name=password value placeholder="••••••••" autocomplete=current-password required>
  </div>
+ <div class="auth-modal__checks">
+ <div class="auth-modal__check">
+ <input id=login-agree-terms type=checkbox name=agree_terms value=1 required>
+ <span class="auth-modal__check-text">
+ <label for=login-agree-terms>Запознат съм с </label><a class="auth-modal__check-link" href="https://plasico.bg/help?info=52" target=_blank rel="noopener noreferrer">Общите условия</a>
+ </span>
+ </div>
+ <div class="auth-modal__check">
+ <input id=login-agree-privacy type=checkbox name=agree_privacy value=1 required>
+ <span class="auth-modal__check-text">
+ <label for=login-agree-privacy>Запознат съм с </label><a class="auth-modal__check-link" href="https://static.plasico.bg/resources/191112164954personal_data_policy.pdf" target=_blank rel="noopener noreferrer">Политиката за поверителност</a>
+ </span>
+ </div>
+ </div>
  <button type=submit class="auth-modal__submit">Вход</button>
  </form>
  <div class="auth-modal__divider" role=separator>
@@ -8276,6 +8334,20 @@ window.__plasicoEnsureBoxNow = function () {
  <div class="auth-modal__field">
  <label for=register-pass-confirm>Повторете паролата</label>
  <input id=register-pass-confirm type=password name=confirm value placeholder="••••••••" autocomplete=new-password required>
+ </div>
+ <div class="auth-modal__checks">
+ <div class="auth-modal__check">
+ <input id=register-agree-terms type=checkbox name=agree_terms value=1 required>
+ <span class="auth-modal__check-text">
+ <label for=register-agree-terms>Запознат съм с </label><a class="auth-modal__check-link" href="https://plasico.bg/help?info=52" target=_blank rel="noopener noreferrer">Общите условия</a>
+ </span>
+ </div>
+ <div class="auth-modal__check">
+ <input id=register-agree-privacy type=checkbox name=agree_privacy value=1 required>
+ <span class="auth-modal__check-text">
+ <label for=register-agree-privacy>Запознат съм с </label><a class="auth-modal__check-link" href="https://static.plasico.bg/resources/191112164954personal_data_policy.pdf" target=_blank rel="noopener noreferrer">Политиката за поверителност</a>
+ </span>
+ </div>
  </div>
  <button type=submit class="auth-modal__submit">Регистрирай се</button>
  </form>

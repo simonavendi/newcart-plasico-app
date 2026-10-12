@@ -1321,6 +1321,11 @@
 		if (pay8 && pay8.checked) {
 			host.classList.remove('hide', 'sf-hidden');
 			host.removeAttribute('hidden');
+			var install = document.getElementById('installment-options');
+			if (install) {
+				install.classList.remove('hide', 'sf-hidden');
+				install.removeAttribute('hidden');
+			}
 		}
 		syncCheckoutCta();
 		syncInvoiceFromLeasing();
@@ -2138,6 +2143,14 @@
 		renderTeaser();
 		bindInvoiceLeasingWatchers();
 		bindLeasingConfirmGate();
+		/* Refresh keeps apply in sessionStorage, but payment radios reset —
+		 * re-select PostBank installments so #leasing-schema / scheme stay visible. */
+		if (isLeasingApplyFilled()) {
+			syncCheckoutPaymentInstallments();
+			if (state.apply && state.apply.column) {
+				syncInstallmentOptionSelection(state.apply.column);
+			}
+		}
 		renderSavedApply();
 		bindTriggers();
 		syncWantInvoiceLockForInstallment();
@@ -2218,6 +2231,14 @@
 
 	window.addEventListener('load', function () {
 		if (!shouldHandleLocally()) return;
+		/* Some checkout wires re-hide panels after DOMContentLoaded — restore once more. */
+		if (isLeasingApplyFilled()) {
+			syncCheckoutPaymentInstallments();
+			if (state.apply && state.apply.column) {
+				syncInstallmentOptionSelection(state.apply.column);
+			}
+			renderSavedApply();
+		}
 		refresh();
 	});
 })();

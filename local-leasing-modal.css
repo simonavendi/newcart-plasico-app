@@ -687,21 +687,34 @@
 
 @media (max-width: 700px) {
 	.pl-leasing-overlay {
-		align-items: flex-start;
-		justify-content: center;
-		padding: max(16px, env(safe-area-inset-top, 0px))
-			max(16px, env(safe-area-inset-right, 0px))
-			max(16px, env(safe-area-inset-bottom, 0px))
-			max(16px, env(safe-area-inset-left, 0px));
+		align-items: stretch;
+		justify-content: stretch;
+		padding: env(safe-area-inset-top, 0px)
+			env(safe-area-inset-right, 0px)
+			env(safe-area-inset-bottom, 0px)
+			env(safe-area-inset-left, 0px);
+		overflow: hidden;
 	}
 
 	.pl-leasing-modal {
-		max-width: 100%;
+		max-width: none;
 		width: 100%;
-		max-height: calc(100vh - 32px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
-		max-height: calc(100dvh - 32px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
-		margin: 0 auto;
+		height: 100%;
+		min-height: 100%;
+		max-height: none;
+		margin: 0;
+		border-radius: 0;
+		border: 0;
+		box-shadow: none;
 		overflow: hidden;
+	}
+
+	.pl-leasing-head {
+		border-radius: 0;
+	}
+
+	.pl-leasing-body {
+		border-radius: 0;
 	}
 
 	/* Keep close X fully inside the modal — negative offsets clip under status bar */
@@ -832,13 +845,6 @@
 }
 
 @media (max-width: 480px) {
-	.pl-leasing-overlay {
-		padding: max(16px, env(safe-area-inset-top, 0px))
-			max(16px, env(safe-area-inset-right, 0px))
-			max(16px, env(safe-area-inset-bottom, 0px))
-			max(16px, env(safe-area-inset-left, 0px));
-	}
-
 	.pl-leasing-close {
 		top: 8px;
 		right: 8px;
@@ -957,10 +963,72 @@
 }
 
 #aside-leasing-btn[hidden],
-#checkout .aside-leasing[hidden],
-body.is-leasing-ready #aside-leasing-btn,
-body.is-leasing-ready #checkout .aside-leasing {
+#checkout .aside-leasing[hidden] {
 	display: none !important;
+}
+
+/* Submitted leasing apply: keep aside visible with data preview */
+#checkout .checkout-layout__aside .aside-leasing.is-submitted,
+.aside-leasing.is-submitted {
+	display: block;
+	padding: 12px 14px;
+	border-color: #55a630;
+	background: #f3faf0;
+	color: #2e7d32;
+	text-align: left;
+	cursor: pointer;
+}
+#checkout .checkout-layout__aside .aside-leasing.is-submitted:hover,
+.aside-leasing.is-submitted:hover {
+	background: #e8f5e1;
+	color: #1b5e20;
+}
+#checkout .aside-leasing.is-submitted .aside-leasing__label,
+.aside-leasing.is-submitted .aside-leasing__label {
+	display: block;
+	margin: 0 0 8px;
+	font-weight: bold;
+	font-size: 14px;
+	line-height: 1.3;
+	color: inherit;
+}
+#checkout .aside-leasing.is-submitted .aside-leasing__preview,
+.aside-leasing.is-submitted .aside-leasing__preview {
+	display: block;
+	font-family: "exo2", "exo2b", sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+	line-height: 1.4;
+	color: #333;
+}
+#checkout .aside-leasing.is-submitted .aside-leasing__preview-row,
+.aside-leasing.is-submitted .aside-leasing__preview-row {
+	display: block;
+	margin: 0 0 2px;
+}
+#checkout .aside-leasing.is-submitted .aside-leasing__preview-k,
+.aside-leasing.is-submitted .aside-leasing__preview-k {
+	color: #666;
+	font-weight: normal;
+}
+#checkout .aside-leasing.is-submitted .aside-leasing__preview-k::after,
+.aside-leasing.is-submitted .aside-leasing__preview-k::after {
+	content: ":";
+}
+#checkout .aside-leasing.is-submitted .aside-leasing__preview-scheme,
+.aside-leasing.is-submitted .aside-leasing__preview-scheme {
+	display: block;
+	margin: 6px 0 0;
+	color: #2e7d32;
+	font-weight: 600;
+}
+#checkout .aside-leasing.is-submitted .aside-leasing__preview-edit,
+.aside-leasing.is-submitted .aside-leasing__preview-edit {
+	display: block;
+	margin: 8px 0 0;
+	color: #288000;
+	font-weight: 600;
+	text-decoration: underline;
 }
 
 /* Leasing → invoice (фактура) notices */
@@ -1008,4 +1076,261 @@ body.is-leasing-ready #checkout .aside-leasing {
 .co-person-type label.is-leasing-person-locked,
 .co-person-type label[hidden].is-leasing-person-locked {
 	display: none !important;
+}
+
+/* Installment payment: „Искам фактура“ locked checked */
+#checkout .co-invoice-check.is-invoice-locked {
+	cursor: default;
+}
+#checkout .co-invoice-check.is-invoice-locked input[type=checkbox] {
+	cursor: not-allowed;
+	pointer-events: none;
+}
+
+/* Leasing buy confirm summary modal */
+.pl-leasing-confirm-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 999999;
+	background: rgba(15, 23, 42, 0.45);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: max(16px, env(safe-area-inset-top, 0px)) 16px
+		max(16px, env(safe-area-inset-bottom, 0px));
+	box-sizing: border-box;
+	overflow: auto;
+}
+.pl-leasing-confirm-overlay[hidden] {
+	display: none !important;
+}
+.pl-leasing-confirm-modal {
+	position: relative;
+	width: 100%;
+	max-width: 520px;
+	max-height: calc(100vh - 32px);
+	max-height: calc(100dvh - 32px);
+	overflow: auto;
+	margin: auto;
+	padding: 22px 20px 18px;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	background: #fff;
+	box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+	box-sizing: border-box;
+	font-family: "exo2", "Open Sans", Arial, sans-serif;
+	color: #222;
+}
+.pl-leasing-confirm-close {
+	position: absolute;
+	top: 10px;
+	right: 12px;
+	width: 36px;
+	height: 36px;
+	border: 0;
+	background: transparent;
+	color: #666;
+	font-size: 28px;
+	line-height: 1;
+	cursor: pointer;
+}
+.pl-leasing-confirm-title {
+	margin: 0 36px 6px 0;
+	font-family: "exo2b", sans-serif;
+	font-size: 20px;
+	line-height: 1.25;
+	color: #000;
+}
+.pl-leasing-confirm-lead {
+	margin: 0 0 16px;
+	font-size: 13px;
+	line-height: 1.4;
+	color: #666;
+}
+.pl-leasing-confirm-section {
+	margin: 0 0 14px;
+	padding: 12px 14px;
+	border: 1px solid #e8e8e8;
+	border-radius: 6px;
+	background: #fafafa;
+}
+.pl-leasing-confirm-section__title {
+	margin: 0 0 10px;
+	font-family: "exo2b", sans-serif;
+	font-size: 13px;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+	color: #555;
+}
+.pl-leasing-confirm-item {
+	padding: 8px 0;
+	border-bottom: 1px solid #eee;
+}
+.pl-leasing-confirm-item:last-child {
+	border-bottom: 0;
+}
+.pl-leasing-confirm-item__title {
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.35;
+	color: #111;
+}
+.pl-leasing-confirm-item__meta {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 4px;
+	font-size: 13px;
+	color: #555;
+}
+.pl-leasing-confirm-item__price {
+	font-family: "exo2b", sans-serif;
+	color: #111;
+	white-space: nowrap;
+}
+.pl-leasing-confirm-totals {
+	margin-top: 10px;
+	padding-top: 8px;
+	border-top: 1px solid #e0e0e0;
+}
+.pl-leasing-confirm-row {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	margin: 4px 0;
+	font-size: 13px;
+	color: #444;
+}
+.pl-leasing-confirm-row--grand {
+	margin-top: 8px;
+	font-family: "exo2b", sans-serif;
+	font-size: 15px;
+	color: #55a630;
+}
+.pl-leasing-confirm-ship-title {
+	margin: 0;
+	font-weight: 700;
+	font-size: 14px;
+	color: #111;
+}
+.pl-leasing-confirm-ship-hint,
+.pl-leasing-confirm-ship-cost {
+	margin: 4px 0 0;
+	font-size: 13px;
+	color: #555;
+}
+.pl-leasing-confirm-scheme {
+	margin: 0;
+	font-family: "exo2b", sans-serif;
+	font-size: 14px;
+	line-height: 1.4;
+	color: #2e7d32;
+}
+.pl-leasing-confirm-scheme-meta {
+	margin: 10px 0 0;
+	padding: 8px 0 0;
+	border-top: 1px solid #e8e8e8;
+}
+.pl-leasing-confirm-scheme-meta > div {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	margin: 3px 0;
+	font-size: 13px;
+}
+.pl-leasing-confirm-scheme-meta dt {
+	margin: 0;
+	color: #666;
+	font-weight: normal;
+}
+.pl-leasing-confirm-scheme-meta dt::after {
+	content: ":";
+}
+.pl-leasing-confirm-scheme-meta dd {
+	margin: 0;
+	color: #222;
+	text-align: right;
+	white-space: nowrap;
+}
+.pl-leasing-confirm-scheme-meta .pl-leasing-confirm-scheme-total {
+	margin-top: 8px;
+	padding-top: 6px;
+	border-top: 1px solid #e0e0e0;
+	font-family: "exo2b", sans-serif;
+	font-size: 14px;
+	color: #2e7d32;
+}
+.pl-leasing-confirm-scheme-meta .pl-leasing-confirm-scheme-total dt,
+.pl-leasing-confirm-scheme-meta .pl-leasing-confirm-scheme-total dd {
+	color: #2e7d32;
+	font-weight: 700;
+}
+.pl-leasing-confirm-applicant {
+	margin: 10px 0 0;
+	padding: 0;
+}
+.pl-leasing-confirm-applicant > div {
+	display: flex;
+	gap: 8px;
+	margin: 2px 0;
+	font-size: 13px;
+}
+.pl-leasing-confirm-applicant dt {
+	margin: 0;
+	color: #666;
+	font-weight: normal;
+	min-width: 72px;
+}
+.pl-leasing-confirm-applicant dt::after {
+	content: ":";
+}
+.pl-leasing-confirm-applicant dd {
+	margin: 0;
+	color: #222;
+}
+.pl-leasing-confirm-actions {
+	margin-top: 8px;
+	text-align: center;
+}
+.pl-leasing-confirm-submit {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 48px;
+	padding: 12px 28px;
+	border: 2px solid #55a630;
+	border-radius: 4px;
+	background: #55a630;
+	color: #fff;
+	font-family: "exo2b", sans-serif;
+	font-size: 16px;
+	font-weight: bold;
+	cursor: pointer;
+}
+.pl-leasing-confirm-submit:hover {
+	background: #4a9229;
+	border-color: #4a9229;
+}
+.pl-leasing-confirm-hint {
+	margin: 8px 0 0;
+	font-size: 12px;
+	color: #666;
+}
+.pl-leasing-confirm-empty {
+	margin: 0;
+	font-size: 13px;
+	color: #888;
+}
+@media (max-width: 605px) {
+	.pl-leasing-confirm-overlay {
+		align-items: stretch;
+		padding: 0;
+	}
+	.pl-leasing-confirm-modal {
+		max-width: none;
+		max-height: none;
+		min-height: 100%;
+		border-radius: 0;
+		border: 0;
+	}
 }

@@ -1371,6 +1371,70 @@ border-color:#ff6100;background:#fff
     else hideEl(bank);
   }
 
+  /** Mobile (≤1100px): scroll expandable option row to top under sticky header. */
+  function isMobileExpandScrollViewport() {
+    try {
+      return !!(window.matchMedia && window.matchMedia("(max-width: 1100px)").matches);
+    } catch (err) {
+      return typeof window.innerWidth === "number" && window.innerWidth <= 1100;
+    }
+  }
+
+  function stickyCheckoutHeaderOffset() {
+    var header =
+      document.querySelector("header.cl.rel") ||
+      document.querySelector("header.cl") ||
+      document.getElementById("head");
+    var h = 0;
+    if (header) {
+      try {
+        h = Math.ceil(header.getBoundingClientRect().height || 0);
+      } catch (err) {
+        h = 0;
+      }
+    }
+    return (h > 0 ? h : 0) + 8;
+  }
+
+  function optionRowForExpandScroll(radio) {
+    if (!radio || !radio.closest) return null;
+    return (
+      radio.closest(".co-option-row[data-ship-mode]") ||
+      radio.closest("[data-locker-courier-row]") ||
+      radio.closest("[data-office-courier-row]") ||
+      radio.closest("label.co-option-row") ||
+      radio.closest(".co-option-row") ||
+      null
+    );
+  }
+
+  function scrollExpandingOptionIntoView(el) {
+    if (!el || !isMobileExpandScrollViewport()) return;
+    /* Double rAF: wait for expand panel height to apply before measuring. */
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        if (!el.isConnected) return;
+        var offset = stickyCheckoutHeaderOffset();
+        var y =
+          (window.pageYOffset || window.scrollY || 0) +
+          el.getBoundingClientRect().top -
+          offset;
+        if (y < 0) y = 0;
+        try {
+          window.scrollTo({ top: y, left: 0, behavior: "smooth" });
+        } catch (err) {
+          try {
+            window.scrollTo(0, y);
+          } catch (err2) {
+            try {
+              el.scrollIntoView({ behavior: "smooth", block: "start" });
+            } catch (err3) {}
+          }
+        }
+      });
+    });
+  }
+
 
   ready(function () {
   /* Consent links inside labels: open URL without toggling the checkbox */
@@ -2274,10 +2338,15 @@ border-color:#ff6100;background:#fff
       if (t.name === "courier_id" || t.name === "office_courier") {
         setClickedForRadios(t.name);
         if (typeof syncAsideDelivery === "function") syncAsideDelivery();
+        /* Nested office rows expand search/map UI under the clicked box. */
+        if (t.name === "office_courier") {
+          scrollExpandingOptionIntoView(optionRowForExpandScroll(t));
+        }
         return;
       }
       if (t.name === "ship_to_id[2]") {
         syncShipPanels();
+        scrollExpandingOptionIntoView(optionRowForExpandScroll(t));
         return;
       }
       if (t.name === "person") {
@@ -2286,6 +2355,10 @@ border-color:#ff6100;background:#fff
       }
       if (t.name === "payment_id") {
         syncPayment();
+        /* Bank transfer expands details; installment (8) keeps no-jump scroll guard. */
+        if (String(t.value) === "7") {
+          scrollExpandingOptionIntoView(optionRowForExpandScroll(t));
+        }
         return;
       }
       if (t.name === "want_invoice" || t.name === "invoice_person_type") {

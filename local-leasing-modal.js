@@ -864,6 +864,24 @@
 		document.body.classList.remove('pl-leasing-confirm-open');
 	}
 
+	/** Mobile stacked checkout (≤1100px): show order summary confirm before submit. */
+	function isMobileConfirmViewport() {
+		try {
+			return !!(window.matchMedia && window.matchMedia('(max-width: 1100px)').matches);
+		} catch (err) {
+			return typeof window.innerWidth === 'number' && window.innerWidth <= 1100;
+		}
+	}
+
+	function requestLeasingBuyConfirm() {
+		if (isMobileConfirmViewport()) {
+			openConfirmModal();
+			return;
+		}
+		/* Desktop: skip summary overlay — submit application data immediately. */
+		proceedLeasingConfirm();
+	}
+
 	function onLeasingBuyConfirmClick(e) {
 		if (leasingConfirmProceed) return;
 		if (!isLeasingCompletedCtaActive()) return;
@@ -871,8 +889,7 @@
 			e.preventDefault();
 			e.stopPropagation();
 		}
-		/* Skip summary confirm overlay — submit application data immediately. */
-		proceedLeasingConfirm();
+		requestLeasingBuyConfirm();
 	}
 
 	function bindLeasingBuyConfirmClick(buy) {
@@ -942,7 +959,7 @@
 				if (!buy || !buy.classList.contains('is-leasing-complete')) return;
 				e.preventDefault();
 				e.stopPropagation();
-				proceedLeasingConfirm();
+				requestLeasingBuyConfirm();
 			},
 			true
 		);
@@ -960,7 +977,7 @@
 				if (!buy) return;
 				e.preventDefault();
 				e.stopPropagation();
-				proceedLeasingConfirm();
+				requestLeasingBuyConfirm();
 			},
 			true
 		);

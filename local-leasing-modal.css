@@ -758,6 +758,14 @@
 	margin: 0 auto;
 }
 
+/* Expanding installment/invoice panels must not scroll-anchor the viewport */
+#checkout #step-payment,
+#checkout #installment-options,
+#checkout #leasing-schema,
+#checkout #checkout-invoice-fields {
+	overflow-anchor: none;
+}
+
 @media (max-width: 700px) {
 	.pl-leasing-overlay {
 		align-items: stretch;

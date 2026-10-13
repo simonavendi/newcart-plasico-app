@@ -756,12 +756,14 @@ font-family:"exo2b",sans-serif;font-weight:700;text-decoration:underline
 #checkout #bank-transfer-details[hidden],#checkout #bank-transfer-details.hide{display:none!important}
 #checkout .bank-transfer-details__lead{margin:0 0 10px;font-size:13px;color:#666;line-height:1.4}
 #checkout .bank-transfer-details__list{margin:0;padding:0;display:grid;gap:8px}
-#checkout .bank-transfer-details__row{display:grid;grid-template-columns:minmax(96px,120px) 1fr;gap:8px 12px;align-items:baseline}
+#checkout .bank-transfer-details__row{display:grid;grid-template-columns:1fr;gap:2px;align-items:stretch}
 #checkout .bank-transfer-details__row dt{margin:0;font-size:12px;color:#666;font-weight:normal}
 #checkout .bank-transfer-details__row dd{margin:0;font-size:14px;color:#000;font-weight:bold;word-break:break-word}
 #checkout .bank-transfer-details__row dd code{font-family:Consolas,"Courier New",monospace;font-size:13px;font-weight:bold;letter-spacing:.02em}
 #checkout .bank-transfer-details__order-ref-warn{display:block;margin:6px 0 0;font-size:13px;font-weight:600;color:#c62828;line-height:1.35}
 #checkout .bank-transfer-details__footer{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:10px 0 0;flex-wrap:wrap}#checkout .bank-transfer-details__note{margin:0;flex:1 1 180px;font-size:13px;color:#666;line-height:1.4}#checkout .bank-transfer-details__pdf{flex:0 0 auto;margin:0 0 0 auto;padding:8px 14px;border:1px solid #55a630;border-radius:4px;background:#fff;color:#55a630;font-family:"exo2b",sans-serif;font-size:13px;line-height:1.2;cursor:pointer;white-space:nowrap}#checkout .bank-transfer-details__pdf:hover{background:#55a630;color:#fff}
+/* Expanding installment/invoice panels must not scroll-anchor the viewport */
+#checkout #step-payment,#checkout #installment-options,#checkout #leasing-schema,#checkout #checkout-invoice-fields{overflow-anchor:none}
 #checkout #installment-options{margin:8px 0 4px;padding:0;border:0;border-radius:0;background:transparent}
 #checkout #installment-options[hidden],#checkout #installment-options.hide{display:none!important}
 #checkout .installment-options__label{margin:0 0 8px;font-size:13px;color:#666}
@@ -4833,7 +4835,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
  
 <script src="local-bg-phone-validator.js"></script>
 <script src="local-email-validator.js"></script>
-<script src="local-leasing-modal.js?v=confirm13"></script>
+<script src="local-leasing-modal.js?v=noscroll14"></script>
 <script id="local-leasing-modal-inline">
 (function () {
 	if (window.__plasicoLeasingBootstrapped) return;
@@ -4952,33 +4954,99 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 		return 0;
 	}
 
-	function syncCheckoutPaymentInstallments() {
-		var pay8 = document.querySelector('input[name="payment_id"][value="8"]');
-		if (!pay8) return;
-		pay8.checked = true;
+	/** Keep viewport still while installment UI expands / modal locks scroll. */
+	var bodyScrollLockY = 0;
+	var bodyScrollLocked = false;
+	var pendingScrollRestoreY = null;
+
+	function readScrollY() {
+		return window.scrollY || window.pageYOffset || 0;
+	}
+
+	function restoreScrollY(y) {
+		/* Don't fight the modal body lock (position:fixed + top:-Y). */
+		if (bodyScrollLocked) return;
 		try {
-			pay8.dispatchEvent(new Event('change', { bubbles: true }));
+			window.scrollTo(0, y);
 		} catch (err) {
-			/* IE fallback not needed for local preview */
+			/* ignore */
 		}
-		var label = pay8.closest('label');
-		if (label) {
-			var radios = document.querySelectorAll('input[name="payment_id"]');
-			for (var i = 0; i < radios.length; i++) {
-				var lb = radios[i].closest('label');
-				if (lb) lb.classList.toggle('clicked', radios[i].checked);
+	}
+
+	/** Run fn then pin scroll (sync + after layout / focus). */
+	function withPreservedScroll(fn) {
+		var y = bodyScrollLocked ? bodyScrollLockY : readScrollY();
+		pendingScrollRestoreY = y;
+		try {
+			fn();
+		} finally {
+			restoreScrollY(y);
+			requestAnimationFrame(function () {
+				restoreScrollY(y);
+				if (pendingScrollRestoreY === y) pendingScrollRestoreY = null;
+			});
+			window.setTimeout(function () {
+				restoreScrollY(y);
+			}, 0);
+		}
+	}
+
+	function lockBodyScroll() {
+		if (bodyScrollLocked) return;
+		bodyScrollLockY = readScrollY();
+		bodyScrollLocked = true;
+		document.body.style.overflow = 'hidden';
+		document.body.style.position = 'fixed';
+		document.body.style.top = '-' + bodyScrollLockY + 'px';
+		document.body.style.left = '0';
+		document.body.style.right = '0';
+		document.body.style.width = '100%';
+	}
+
+	function unlockBodyScroll() {
+		if (!bodyScrollLocked) {
+			document.body.style.overflow = '';
+			return;
+		}
+		bodyScrollLocked = false;
+		document.body.style.overflow = '';
+		document.body.style.position = '';
+		document.body.style.top = '';
+		document.body.style.left = '';
+		document.body.style.right = '';
+		document.body.style.width = '';
+		restoreScrollY(bodyScrollLockY);
+	}
+
+	function syncCheckoutPaymentInstallments() {
+		withPreservedScroll(function () {
+			var pay8 = document.querySelector('input[name="payment_id"][value="8"]');
+			if (!pay8) return;
+			pay8.checked = true;
+			try {
+				pay8.dispatchEvent(new Event('change', { bubbles: true }));
+			} catch (err) {
+				/* IE fallback not needed for local preview */
 			}
-		}
-		var install = document.getElementById('installment-options');
-		if (install) {
-			install.classList.remove('hide', 'sf-hidden');
-			install.removeAttribute('hidden');
-		}
-		var leasing = document.getElementById('leasing-schema');
-		if (leasing) {
-			leasing.classList.remove('hide', 'sf-hidden');
-			leasing.removeAttribute('hidden');
-		}
+			var label = pay8.closest('label');
+			if (label) {
+				var radios = document.querySelectorAll('input[name="payment_id"]');
+				for (var i = 0; i < radios.length; i++) {
+					var lb = radios[i].closest('label');
+					if (lb) lb.classList.toggle('clicked', radios[i].checked);
+				}
+			}
+			var install = document.getElementById('installment-options');
+			if (install) {
+				install.classList.remove('hide', 'sf-hidden');
+				install.removeAttribute('hidden');
+			}
+			var leasing = document.getElementById('leasing-schema');
+			if (leasing) {
+				leasing.classList.remove('hide', 'sf-hidden');
+				leasing.removeAttribute('hidden');
+			}
+		});
 	}
 
 	function escapeHtml(value) {
@@ -5688,9 +5756,13 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 		var submit = document.getElementById('pl-leasing-confirm-submit');
 		if (submit) {
 			try {
-				submit.focus();
+				submit.focus({ preventScroll: true });
 			} catch (err) {
-				/* ignore */
+				try {
+					submit.focus();
+				} catch (err2) {
+					/* ignore */
+				}
 			}
 		}
 	}
@@ -7068,17 +7140,21 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			return;
 		}
 
+		/* Expand payment UI without jumping; then lock body at that Y. */
+		var openY = readScrollY();
+		pendingScrollRestoreY = openY;
 		syncCheckoutPaymentInstallments();
+		restoreScrollY(openY);
 		var overlay = ensureModal();
 		renderModal();
 		clearApplyFeedback();
 		/* Fill after DOM exists and overlay is shown — apply may be below the fold. */
 		overlay.hidden = false;
 		overlay.removeAttribute('hidden');
-		document.body.style.overflow = 'hidden';
+		lockBodyScroll();
 		bindApplyAutofillWatchers(overlay);
 		autofillApplyForm();
-		/* Second pass after layout/scroll so late checkout values still land. */
+		/* Second pass after layout so late checkout values still land. */
 		window.setTimeout(function () {
 			if (isLeasingOverlayOpen()) autofillApplyForm();
 		}, 0);
@@ -7088,7 +7164,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 		var overlay = document.getElementById('pl-leasing-overlay');
 		if (!overlay) return;
 		overlay.hidden = true;
-		document.body.style.overflow = '';
+		unlockBodyScroll();
 	}
 
 	function shouldHandleLocally() {
@@ -7143,14 +7219,91 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			if (!option) return;
 
 			var kind = option.getAttribute('data-installment');
+			/* Stay put — opening the modal must not jump the underlying page. */
+			var y = readScrollY();
+			pendingScrollRestoreY = y;
 			if (kind === 'bnp-card') {
 				openModal({ column: 'postbank', provider: 'bnp-card' });
-				return;
-			}
-			if (kind === 'bnp') {
+			} else if (kind === 'bnp') {
 				openModal({ column: 'personal', provider: 'bnp' });
 			}
+			restoreScrollY(y);
 		});
+	}
+
+	/**
+	 * Choosing payment_id=8 expands #installment-options + invoice lock UI.
+	 * Clip-hidden radios / scroll anchoring / focus can jump the viewport —
+	 * pin scroll for the gesture and after layout.
+	 */
+	function bindInstallmentScrollGuard() {
+		if (window.__plasicoInstallmentScrollGuard) return;
+		window.__plasicoInstallmentScrollGuard = true;
+
+		function isInstallmentGestureTarget(t) {
+			if (!t || !t.closest) return false;
+			if (t.closest('.installment-option[data-installment]')) return true;
+			var label = t.closest('label.co-option-row');
+			if (!label) return false;
+			return !!label.querySelector('input[name="payment_id"][value="8"]');
+		}
+
+		function pinSoon(y) {
+			pendingScrollRestoreY = y;
+			restoreScrollY(y);
+			requestAnimationFrame(function () {
+				restoreScrollY(y);
+			});
+			window.setTimeout(function () {
+				restoreScrollY(y);
+				pendingScrollRestoreY = null;
+			}, 50);
+		}
+
+		document.addEventListener(
+			'pointerdown',
+			function (e) {
+				if (!isInstallmentGestureTarget(e.target)) return;
+				pendingScrollRestoreY = readScrollY();
+			},
+			true
+		);
+		document.addEventListener(
+			'mousedown',
+			function (e) {
+				if (!isInstallmentGestureTarget(e.target)) return;
+				pendingScrollRestoreY = readScrollY();
+			},
+			true
+		);
+		document.addEventListener(
+			'focusin',
+			function (e) {
+				var t = e.target;
+				if (!t) return;
+				var pin =
+					(t.name === 'payment_id' && String(t.value) === '8') ||
+					(t.classList && t.classList.contains('installment-option')) ||
+					pendingScrollRestoreY != null;
+				if (!pin) return;
+				var y =
+					pendingScrollRestoreY != null ? pendingScrollRestoreY : readScrollY();
+				pinSoon(y);
+			},
+			true
+		);
+		document.addEventListener(
+			'change',
+			function (e) {
+				var t = e.target;
+				if (!t || t.name !== 'payment_id') return;
+				if (String(t.value) !== '8' && pendingScrollRestoreY == null) return;
+				var y =
+					pendingScrollRestoreY != null ? pendingScrollRestoreY : readScrollY();
+				pinSoon(y);
+			},
+			true
+		);
 	}
 
 	function init() {
@@ -7196,17 +7349,21 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 
 		document.addEventListener('plasico:cart-updated', refresh);
 
+		bindInstallmentScrollGuard();
+
 		var paymentRadios = document.querySelectorAll('input[name="payment_id"]');
 		Array.prototype.slice.call(paymentRadios).forEach(function (radio) {
 			radio.addEventListener('change', function () {
-				syncWantInvoiceLockForInstallment();
-				if (radio.value === '8') {
-					renderSavedApply();
-					syncInvoiceFromLeasing({ forceIndividual: false });
-				} else {
-					syncCheckoutCta();
-					syncInvoiceFromLeasing({ forceIndividual: false });
-				}
+				withPreservedScroll(function () {
+					syncWantInvoiceLockForInstallment();
+					if (radio.value === '8') {
+						renderSavedApply();
+						syncInvoiceFromLeasing({ forceIndividual: false });
+					} else {
+						syncCheckoutCta();
+						syncInvoiceFromLeasing({ forceIndividual: false });
+					}
+				});
 			});
 		});
 

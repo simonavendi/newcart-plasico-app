@@ -115,33 +115,99 @@
 		return 0;
 	}
 
-	function syncCheckoutPaymentInstallments() {
-		var pay8 = document.querySelector('input[name="payment_id"][value="8"]');
-		if (!pay8) return;
-		pay8.checked = true;
+	/** Keep viewport still while installment UI expands / modal locks scroll. */
+	var bodyScrollLockY = 0;
+	var bodyScrollLocked = false;
+	var pendingScrollRestoreY = null;
+
+	function readScrollY() {
+		return window.scrollY || window.pageYOffset || 0;
+	}
+
+	function restoreScrollY(y) {
+		/* Don't fight the modal body lock (position:fixed + top:-Y). */
+		if (bodyScrollLocked) return;
 		try {
-			pay8.dispatchEvent(new Event('change', { bubbles: true }));
+			window.scrollTo(0, y);
 		} catch (err) {
-			/* IE fallback not needed for local preview */
+			/* ignore */
 		}
-		var label = pay8.closest('label');
-		if (label) {
-			var radios = document.querySelectorAll('input[name="payment_id"]');
-			for (var i = 0; i < radios.length; i++) {
-				var lb = radios[i].closest('label');
-				if (lb) lb.classList.toggle('clicked', radios[i].checked);
+	}
+
+	/** Run fn then pin scroll (sync + after layout / focus). */
+	function withPreservedScroll(fn) {
+		var y = bodyScrollLocked ? bodyScrollLockY : readScrollY();
+		pendingScrollRestoreY = y;
+		try {
+			fn();
+		} finally {
+			restoreScrollY(y);
+			requestAnimationFrame(function () {
+				restoreScrollY(y);
+				if (pendingScrollRestoreY === y) pendingScrollRestoreY = null;
+			});
+			window.setTimeout(function () {
+				restoreScrollY(y);
+			}, 0);
+		}
+	}
+
+	function lockBodyScroll() {
+		if (bodyScrollLocked) return;
+		bodyScrollLockY = readScrollY();
+		bodyScrollLocked = true;
+		document.body.style.overflow = 'hidden';
+		document.body.style.position = 'fixed';
+		document.body.style.top = '-' + bodyScrollLockY + 'px';
+		document.body.style.left = '0';
+		document.body.style.right = '0';
+		document.body.style.width = '100%';
+	}
+
+	function unlockBodyScroll() {
+		if (!bodyScrollLocked) {
+			document.body.style.overflow = '';
+			return;
+		}
+		bodyScrollLocked = false;
+		document.body.style.overflow = '';
+		document.body.style.position = '';
+		document.body.style.top = '';
+		document.body.style.left = '';
+		document.body.style.right = '';
+		document.body.style.width = '';
+		restoreScrollY(bodyScrollLockY);
+	}
+
+	function syncCheckoutPaymentInstallments() {
+		withPreservedScroll(function () {
+			var pay8 = document.querySelector('input[name="payment_id"][value="8"]');
+			if (!pay8) return;
+			pay8.checked = true;
+			try {
+				pay8.dispatchEvent(new Event('change', { bubbles: true }));
+			} catch (err) {
+				/* IE fallback not needed for local preview */
 			}
-		}
-		var install = document.getElementById('installment-options');
-		if (install) {
-			install.classList.remove('hide', 'sf-hidden');
-			install.removeAttribute('hidden');
-		}
-		var leasing = document.getElementById('leasing-schema');
-		if (leasing) {
-			leasing.classList.remove('hide', 'sf-hidden');
-			leasing.removeAttribute('hidden');
-		}
+			var label = pay8.closest('label');
+			if (label) {
+				var radios = document.querySelectorAll('input[name="payment_id"]');
+				for (var i = 0; i < radios.length; i++) {
+					var lb = radios[i].closest('label');
+					if (lb) lb.classList.toggle('clicked', radios[i].checked);
+				}
+			}
+			var install = document.getElementById('installment-options');
+			if (install) {
+				install.classList.remove('hide', 'sf-hidden');
+				install.removeAttribute('hidden');
+			}
+			var leasing = document.getElementById('leasing-schema');
+			if (leasing) {
+				leasing.classList.remove('hide', 'sf-hidden');
+				leasing.removeAttribute('hidden');
+			}
+		});
 	}
 
 	function escapeHtml(value) {
@@ -851,9 +917,13 @@
 		var submit = document.getElementById('pl-leasing-confirm-submit');
 		if (submit) {
 			try {
-				submit.focus();
+				submit.focus({ preventScroll: true });
 			} catch (err) {
-				/* ignore */
+				try {
+					submit.focus();
+				} catch (err2) {
+					/* ignore */
+				}
 			}
 		}
 	}
@@ -2231,17 +2301,21 @@
 			return;
 		}
 
+		/* Expand payment UI without jumping; then lock body at that Y. */
+		var openY = readScrollY();
+		pendingScrollRestoreY = openY;
 		syncCheckoutPaymentInstallments();
+		restoreScrollY(openY);
 		var overlay = ensureModal();
 		renderModal();
 		clearApplyFeedback();
 		/* Fill after DOM exists and overlay is shown — apply may be below the fold. */
 		overlay.hidden = false;
 		overlay.removeAttribute('hidden');
-		document.body.style.overflow = 'hidden';
+		lockBodyScroll();
 		bindApplyAutofillWatchers(overlay);
 		autofillApplyForm();
-		/* Second pass after layout/scroll so late checkout values still land. */
+		/* Second pass after layout so late checkout values still land. */
 		window.setTimeout(function () {
 			if (isLeasingOverlayOpen()) autofillApplyForm();
 		}, 0);
@@ -2251,7 +2325,7 @@
 		var overlay = document.getElementById('pl-leasing-overlay');
 		if (!overlay) return;
 		overlay.hidden = true;
-		document.body.style.overflow = '';
+		unlockBodyScroll();
 	}
 
 	function shouldHandleLocally() {
@@ -2306,14 +2380,91 @@
 			if (!option) return;
 
 			var kind = option.getAttribute('data-installment');
+			/* Stay put — opening the modal must not jump the underlying page. */
+			var y = readScrollY();
+			pendingScrollRestoreY = y;
 			if (kind === 'bnp-card') {
 				openModal({ column: 'postbank', provider: 'bnp-card' });
-				return;
-			}
-			if (kind === 'bnp') {
+			} else if (kind === 'bnp') {
 				openModal({ column: 'personal', provider: 'bnp' });
 			}
+			restoreScrollY(y);
 		});
+	}
+
+	/**
+	 * Choosing payment_id=8 expands #installment-options + invoice lock UI.
+	 * Clip-hidden radios / scroll anchoring / focus can jump the viewport —
+	 * pin scroll for the gesture and after layout.
+	 */
+	function bindInstallmentScrollGuard() {
+		if (window.__plasicoInstallmentScrollGuard) return;
+		window.__plasicoInstallmentScrollGuard = true;
+
+		function isInstallmentGestureTarget(t) {
+			if (!t || !t.closest) return false;
+			if (t.closest('.installment-option[data-installment]')) return true;
+			var label = t.closest('label.co-option-row');
+			if (!label) return false;
+			return !!label.querySelector('input[name="payment_id"][value="8"]');
+		}
+
+		function pinSoon(y) {
+			pendingScrollRestoreY = y;
+			restoreScrollY(y);
+			requestAnimationFrame(function () {
+				restoreScrollY(y);
+			});
+			window.setTimeout(function () {
+				restoreScrollY(y);
+				pendingScrollRestoreY = null;
+			}, 50);
+		}
+
+		document.addEventListener(
+			'pointerdown',
+			function (e) {
+				if (!isInstallmentGestureTarget(e.target)) return;
+				pendingScrollRestoreY = readScrollY();
+			},
+			true
+		);
+		document.addEventListener(
+			'mousedown',
+			function (e) {
+				if (!isInstallmentGestureTarget(e.target)) return;
+				pendingScrollRestoreY = readScrollY();
+			},
+			true
+		);
+		document.addEventListener(
+			'focusin',
+			function (e) {
+				var t = e.target;
+				if (!t) return;
+				var pin =
+					(t.name === 'payment_id' && String(t.value) === '8') ||
+					(t.classList && t.classList.contains('installment-option')) ||
+					pendingScrollRestoreY != null;
+				if (!pin) return;
+				var y =
+					pendingScrollRestoreY != null ? pendingScrollRestoreY : readScrollY();
+				pinSoon(y);
+			},
+			true
+		);
+		document.addEventListener(
+			'change',
+			function (e) {
+				var t = e.target;
+				if (!t || t.name !== 'payment_id') return;
+				if (String(t.value) !== '8' && pendingScrollRestoreY == null) return;
+				var y =
+					pendingScrollRestoreY != null ? pendingScrollRestoreY : readScrollY();
+				pinSoon(y);
+			},
+			true
+		);
 	}
 
 	function init() {
@@ -2359,17 +2510,21 @@
 
 		document.addEventListener('plasico:cart-updated', refresh);
 
+		bindInstallmentScrollGuard();
+
 		var paymentRadios = document.querySelectorAll('input[name="payment_id"]');
 		Array.prototype.slice.call(paymentRadios).forEach(function (radio) {
 			radio.addEventListener('change', function () {
-				syncWantInvoiceLockForInstallment();
-				if (radio.value === '8') {
-					renderSavedApply();
-					syncInvoiceFromLeasing({ forceIndividual: false });
-				} else {
-					syncCheckoutCta();
-					syncInvoiceFromLeasing({ forceIndividual: false });
-				}
+				withPreservedScroll(function () {
+					syncWantInvoiceLockForInstallment();
+					if (radio.value === '8') {
+						renderSavedApply();
+						syncInvoiceFromLeasing({ forceIndividual: false });
+					} else {
+						syncCheckoutCta();
+						syncInvoiceFromLeasing({ forceIndividual: false });
+					}
+				});
 			});
 		});
 

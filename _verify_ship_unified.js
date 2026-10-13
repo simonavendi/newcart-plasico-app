@@ -99,6 +99,65 @@ async function assertPanelUnderRow(page, panelKey) {
           }
         }
       }
+
+      // Inactive ship expands must not show BOX NOW locker UI
+      if (mode.panel !== "boxnow") {
+        const leak = await page.evaluate(() => {
+          const wrap = document.getElementById("boxnow-widget-wrap");
+          if (!wrap) return { ok: true };
+          const cs = getComputedStyle(wrap);
+          const r = wrap.getBoundingClientRect();
+          const shown = cs.display !== "none" && r.height > 1 && r.width > 1;
+          return { ok: !shown, display: cs.display, h: Math.round(r.height) };
+        });
+        if (!leak.ok) {
+          errors.push(`[${label}] boxnow widget visible under ${mode.panel}: ${JSON.stringify(leak)}`);
+        }
+      }
+    }
+
+    // Nested locker: BOX NOW widget must collapse when Speedy locker selected
+    const boxRadio = page.locator('input[name="ship_to_id[2]"][value="boxnow"]');
+    if ((await boxRadio.count()) && !(await boxRadio.isDisabled())) {
+      await page.evaluate(() => {
+        const r = document.querySelector('input[name="ship_to_id[2]"][value="boxnow"]');
+        if (!r || r.checked) return;
+        r.checked = true;
+        r.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+      await sleep(200);
+      const speedyLc = page.locator('input[name="locker_courier"][value="speedy"]');
+      if (await speedyLc.count()) {
+        await page.evaluate(() => {
+          const r = document.querySelector('input[name="locker_courier"][value="speedy"]');
+          if (!r) return;
+          r.checked = true;
+          r.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+        await sleep(250);
+        const nested = await page.evaluate(() => {
+          const wrap = document.getElementById("boxnow-widget-wrap");
+          const row = document.querySelector('[data-locker-courier-row="boxnow"]');
+          const cs = wrap ? getComputedStyle(wrap) : null;
+          const search = document.querySelector(
+            '[data-locker-courier-row="boxnow"] #boxnow-search-wrap, [data-locker-courier-row="boxnow"] .office-search'
+          );
+          const searchShown = search
+            ? getComputedStyle(search).display !== "none" &&
+              search.getBoundingClientRect().height > 1
+            : false;
+          return {
+            wrapDisplay: cs && cs.display,
+            boxRowH: row ? Math.round(row.getBoundingClientRect().height) : null,
+            searchShown,
+          };
+        });
+        if (nested.wrapDisplay !== "none" || nested.searchShown) {
+          errors.push(
+            `[${label}] BOX NOW widget still expanded under Speedy locker: ${JSON.stringify(nested)}`
+          );
+        }
+      }
     }
 
     await page.close();

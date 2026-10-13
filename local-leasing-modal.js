@@ -1911,7 +1911,12 @@
 
 	function isEmailFormat(value) {
 		var trimmed = String(value || '').trim();
-		return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+		if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return false;
+		// Reject bare .co TLD (allow .com, .co.uk, …)
+		var domain = trimmed.slice(trimmed.lastIndexOf('@') + 1).toLowerCase().replace(/\.+$/, '');
+		var parts = domain.split('.');
+		if (parts[parts.length - 1] === 'co') return false;
+		return true;
 	}
 
 	function clearApplyFeedback() {

@@ -813,11 +813,11 @@ border-color:#ff6100;background:#ffe8d6;box-sizing:border-box;width:100%;margin-
 #checkout .co-option-row[data-ship-mode]{display:flex;flex-direction:column;align-items:stretch;gap:0}
 #checkout .co-option-row[data-ship-mode] > .co-ship-mode-select{display:block;width:100%;cursor:pointer}
 #checkout .co-option-row[data-ship-mode] > .co-ship-mode-select .co-option-row__body{width:100%}
-/* Ship-mode accordion parent: open container only — not the final pick (nested rows keep orange) */
+/* Ship-mode accordion parent: orange outline, white fill (nested final picks keep orange + #ffe8d6) */
 #checkout #step-ship-method .co-option-row[data-ship-mode].clicked,
 #checkout #step-ship-method .co-option-row[data-ship-mode]:has(> .co-ship-mode-select input:checked),
 #checkout #step-ship-method .co-option-row[data-ship-mode]:has(input:checked){
-border-color:#e0e0e0;background:#fff
+border-color:#ff6100;background:#fff
 }
 #checkout .co-ship-expand{margin:10px 0 0;padding:12px 0 2px;border-top:1px solid #eee;width:100%;box-sizing:border-box}
 #checkout .co-ship-expand[hidden],#checkout .co-ship-expand.hide{display:none!important}

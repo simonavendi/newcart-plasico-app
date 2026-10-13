@@ -69,8 +69,39 @@
 #checkout .checkout-layout__aside .aside-leasing:hover{background:#55a630;color:#fff}
 #checkout .checkout-layout__aside .aside-leasing__label{display:block;font-weight:bold}
 #checkout .checkout-layout__aside .aside-leasing__teaser{display:block;margin-top:2px;font-size:inherit;font-weight:bold;line-height:1.25;opacity:.95}
+#checkout .aside-warranty{margin:10px 0 0;padding:0;text-align:left}
+#checkout .aside-warranty__btn{
+  display:inline-flex;align-items:flex-start;gap:6px;max-width:100%;
+  margin:0;padding:0;border:0;background:transparent;cursor:pointer;
+  color:#288000;font:inherit;font-size:13px;font-weight:600;line-height:1.35;
+  text-align:left;text-decoration:underline;text-underline-offset:2px
+}
+#checkout .aside-warranty__btn:hover{color:#1f6600}
+#checkout .aside-warranty__btn:focus-visible{outline:2px solid #55a630;outline-offset:2px;border-radius:4px}
+.aside-warranty-modal{
+  position:fixed;inset:0;z-index:2147483600;display:flex;align-items:center;justify-content:center;
+  padding:16px;box-sizing:border-box
+}
+.aside-warranty-modal[hidden]{display:none!important}
+.aside-warranty-modal__backdrop{
+  position:absolute;inset:0;background:rgba(0,0,0,.55);border:0;padding:0;margin:0;cursor:pointer
+}
+.aside-warranty-modal__dialog{
+  position:relative;z-index:1;max-width:min(920px,100%);max-height:min(92vh,100%);
+  margin:0;padding:12px;background:#fff;border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,.28);
+  overflow:auto;box-sizing:border-box
+}
+.aside-warranty-modal__close{
+  position:absolute;top:8px;right:8px;z-index:2;width:36px;height:36px;border:0;border-radius:50%;
+  background:#111;color:#fff;font-size:22px;line-height:1;cursor:pointer
+}
+.aside-warranty-modal__close:hover{background:#333}
+.aside-warranty-modal__img{
+  display:block;width:100%;height:auto;max-height:calc(92vh - 40px);object-fit:contain;margin:0
+}
+
 /* BOX NOW widget — launch button + edge-to-edge fullscreen overlay */
-#checkout .boxnow-widget-panel{width:100%;margin:12px 0;box-sizing:border-box}
+#checkout .boxnow-widget-panel{display:contents}
 #checkout .boxnow-widget-launch{
   display:flex;flex-direction:column;align-items:flex-start;gap:4px;
   width:100%;padding:14px 16px;text-align:left;cursor:pointer;
@@ -94,9 +125,16 @@
 #checkout #boxnow-open-locator .boxnow-widget-launch__title{color:#fff}
 #checkout #boxnow-open-locator.is-error{border-color:#dc2626}
 #checkout #boxnowmap{display:none!important;width:0;height:0;overflow:hidden}
-#checkout .boxnow-widget-panel.is-selected .boxnow-widget-launch{display:none!important}
+#checkout .boxnow-widget-panel.is-selected .boxnow-widget-launch,
+#checkout .boxnow-widget-panel.is-selected .office-widget-launch,
+#checkout .boxnow-widget-panel.is-selected .office-search{display:none!important}
+#checkout .office-courier-row__body > .boxnow-selected{order:6;flex:1 0 100%;margin-top:6px}
 #checkout .boxnow-selected{margin:12px 0 0}
 #checkout .boxnow-selected[hidden]{display:none!important}
+#checkout [data-locker-courier-row] .office-courier-row__body > .co-option-row__select{flex:1 1 auto;min-width:0;order:1}
+#checkout [data-locker-courier-row] .office-courier-row__body .office-widget-launch{order:2;flex:0 0 auto;align-self:flex-start}
+#checkout [data-locker-courier-row] .office-courier-row__body > .co-option-row__price{order:3;margin-left:auto;flex:0 0 auto}
+#checkout [data-locker-courier-row]:not(.clicked) .co-option-row__hint{display:none!important}
 #checkout .boxnow-selected__heading{
   display:flex;align-items:center;flex-wrap:wrap;gap:8px;
   margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.02em;
@@ -329,7 +367,11 @@ html.boxnow-locator-open #head-cart-cluster,
 #checkout .checkout-layout__aside #cart-table .oldprice{font-size:11px;margin-bottom:2px}
 #checkout .checkout-layout__aside #cart-table .totals.discount td{text-transform:none;font-size:13px;color:#555}
 #checkout .checkout-layout__aside #cart-table .totals.discount td+td{position:relative;color:#55a630;overflow:visible}
-#checkout .checkout-layout__aside .aside-discount-info{display:inline-flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;width:15px;height:15px;margin:0 0 0 5px;padding:0;border:1.5px solid #55a630;border-radius:50%;background:#fff;color:#55a630;font:700 10px/1 "exo2b",sans-serif;letter-spacing:0;text-transform:none;cursor:pointer;vertical-align:middle;position:relative;top:-1px;-webkit-box-sizing:border-box;box-sizing:border-box}
+#checkout .checkout-layout__aside #cart-table tr.totals.discount > td.r.nw:last-child,
+#checkout .checkout-layout__aside #cart-table tr.totals.delivery > td.r.nw:last-child,
+#checkout .checkout-layout__aside #cart-table tr.totals.grand > td.r.nw:last-child{text-align:right;padding-right:0!important;white-space:nowrap}
+#checkout .checkout-layout__aside #cart-table .aside-total-trail{display:inline-flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;width:20px;height:16px;margin-left:4px;vertical-align:middle}
+#checkout .checkout-layout__aside .aside-discount-info{display:inline-flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;width:15px;height:15px;margin:0;padding:0;border:1.5px solid #55a630;border-radius:50%;background:#fff;color:#55a630;font:700 10px/1 "exo2b",sans-serif;letter-spacing:0;text-transform:none;cursor:pointer;vertical-align:middle;position:relative;top:0;-webkit-box-sizing:border-box;box-sizing:border-box}
 #checkout .checkout-layout__aside .aside-discount-info:hover,
 #checkout .checkout-layout__aside .aside-discount-info:focus-visible,
 #checkout .checkout-layout__aside .aside-discount-info[aria-expanded=true]{background:#c0392b;color:#fff;outline:0}
@@ -371,7 +413,7 @@ border-color:#e8e8e8;background:#f5f5f5
 #checkout .checkout-layout__aside #cart-table .totals form{float:none;width:100%;max-width:100%;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;gap:6px}
 #checkout .checkout-layout__aside #cart-table .totals form input[type=text]{float:none;width:100%!important;max-width:100%;margin:0;box-sizing:border-box;min-width:0}
 #checkout .checkout-layout__aside #cart-table .reload{float:none;top:0;margin-left:0;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:0 0 auto}
-#checkout .checkout-layout__aside #cart-table .totals.grand td+td span{font-size:20px;color:#55a630} #checkout .checkout-layout__aside #cart-table tr.totals.discount > td.r.nw:last-child{color:#55a630} #checkout .checkout-layout__aside #cart-table tr.totals.grand > td.r.nw:last-child{color:#55a630} #checkout .checkout-layout__aside #cart-table tr.totals.grand > td.r.nw:last-child span{color:#55a630} 
+#checkout .checkout-layout__aside #cart-table .totals.grand td+td{font-family:"exo2b",sans-serif;font-size:20px;line-height:1.2;color:#55a630;letter-spacing:0} #checkout .checkout-layout__aside #cart-table .totals.grand td+td span{font-size:inherit;color:inherit} #checkout .checkout-layout__aside #cart-table tr.totals.discount > td.r.nw:last-child{color:#55a630} #checkout .checkout-layout__aside #cart-table tr.totals.grand > td.r.nw:last-child{color:#55a630} 
 #checkout .checkout-layout__aside #cart-table .totals.grand td{border-bottom:0}
 #checkout .checkout-layout__aside #cart-table .totals.delivery td{text-transform:none;font-size:13px;color:#555}
 #checkout .checkout-layout__aside #cart-table .totals.delivery td+td{color:#222;font-family:"exo2b",sans-serif;font-size:14px}
@@ -729,12 +771,11 @@ min-height:52px;box-sizing:border-box
 #checkout #installment-options{margin:8px 0 4px;padding:0;border:0;border-radius:0;background:transparent}
 #checkout #installment-options[hidden],#checkout #installment-options.hide{display:none!important}
 #checkout .installment-options__label{margin:0 0 8px;font-size:13px;color:#666}
-#checkout .installment-options__grid{display:flex;flex-wrap:nowrap;gap:10px;align-items:stretch}
-#checkout .installment-option{display:block;flex:1 1 0;min-width:0;width:auto;max-width:none;padding:10px 12px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer;font:inherit;font-size:13px;text-align:left;box-sizing:border-box}
+#checkout .installment-options__grid{display:flex;flex-wrap:nowrap;gap:8px;align-items:stretch;justify-content:flex-start}
+#checkout .installment-option{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;flex:0 1 180px;min-width:0;width:100%;max-width:180px;height:auto;padding:6px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer;font:inherit;font-size:13px;text-align:center;box-sizing:border-box}
 #checkout .installment-option[aria-pressed=true],#checkout .installment-option.is-selected{border-color:#ff6100;background:#fff8f3}
-#checkout .installment-option__caption{display:block;margin-top:4px;font-size:12px;color:#666;line-height:1.35}
-#checkout .installment-option img{display:block;width:154px;max-width:100%;height:auto;margin:0 auto}
-#checkout .installment-option{padding:8px;text-align:center}
+#checkout .installment-option__caption{display:block;margin-top:4px;font-size:11px;color:#666;line-height:1.3;min-height:calc(1.3em * 2);width:100%}
+#checkout .installment-option img{display:block;width:100%;max-width:100%;height:auto;aspect-ratio:154/69;object-fit:contain;margin:0 auto;flex:0 0 auto}
 
 #checkout .co-ship-panel{margin-top:8px}
 #checkout .co-ship-panel[hidden],#checkout .co-ship-panel.hide{display:none!important}
@@ -1415,7 +1456,7 @@ min-height:52px;box-sizing:border-box
         }
 
         var discountRow = table.querySelector("tr.totals.discount");
-        var discountSpan = discountRow ? discountRow.querySelector("td + td > span:not(.aside-discount-tip)") : null;
+        var discountSpan = discountRow ? discountRow.querySelector("td + td > span:not(.aside-discount-tip):not(.aside-total-trail)") : null;
         if (discountRow) {
           if (rate > 0 && rows.length) {
             discountRow.removeAttribute("hidden");
@@ -2209,7 +2250,7 @@ min-height:52px;box-sizing:border-box
 })();
 </script>
 
-<link rel=stylesheet href="local-leasing-modal.css?v=confirm3">
+<link rel=stylesheet href="local-leasing-modal.css?v=confirm11">
 <style id=pl-leasing-plasico-overrides>
 /* FULL leasing modal CSS inlined — external link often fails to apply in this preview */
 /* Plasico leasing modal - aligned with checkout / cart theme */
@@ -2788,24 +2829,96 @@ min-height:52px;box-sizing:border-box
 	line-height: 1.4;
 	color: #333;
 }
+.pl-leasing-saved__scheme-title {
+	margin: 0 0 4px;
+	font-family: "exo2b", sans-serif;
+	font-size: 13px;
+	line-height: 1.35;
+	color: #222;
+}
+.pl-leasing-saved__scheme-kind {
+	margin: 0 0 4px;
+	font-size: 12px;
+	line-height: 1.35;
+	font-weight: 600;
+	color: #2e7d32;
+}
+.pl-leasing-saved__scheme-products {
+	margin: 0 0 8px;
+	font-size: 12px;
+	line-height: 1.4;
+	color: #555;
+	word-break: break-word;
+}
+.pl-leasing-saved__scheme-meta {
+	margin: 0;
+	padding: 0;
+}
+.pl-leasing-saved__scheme-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	gap: 12px;
+	margin: 4px 0;
+}
+.pl-leasing-saved__scheme-row dt {
+	margin: 0;
+	color: #666;
+	font-weight: normal;
+}
+.pl-leasing-saved__scheme-row dt::after {
+	content: ":";
+}
+.pl-leasing-saved__scheme-row dd {
+	margin: 0;
+	color: #222;
+	text-align: right;
+	white-space: nowrap;
+}
+.pl-leasing-saved__scheme-row--total {
+	margin-top: 8px;
+	padding-top: 8px;
+	border-top: 1px solid #e0e0e0;
+	font-family: "exo2b", sans-serif;
+}
+.pl-leasing-saved__scheme-row--total dt,
+.pl-leasing-saved__scheme-row--total dd {
+	color: #2e7d32;
+	font-weight: 700;
+}
 
-.pl-leasing-saved__edit {
+.pl-leasing-saved__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 16px;
+	margin-top: 10px;
+}
+.pl-leasing-saved__edit,
+.pl-leasing-saved__clear {
 	display: inline-flex;
 	align-items: center;
-	margin-top: 10px;
+	margin: 0;
 	padding: 0;
 	border: 0;
 	background: transparent;
-	color: #ff6100;
 	font: inherit;
 	font-size: 13px;
 	font-weight: 600;
 	cursor: pointer;
 	text-decoration: underline;
 }
-
+.pl-leasing-saved__edit {
+	color: #ff6100;
+}
 .pl-leasing-saved__edit:hover {
 	color: #e55700;
+}
+.pl-leasing-saved__clear {
+	color: #c62828;
+}
+.pl-leasing-saved__clear:hover {
+	color: #b71c1c;
 }
 
 .pl-leasing-apply-submit {
@@ -2893,8 +3006,9 @@ min-height:52px;box-sizing:border-box
 .installment-option img {
 	display: block;
 	width: 100%;
-	max-width: 154px;
+	max-width: 100%;
 	height: auto;
+	aspect-ratio: 154 / 69;
 	object-fit: contain;
 	margin: 0 auto;
 }
@@ -3129,17 +3243,19 @@ min-height:52px;box-sizing:border-box
 	align-items: center;
 	justify-content: center;
 	min-height: 48px;
-	padding: 12px 28px;
+	max-width: 100%;
+	padding: 12px 20px;
 	border: 2px solid #55a630;
 	border-radius: 4px;
 	background: #55a630;
 	color: #fff;
 	font-family: "exo2b", sans-serif;
-	font-size: 16px;
+	font-size: 15px;
 	font-weight: bold;
-	line-height: 1.2;
+	line-height: 1.25;
 	text-align: center;
 	text-transform: none;
+	white-space: normal;
 	cursor: pointer;
 	box-sizing: border-box;
 }
@@ -3157,6 +3273,7 @@ min-height:52px;box-sizing:border-box
 	color: #fff;
 	font-size: inherit;
 	font-weight: bold;
+	white-space: normal;
 	line-height: 1.2;
 	letter-spacing: 0.02em;
 }
@@ -3180,6 +3297,7 @@ min-height:52px;box-sizing:border-box
 #checkout .aside-leasing[hidden] {
 	display: none !important;
 }
+
 /* Submitted leasing apply: keep aside visible with data preview */
 #checkout .checkout-layout__aside .aside-leasing.is-submitted,
 .aside-leasing.is-submitted {
@@ -3235,15 +3353,32 @@ min-height:52px;box-sizing:border-box
 	color: #2e7d32;
 	font-weight: 600;
 }
-#checkout .aside-leasing.is-submitted .aside-leasing__preview-edit,
-.aside-leasing.is-submitted .aside-leasing__preview-edit {
-	display: block;
+#checkout .aside-leasing.is-submitted .aside-leasing__preview-actions,
+.aside-leasing.is-submitted .aside-leasing__preview-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 16px;
 	margin: 8px 0 0;
-	color: #288000;
+}
+#checkout .aside-leasing.is-submitted .aside-leasing__preview-edit,
+.aside-leasing.is-submitted .aside-leasing__preview-edit,
+#checkout .aside-leasing.is-submitted .aside-leasing__preview-clear,
+.aside-leasing.is-submitted .aside-leasing__preview-clear {
+	display: inline;
+	margin: 0;
 	font-weight: 600;
 	text-decoration: underline;
+	cursor: pointer;
 }
-
+#checkout .aside-leasing.is-submitted .aside-leasing__preview-edit,
+.aside-leasing.is-submitted .aside-leasing__preview-edit {
+	color: #288000;
+}
+#checkout .aside-leasing.is-submitted .aside-leasing__preview-clear,
+.aside-leasing.is-submitted .aside-leasing__preview-clear {
+	color: #c62828;
+}
 
 /* Leasing → invoice (фактура) notices */
 #checkout .co-invoice-leasing-auto-msg,
@@ -3299,6 +3434,254 @@ min-height:52px;box-sizing:border-box
 #checkout .co-invoice-check.is-invoice-locked input[type=checkbox] {
 	cursor: not-allowed;
 	pointer-events: none;
+}
+
+/* Leasing buy confirm summary modal */
+.pl-leasing-confirm-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 999999;
+	background: rgba(15, 23, 42, 0.45);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: max(16px, env(safe-area-inset-top, 0px)) 16px
+		max(16px, env(safe-area-inset-bottom, 0px));
+	box-sizing: border-box;
+	overflow: auto;
+}
+.pl-leasing-confirm-overlay[hidden] {
+	display: none !important;
+}
+.pl-leasing-confirm-modal {
+	position: relative;
+	width: 100%;
+	max-width: 520px;
+	max-height: calc(100vh - 32px);
+	max-height: calc(100dvh - 32px);
+	overflow: auto;
+	margin: auto;
+	padding: 22px 20px 18px;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	background: #fff;
+	box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+	box-sizing: border-box;
+	font-family: "exo2", "Open Sans", Arial, sans-serif;
+	color: #222;
+}
+.pl-leasing-confirm-close {
+	position: absolute;
+	top: 10px;
+	right: 12px;
+	width: 36px;
+	height: 36px;
+	border: 0;
+	background: transparent;
+	color: #666;
+	font-size: 28px;
+	line-height: 1;
+	cursor: pointer;
+}
+.pl-leasing-confirm-title {
+	margin: 0 36px 6px 0;
+	font-family: "exo2b", sans-serif;
+	font-size: 20px;
+	line-height: 1.25;
+	color: #000;
+}
+.pl-leasing-confirm-lead {
+	margin: 0 0 16px;
+	font-size: 13px;
+	line-height: 1.4;
+	color: #666;
+}
+.pl-leasing-confirm-section {
+	margin: 0 0 14px;
+	padding: 12px 14px;
+	border: 1px solid #e8e8e8;
+	border-radius: 6px;
+	background: #fafafa;
+}
+.pl-leasing-confirm-section__title {
+	margin: 0 0 10px;
+	font-family: "exo2b", sans-serif;
+	font-size: 13px;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+	color: #555;
+}
+.pl-leasing-confirm-item {
+	padding: 8px 0;
+	border-bottom: 1px solid #eee;
+}
+.pl-leasing-confirm-item:last-child {
+	border-bottom: 0;
+}
+.pl-leasing-confirm-item__title {
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.35;
+	color: #111;
+}
+.pl-leasing-confirm-item__meta {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 4px;
+	font-size: 13px;
+	color: #555;
+}
+.pl-leasing-confirm-item__price {
+	font-family: "exo2b", sans-serif;
+	color: #111;
+	white-space: nowrap;
+}
+.pl-leasing-confirm-totals {
+	margin-top: 10px;
+	padding-top: 8px;
+	border-top: 1px solid #e0e0e0;
+}
+.pl-leasing-confirm-row {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	margin: 4px 0;
+	font-size: 13px;
+	color: #444;
+}
+.pl-leasing-confirm-row--grand {
+	margin-top: 8px;
+	font-family: "exo2b", sans-serif;
+	font-size: 15px;
+	color: #55a630;
+}
+.pl-leasing-confirm-ship-title {
+	margin: 0;
+	font-weight: 700;
+	font-size: 14px;
+	color: #111;
+}
+.pl-leasing-confirm-ship-hint,
+.pl-leasing-confirm-ship-cost {
+	margin: 4px 0 0;
+	font-size: 13px;
+	color: #555;
+}
+.pl-leasing-confirm-scheme {
+	margin: 0;
+	font-family: "exo2b", sans-serif;
+	font-size: 14px;
+	line-height: 1.4;
+	color: #2e7d32;
+}
+.pl-leasing-confirm-scheme-meta {
+	margin: 10px 0 0;
+	padding: 8px 0 0;
+	border-top: 1px solid #e8e8e8;
+}
+.pl-leasing-confirm-scheme-meta > div {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	margin: 3px 0;
+	font-size: 13px;
+}
+.pl-leasing-confirm-scheme-meta dt {
+	margin: 0;
+	color: #666;
+	font-weight: normal;
+}
+.pl-leasing-confirm-scheme-meta dt::after {
+	content: ":";
+}
+.pl-leasing-confirm-scheme-meta dd {
+	margin: 0;
+	color: #222;
+	text-align: right;
+	white-space: nowrap;
+}
+.pl-leasing-confirm-scheme-meta .pl-leasing-confirm-scheme-total {
+	margin-top: 8px;
+	padding-top: 6px;
+	border-top: 1px solid #e0e0e0;
+	font-family: "exo2b", sans-serif;
+	font-size: 14px;
+	color: #2e7d32;
+}
+.pl-leasing-confirm-scheme-meta .pl-leasing-confirm-scheme-total dt,
+.pl-leasing-confirm-scheme-meta .pl-leasing-confirm-scheme-total dd {
+	color: #2e7d32;
+	font-weight: 700;
+}
+.pl-leasing-confirm-applicant {
+	margin: 10px 0 0;
+	padding: 0;
+}
+.pl-leasing-confirm-applicant > div {
+	display: flex;
+	gap: 8px;
+	margin: 2px 0;
+	font-size: 13px;
+}
+.pl-leasing-confirm-applicant dt {
+	margin: 0;
+	color: #666;
+	font-weight: normal;
+	min-width: 72px;
+}
+.pl-leasing-confirm-applicant dt::after {
+	content: ":";
+}
+.pl-leasing-confirm-applicant dd {
+	margin: 0;
+	color: #222;
+}
+.pl-leasing-confirm-actions {
+	margin-top: 8px;
+	text-align: center;
+}
+.pl-leasing-confirm-submit {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 48px;
+	padding: 12px 28px;
+	border: 2px solid #55a630;
+	border-radius: 4px;
+	background: #55a630;
+	color: #fff;
+	font-family: "exo2b", sans-serif;
+	font-size: 16px;
+	font-weight: bold;
+	cursor: pointer;
+}
+.pl-leasing-confirm-submit:hover {
+	background: #4a9229;
+	border-color: #4a9229;
+}
+.pl-leasing-confirm-hint {
+	margin: 8px 0 0;
+	font-size: 12px;
+	color: #666;
+}
+.pl-leasing-confirm-empty {
+	margin: 0;
+	font-size: 13px;
+	color: #888;
+}
+@media (max-width: 605px) {
+	.pl-leasing-confirm-overlay {
+		align-items: stretch;
+		padding: 0;
+	}
+	.pl-leasing-confirm-modal {
+		max-width: none;
+		max-height: none;
+		min-height: 100%;
+		border-radius: 0;
+		border: 0;
+	}
 }
 
 /* Plasico accent + ensure overlay wins over site CSS */
@@ -3369,7 +3752,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 /* Leasing-completed Купи CTA (filled apply) */
 #checkout .checkout-finish-wrap,#checkout .checkout-finish-wrap.is-leasing-complete{display:inline-block;margin:12px 0 0;vertical-align:top;text-align:left}
 #checkout .checkout-finish-wrap .checkout-finish.btn{margin-top:0!important}
-#checkout .checkout-finish.btn.is-leasing-complete{display:inline-flex!important;flex-direction:column;align-items:center;justify-content:center;min-height:48px;padding:12px 28px;border:2px solid #55a630;border-radius:4px;background:#55a630;color:#fff;font-family:"exo2b",sans-serif;font-size:16px;font-weight:bold;line-height:1.2;text-align:center;text-transform:none;cursor:pointer;box-sizing:border-box}
+#checkout .checkout-finish.btn.is-leasing-complete{display:inline-flex!important;flex-direction:column;align-items:center;justify-content:center;min-height:48px;max-width:100%;padding:12px 20px;border:2px solid #55a630;border-radius:4px;background:#55a630;color:#fff;font-family:"exo2b",sans-serif;font-size:15px;font-weight:bold;line-height:1.25;text-align:center;text-transform:none;white-space:normal;cursor:pointer;box-sizing:border-box}
 #checkout .checkout-finish.btn.is-leasing-complete:hover{background:#4a9229;border-color:#4a9229;color:#fff}
 #checkout .checkout-finish.btn.is-leasing-complete .checkout-finish__label{display:block;color:#fff;font-weight:bold}
 #checkout .checkout-finish__hint{display:block;margin:6px 0 0;padding:0;color:#666;font-family:"exo2b",sans-serif;font-size:12px;font-weight:normal;line-height:1.3;text-align:left;text-transform:none}
@@ -3507,14 +3890,13 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <!-- 02 Ship method -->
 <section class="checkout-step bgff" id=step-ship-method data-step=2>
 <h2 id=checkout-ship-method>Метод на доставка</h2>
-<p class="checkout-step__lead">Срокът за доставка се потвърждава след обработка на поръчката.</p>
 <div class="co-option-stack" role=radiogroup aria-label="Начин на получаване">
 <label class="co-option-row is-disabled boxnowno-unavailable" aria-disabled=true>
 <input type=radio name="ship_to_id[2]" value=boxnow autocomplete=off disabled>
 <span class="co-option-row__body">
 <span class="co-option-row__copy">
-<span class="co-option-row__title"><img class="co-option-row__logo co-option-row__logo--boxnow" src="assets/boxnow-logo.png" width="70" height="51" alt="BOX NOW"> Автомат <em class="co-option-row__badge">Безплатно</em><span class="ship-method-info-wrap"><button type=button class=ship-method-info id=boxnowno-info aria-label="Информация за BOX NOW" title="Информация за BOX NOW" aria-expanded=false aria-controls=boxnowno-tip>i</button><span id=boxnowno-tip class=ship-method-tip role=tooltip hidden>Този метод не е наличен заради размерите на артикулите.</span></span></span>
-<span class="co-option-row__hint">Доставка до автомат · достъп 24/7</span>
+<span class="co-option-row__title">До автомат <span class="ship-method-info-wrap"><button type=button class=ship-method-info id=boxnowno-info aria-label="Информация за BOX NOW" title="Информация за BOX NOW" aria-expanded=false aria-controls=boxnowno-tip>i</button><span id=boxnowno-tip class=ship-method-tip role=tooltip hidden>Този метод не е наличен заради размерите на артикулите.</span></span></span>
+<span class="co-option-row__hint">доставка до автомати BoxNow, Speedy, Еконт Достъп 24/7</span>
 </span>
 </span>
 </label>
@@ -3552,7 +3934,6 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <section class="checkout-step bgff" id=step-ship-details data-step=3>
 <div id=checkout-addresses class=oh>
 <h2 class="checkout-step__title-plain" id=checkout-ship-details>Данни за доставка <span class="checkout-step__sub">(Доставка в България)</span></h2>
-<p class="checkout-step__lead">Попълни данните според избрания метод на доставка.</p>
 
 <label class=co-country-label>Държава *</label>
  <select name=country_id class=co-country-select>
@@ -3800,7 +4181,6 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
                                     </select>
 
 <div class="co-ship-panel hide sf-hidden" data-ship-panel=address hidden>
-<h3 class="checkout-subhead">Куриер</h3>
 <div class="co-option-stack" role=radiogroup aria-label=Куриер>
 <label class="co-option-row clicked">
 <input type=radio name=courier_id value=2 data-key=speedy_new autocomplete=off checked>
@@ -3849,7 +4229,6 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 </div>
 
 <div class="co-ship-panel hide sf-hidden" data-ship-panel=office hidden>
-<h3 class="checkout-subhead">Куриер</h3>
 <div class="co-option-stack" role=radiogroup aria-label="Куриер за офис">
 <div class="co-option-row clicked" data-office-courier-row=speedy>
 <div class="co-option-row__body office-courier-row__body">
@@ -3983,6 +4362,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <span class="co-option-row__title">Банков превод</span>
 <span class="co-option-row__hint">SEPA · обработка 1–2 раб. дни</span>
 </span>
+<em class="co-option-row__badge">предпочитан</em>
 </span>
 </label>
 <div id=bank-transfer-details class="bank-transfer-details hide sf-hidden" hidden role=region aria-label="Данни за банков превод">
@@ -4011,28 +4391,28 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 </dl>
 <div class="bank-transfer-details__footer">
 <p class="bank-transfer-details__note">След завършване на поръчката ще получите проформа фактура на имейл с данните за плащане.</p>
-<button type=button class="bank-transfer-details__pdf" id=bank-transfer-pdf-btn>Изтегли като PDF</button>
+<button type=button class="bank-transfer-details__pdf" id=bank-transfer-pdf-btn>изтегли данните за плащане като pdf</button>
 </div>
 </div>
 <label class="co-option-row">
 <input type=radio name=payment_id value=8 autocomplete=off>
 <span class="co-option-row__body">
 <span class="co-option-row__copy">
-<span class="co-option-row__title">На изплащане с PostBank</span>
-<span class="co-option-row__hint">Избери схема след избор на метода</span>
+<span class="co-option-row__title">На изплащане с ПБ Лични финанси</span>
+<span class="co-option-row__hint">Избери твоята кредитна оферта след избора на метод</span>
 </span>
 </span>
 </label>
 <div id=installment-options class="hide sf-hidden" hidden>
 <p class="installment-options__label">Избери метод</p>
-<div class="installment-options__grid" role=group aria-label="Схема на изплащане с PostBank">
+<div class="installment-options__grid" role=group aria-label="Схема на изплащане с ПБ Лични финанси">
 <button type=button class=installment-option data-installment=bnp aria-pressed=false>
-<img src="assets/postbank/pb-izplashtane-154x69.png" alt="PostBank изплащане" width=154 height=69 loading=lazy>
-<span class="installment-option__caption">Изплащане на вноски</span>
+<img src="assets/postbank/pb-izplashtane-154x69.png" alt="ПБ Лични финанси изплащане" width=154 height=69 loading=lazy>
+<span class="installment-option__caption">Изплащане на вноски с ПБ Лични финанси</span>
 </button>
 <button type=button class=installment-option data-installment=bnp-card aria-pressed=false>
-<img src="assets/postbank/pb-card-154x69.png" alt="PostBank кредитна карта" width=154 height=69 loading=lazy>
-<span class="installment-option__caption">Изплащане на вноски с кредитна карта на PostBank</span>
+<img src="assets/postbank/pb-card-154x69.png" alt="ПБ Лични финанси кредитна карта" width=154 height=69 loading=lazy>
+<span class="installment-option__caption">Изплащане на вноски с кредитна карта на ПБ Лични финанси</span>
 </button>
 </div>
 </div>
@@ -4063,7 +4443,6 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 <input type=checkbox name=copy_person_from_above id=copy-person-from-above value=1>
 <span class="co-invoice-check__copy">
 <strong class="co-invoice-check__title">Копирай от горните данни</strong>
-<span class="co-invoice-check__hint">Попълва имената и адреса от данните по-горе.</span>
 </span>
 </label>
 <div class="checkout-guest-field">
@@ -4205,27 +4584,29 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
  <tr class="totals discount">
  <td class="r nw" colspan=5>Отстъпка FLASH (−10%)</td>
  <td class="r nw">
- <span>−69.00</span> €
- <button type=button class=aside-discount-info id=aside-discount-info aria-label="Информация за автоматичния промокод" title="Информация за автоматичния промокод" aria-expanded=false aria-controls=aside-discount-tip>i</button>
+ <span>−69.00</span> €<span class=aside-total-trail><button type=button class=aside-discount-info id=aside-discount-info aria-label="Информация за автоматичния промокод" title="Информация за автоматичния промокод" aria-expanded=false aria-controls=aside-discount-tip>i</button></span>
  <span id=aside-discount-tip class=aside-discount-tip role=tooltip hidden>Този промокод беше автоматично добавен, защото имате продукт в количката, който отговаря на тази оферта.</span>
  </td>
  </tr>
  <tr class="totals delivery" id=aside-delivery-row hidden>
  <td class="r nw" colspan=5 id=aside-delivery-label>Доставка</td>
- <td class="r nw"><span id=aside-delivery-amount>0.00</span> €</td>
+ <td class="r nw"><span id=aside-delivery-amount>0.00</span> €<span class=aside-total-trail aria-hidden=true></span></td>
  </tr>
  <tr class="totals grand">
  <td class="r nw" colspan=5>Сума за плащане с ДДС</td>
  <td class="r nw">
- <span>620.98</span> €&nbsp;&nbsp;&nbsp; </td>
+ <span>620.98</span> €<span class=aside-total-trail aria-hidden=true></span></td>
  </tr>
  </tfoot>
  </table>
  <button type=button class="aside-leasing js-open-leasing" id=aside-leasing-btn data-leasing-column=personal data-payment-id=8>
  <span class="aside-leasing__label">Купи на изплащане</span>
- <span class="aside-leasing__teaser pl-leasing-teaser-text">с PostBank · избери схема при плащане</span>
+ <span class="aside-leasing__teaser pl-leasing-teaser-text">с ПБ Лични финанси · избери схема при плащане</span>
  </button>
  </div>
+ <p class=aside-warranty>
+ <button type=button class=aside-warranty__btn id=aside-warranty-open>🛡️ Вашите права по законовата гаранция</button>
+ </p>
 </div>
 </aside>
 </div>
@@ -4261,6 +4642,61 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
  <p>Завършване</p>
  </a>
  </div>
+<div id=aside-warranty-modal class=aside-warranty-modal hidden role=dialog aria-modal=true aria-label="Законова гаранция">
+ <button type=button class=aside-warranty-modal__backdrop id=aside-warranty-backdrop aria-label="Затвори"></button>
+ <div class=aside-warranty-modal__dialog>
+ <button type=button class=aside-warranty-modal__close id=aside-warranty-close aria-label="Затвори">×</button>
+ <img class=aside-warranty-modal__img src="assets/zakonova-garantzia.png" alt="Законова гаранция — вашите права в Европейския съюз" width=920 height=600 loading=lazy>
+ </div>
+</div>
+<script>
+(function () {
+  function qs(id) { return document.getElementById(id); }
+  function openModal() {
+    var m = qs("aside-warranty-modal");
+    if (!m) return;
+    m.hidden = false;
+    document.body.classList.add("aside-warranty-open");
+  }
+  function closeModal() {
+    var m = qs("aside-warranty-modal");
+    if (!m) return;
+    m.hidden = true;
+    document.body.classList.remove("aside-warranty-open");
+  }
+  function bind() {
+    var open = qs("aside-warranty-open");
+    var close = qs("aside-warranty-close");
+    var back = qs("aside-warranty-backdrop");
+    if (open && open.getAttribute("data-bound") !== "1") {
+      open.setAttribute("data-bound", "1");
+      open.addEventListener("click", function (e) {
+        e.preventDefault();
+        openModal();
+      });
+    }
+    if (close && close.getAttribute("data-bound") !== "1") {
+      close.setAttribute("data-bound", "1");
+      close.addEventListener("click", closeModal);
+    }
+    if (back && back.getAttribute("data-bound") !== "1") {
+      back.setAttribute("data-bound", "1");
+      back.addEventListener("click", closeModal);
+    }
+  }
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    var m = qs("aside-warranty-modal");
+    if (m && !m.hidden) closeModal();
+  });
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bind);
+  } else {
+    bind();
+  }
+  window.addEventListener("load", bind);
+})();
+</script>
 </div> </main>
  <footer>
  <div id=top-footer class=pw>
@@ -4376,7 +4812,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
  </footer>
  
 <script src="local-bg-phone-validator.js"></script>
-<script src="local-leasing-modal.js?v=confirm5"></script>
+<script src="local-leasing-modal.js?v=confirm11"></script>
 <script id="local-leasing-modal-inline">
 (function () {
 	if (window.__plasicoLeasingBootstrapped) return;
@@ -4387,7 +4823,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 
 	/**
 	 * Left: personal finance / „Купи на изплащане“ (BNP-style multipliers).
-	 * Right: PostBank credit-card installments (distinct, slightly lower rates).
+	 * Right: ПБ Лични финанси credit-card installments (distinct, slightly lower rates).
 	 * Rates/fees are client-side approximations for local preview only.
 	 */
 	var COLUMNS = {
@@ -4404,7 +4840,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 		postbank: {
 			id: 'postbank',
 			provider: 'postbank',
-			title: 'Купи на вноски с кредитна карта на PostBank',
+			title: 'Купи на вноски с кредитна карта на ПБ Лични финанси',
 			terms: [
 				{ months: 3, multiplier: 1.178, glp: 14.34, gpr: 15.29, fee: 0 },
 				{ months: 6, multiplier: 1.221, glp: 14.34, gpr: 15.29, fee: 0 },
@@ -4575,7 +5011,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 		);
 	}
 
-	/** Payment method „На изплащане с PostBank“ (shows #pl-leasing-saved). */
+	/** Payment method „На изплащане с ПБ Лични финанси“ (shows #pl-leasing-saved). */
 	function isPostBankInstallmentPaymentSelected() {
 		var checked = document.querySelector('input[name="payment_id"]:checked');
 		return !!(checked && String(checked.value) === '8');
@@ -4594,16 +5030,24 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 
 	/**
 	 * Approved credit path: leasing apply completed (`#pl-leasing-saved` /
-	 * is-leasing-complete) AND „На изплащане с PostBank“ selected.
-	 * Green notice + hide Физическо лице only then — not on PostBank click alone.
+	 * is-leasing-complete) AND „На изплащане с ПБ Лични финанси“ selected.
+	 * Hide Физическо лице / МОЛ badge only then.
+	 * Green notice + locked „Искам фактура“ also apply on installment alone.
 	 * „Копирай от горните данни“ stays visible/usable in all states.
 	 */
 	function isLeasingInvoicePathActive() {
 		return isLeasingApplyFilled() && isPostBankInstallmentPaymentSelected();
 	}
 
+	/** Show green auto-invoice notice whenever installment payment is selected. */
+	function showInstallmentInvoiceAutoMsg(ui) {
+		if (!ui || !ui.top) return;
+		ui.top.textContent = INVOICE_LEASING_AUTO_MSG;
+		ui.top.hidden = false;
+	}
+
 	var BUY_LABEL_DEFAULT = 'Купи';
-	var BUY_LABEL_LEASING = 'КУПИ НА ИЗПЛАЩАНЕ';
+	var BUY_LABEL_LEASING = 'Изпрати данни за кандидатстване';
 	var BUY_HINT_ID = 'checkout-finish-leasing-hint';
 	var ASIDE_LABEL_DEFAULT = 'Купи на изплащане';
 	var ASIDE_LABEL_SUBMITTED = 'Избрали сте изплащане на лизинг';
@@ -4646,6 +5090,143 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			line += ' · първон. вноска ' + formatEuro(Number(data.downPayment) || 0);
 		}
 		return line;
+	}
+
+	function shortenProductTitle(title, maxLen) {
+		var text = String(title || '')
+			.replace(/\s+/g, ' ')
+			.trim();
+		if (!text) return '';
+		var limit = maxLen || 48;
+		if (text.length <= limit) return text;
+		return text.slice(0, Math.max(1, limit - 1)).replace(/\s+\S*$/, '') + '…';
+	}
+
+	/** Cart line titles for scheme summary (saved apply, DOM, then storage). */
+	function getLeasingCartProductTitles(data) {
+		var titles = [];
+		var seen = {};
+		function pushTitle(raw) {
+			var title = String(raw || '')
+				.replace(/\s+/g, ' ')
+				.trim();
+			if (!title || seen[title]) return;
+			seen[title] = true;
+			titles.push(title);
+		}
+
+		if (data && Array.isArray(data.products) && data.products.length) {
+			data.products.forEach(function (item) {
+				if (typeof item === 'string') pushTitle(item);
+				else if (item && item.title) pushTitle(item.title);
+			});
+			if (titles.length) return titles;
+		}
+
+		try {
+			var lines = readConfirmCartLines();
+			lines.forEach(function (line) {
+				pushTitle(line && line.title);
+			});
+		} catch (e) {
+			/* ignore */
+		}
+		if (titles.length) return titles;
+
+		readCartFromStorage().forEach(function (item) {
+			pushTitle(item && (item.title || item.name));
+		});
+		return titles;
+	}
+
+	function formatSchemeKindLabel(productCount) {
+		var n = Number(productCount) || 0;
+		if (n <= 0) return '';
+		if (n === 1) return 'Изплащане на 1 продукт';
+		return 'Комбинирано изплащане — ' + n + ' продукта';
+	}
+
+	function formatSchemeProductsBrief(titles) {
+		if (!titles || !titles.length) return '';
+		return titles
+			.map(function (t) {
+				return shortenProductTitle(t, 42);
+			})
+			.join('; ');
+	}
+
+	/** Full scheme breakdown for #pl-leasing-saved (and shared rates helper). */
+	function buildSavedSchemeDetailsHtml(data) {
+		var rates = resolveApplySchemeRates(data);
+		var title = escapeHtml(data && data.columnTitle ? data.columnTitle : 'Схема на изплащане');
+		var products = getLeasingCartProductTitles(data);
+		var kindLabel = formatSchemeKindLabel(products.length);
+		var productsBrief = formatSchemeProductsBrief(products);
+		var rows = '';
+		if (rates.months != null && isFinite(rates.months) && rates.months > 0) {
+			rows +=
+				'<div class="pl-leasing-saved__scheme-row"><dt>Брой вноски</dt><dd>' +
+				escapeHtml(String(rates.months)) +
+				'</dd></div>';
+		}
+		if (rates.monthly != null && isFinite(rates.monthly)) {
+			rows +=
+				'<div class="pl-leasing-saved__scheme-row"><dt>Месечна вноска</dt><dd>' +
+				escapeHtml(formatEuro(rates.monthly)) +
+				'</dd></div>';
+		}
+		if (rates.downPayment > 0) {
+			rows +=
+				'<div class="pl-leasing-saved__scheme-row"><dt>Първон. вноска</dt><dd>' +
+				escapeHtml(formatEuro(rates.downPayment)) +
+				'</dd></div>';
+		}
+		if (rates.glp != null && isFinite(rates.glp)) {
+			rows +=
+				'<div class="pl-leasing-saved__scheme-row"><dt>% ГЛП</dt><dd>' +
+				escapeHtml(formatPercent(rates.glp)) +
+				'</dd></div>';
+		}
+		if (rates.gpr != null && isFinite(rates.gpr)) {
+			rows +=
+				'<div class="pl-leasing-saved__scheme-row"><dt>% ГПР</dt><dd>' +
+				escapeHtml(formatPercent(rates.gpr)) +
+				'</dd></div>';
+		}
+		if (rates.total != null && isFinite(rates.total)) {
+			rows +=
+				'<div class="pl-leasing-saved__scheme-row pl-leasing-saved__scheme-row--total"><dt>Обща дължима сума</dt><dd>' +
+				escapeHtml(formatEuro(rates.total)) +
+				'</dd></div>';
+		}
+		if (!rows && !kindLabel) {
+			return (
+				'<p class="pl-leasing-saved__scheme">' +
+				escapeHtml(formatAsideSchemeLine(data)) +
+				'</p>'
+			);
+		}
+		var head = '<p class="pl-leasing-saved__scheme-title">' + title + '</p>';
+		if (kindLabel) {
+			head +=
+				'<p class="pl-leasing-saved__scheme-kind">' +
+				escapeHtml(kindLabel) +
+				'</p>';
+		}
+		if (productsBrief) {
+			head +=
+				'<p class="pl-leasing-saved__scheme-products">' +
+				escapeHtml(productsBrief) +
+				'</p>';
+		}
+		return (
+			'<div class="pl-leasing-saved__scheme">' +
+			head +
+			(rows
+				? '<dl class="pl-leasing-saved__scheme-meta">' + rows + '</dl>'
+				: '') +
+			'</div>'
+		);
 	}
 
 	/** Resolve GLP/GPR/fee/total for confirm UI (saved apply or COLUMNS lookup). */
@@ -4694,7 +5275,10 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 
 		if (filled && data) {
 			aside.classList.add('is-submitted');
-			aside.setAttribute('aria-label', ASIDE_LABEL_SUBMITTED + ' — Промени данните');
+			aside.setAttribute(
+				'aria-label',
+				ASIDE_LABEL_SUBMITTED + ' — Промени или изтрий данните'
+			);
 			aside.innerHTML =
 				'<span class="aside-leasing__label">' +
 				escapeHtml(ASIDE_LABEL_SUBMITTED) +
@@ -4715,7 +5299,10 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 				'<span class="aside-leasing__preview-scheme">' +
 				escapeHtml(formatAsideSchemeLine(data)) +
 				'</span>' +
+				'<span class="aside-leasing__preview-actions">' +
 				'<span class="aside-leasing__preview-edit">Промени данните</span>' +
+				'<span class="aside-leasing__preview-clear">Изтрий данните</span>' +
+				'</span>' +
 				'</span>';
 			return;
 		}
@@ -4930,7 +5517,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 		var totals = readConfirmTotals();
 		var ship = readConfirmShippingSummary();
 		var apply = readSavedApply();
-		var scheme = formatAsideSchemeLine(apply) || 'На изплащане с PostBank';
+		var scheme = formatAsideSchemeLine(apply) || 'На изплащане с ПБ Лични финанси';
 
 		var itemsHtml = lines.length
 			? lines
@@ -5100,7 +5687,8 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			e.preventDefault();
 			e.stopPropagation();
 		}
-		openConfirmModal();
+		/* Skip summary confirm overlay — submit application data immediately. */
+		proceedLeasingConfirm();
 	}
 
 	function bindLeasingBuyConfirmClick(buy) {
@@ -5170,7 +5758,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 				if (!buy || !buy.classList.contains('is-leasing-complete')) return;
 				e.preventDefault();
 				e.stopPropagation();
-				openConfirmModal();
+				proceedLeasingConfirm();
 			},
 			true
 		);
@@ -5188,7 +5776,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 				if (!buy) return;
 				e.preventDefault();
 				e.stopPropagation();
-				openConfirmModal();
+				proceedLeasingConfirm();
 			},
 			true
 		);
@@ -5300,7 +5888,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 	}
 
 	/**
-	 * PostBank installment (payment_id=8): „Искам фактура“ must stay checked
+	 * ПБ Лични финанси installment (payment_id=8): „Искам фактура“ must stay checked
 	 * and cannot be cleared. Keep the checkbox enabled for form submit.
 	 * @param {boolean} locked
 	 */
@@ -5440,10 +6028,10 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 	}
 
 	/**
-	 * After leasing apply + PostBank installment selected: open „Искам фактура“,
-	 * autofill физ. лице (automatic — option + individual fields + „Тип лице“ hidden),
-	 * show credit notice with firm-option hint.
-	 * On ЮЛ: firm fields + МОЛ + red badge. Notices/locks clear when payment leaves leasing.
+	 * On „На изплащане“ (payment_id=8): lock/check „Искам фактура“, green notice,
+	 * hide Физическо лице + „Тип лице“, keep ЮЛ as unexpanded opt-in (auto физ).
+	 * With leasing apply filled: autofill + МОЛ badge when firm selected.
+	 * Notices/locks clear when payment leaves installment.
 	 * @param {{ forceIndividual?: boolean }} opts
 	 */
 	function syncInvoiceFromLeasing(opts) {
@@ -5454,23 +6042,20 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			syncWantInvoiceLockForInstallment();
 			var data = readSavedApply();
 			var filled = isLeasingApplyFilled();
-			var pathActive = isLeasingInvoicePathActive();
+			var installment = isPostBankInstallmentPaymentSelected();
+			var pathActive = !!(filled && data && installment);
 			var ui = ensureInvoiceLeasingMessages();
 
-			if (!filled || !data) {
+			/* Left installment → clear notices + unlock person-type UI. */
+			if (!installment) {
 				hideInvoiceLeasingUi();
 				return;
 			}
 
-			syncFizicheskoPersonTypeAvailability(pathActive);
-
-			/* Leasing filled but PostBank installment not selected → hide notices + unlock UI. */
-			if (!pathActive) {
-				if (ui.top) ui.top.hidden = true;
-				if (ui.badge) ui.badge.hidden = true;
-				restoreInvoicePersonPanelsAfterLeasing();
-				return;
-			}
+			/* Installment: invoice locked + hide физ; ЮЛ stays available but not auto-expanded. */
+			showInvoiceFieldsPanel();
+			ui = ensureInvoiceLeasingMessages();
+			syncFizicheskoPersonTypeAvailability(true);
 
 			var want = document.getElementById('want-invoice');
 			var primed = document.body.getAttribute('data-leasing-invoice') === '1';
@@ -5478,11 +6063,8 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 
 			if (shouldPrime) {
 				document.body.setAttribute('data-leasing-invoice', '1');
-				showInvoiceFieldsPanel();
-				/* Auto физ path — option label stays hidden; radio remains selected. */
+				/* HTML defaults to ЮЛ checked — force auto физ so firm panel stays collapsed. */
 				selectInvoicePersonType('1');
-			} else {
-				showInvoiceFieldsPanel();
 			}
 
 			if (!want || !want.checked) {
@@ -5490,7 +6072,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 				want = document.getElementById('want-invoice');
 			}
 			if (!want || !want.checked) {
-				if (ui.top) ui.top.hidden = true;
+				showInstallmentInvoiceAutoMsg(ui);
 				if (ui.badge) ui.badge.hidden = true;
 				return;
 			}
@@ -5498,22 +6080,23 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			var type = document.querySelector('input[name="invoice_person_type"]:checked');
 			var isFirm = !!(type && String(type.value) === '2');
 
-			/* Leasing path: always hide individual fields; ЮЛ still shows firm panel. */
+			/* Always hide individual fields on installment; firm panel only if ЮЛ chosen. */
 			syncInvoicePersonPanels(isFirm, true);
 
 			if (isFirm) {
-				applyLeasingToInvoiceMol(data);
+				if (pathActive) applyLeasingToInvoiceMol(data);
 				if (ui.top) ui.top.hidden = true;
 				if (ui.badge) {
-					ui.badge.textContent = INVOICE_LEASING_MOL_MSG;
-					ui.badge.hidden = false;
+					if (pathActive) {
+						ui.badge.textContent = INVOICE_LEASING_MOL_MSG;
+						ui.badge.hidden = false;
+					} else {
+						ui.badge.hidden = true;
+					}
 				}
 			} else {
-				applyLeasingToInvoiceIndividual(data);
-				if (ui.top) {
-					ui.top.textContent = INVOICE_LEASING_AUTO_MSG;
-					ui.top.hidden = false;
-				}
+				if (pathActive) applyLeasingToInvoiceIndividual(data);
+				showInstallmentInvoiceAutoMsg(ui);
 				if (ui.badge) ui.badge.hidden = true;
 			}
 		} finally {
@@ -5556,7 +6139,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			'pointerdown',
 			function (e) {
 				yulCheckedBeforePointer = false;
-				if (!isLeasingInvoicePathActive()) return;
+				if (!isPostBankInstallmentPaymentSelected()) return;
 				var t = e.target;
 				if (!t || !t.closest) return;
 				var label = t.closest('.co-person-type label');
@@ -5571,7 +6154,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 		document.addEventListener(
 			'click',
 			function (e) {
-				if (!isLeasingInvoicePathActive()) return;
+				if (!isPostBankInstallmentPaymentSelected()) return;
 				if (!yulCheckedBeforePointer) return;
 				var t = e.target;
 				if (!t || !t.closest) return;
@@ -5657,17 +6240,6 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 		syncHiddenApplyFields(data);
 		syncInstallmentOptionSelection(data.column);
 
-		var schemeLine =
-			escapeHtml(data.columnTitle || '') +
-			' — ' +
-			escapeHtml(String(data.months || '')) +
-			' вноски × ' +
-			escapeHtml(formatEuro(Number(data.monthly) || 0));
-		if (Number(data.downPayment) > 0) {
-			schemeLine +=
-				' · първон. вноска ' + escapeHtml(formatEuro(Number(data.downPayment) || 0));
-		}
-
 		panel.hidden = false;
 		panel.innerHTML =
 			'<p class="pl-leasing-saved__title">Данни за кандидатстване</p>' +
@@ -5685,15 +6257,22 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			escapeHtml(data.email) +
 			'</dd></div>' +
 			'</dl>' +
-			'<p class="pl-leasing-saved__scheme">' +
-			schemeLine +
-			'</p>' +
-			'<button type="button" class="pl-leasing-saved__edit" id="pl-leasing-saved-edit">Промени данните</button>';
+			buildSavedSchemeDetailsHtml(data) +
+			'<div class="pl-leasing-saved__actions">' +
+			'<button type="button" class="pl-leasing-saved__edit" id="pl-leasing-saved-edit">Промени данните</button>' +
+			'<button type="button" class="pl-leasing-saved__clear" id="pl-leasing-saved-clear">Изтрий данните</button>' +
+			'</div>';
 
 		var editBtn = document.getElementById('pl-leasing-saved-edit');
 		if (editBtn) {
 			editBtn.addEventListener('click', function () {
 				openModal({ column: data.column || 'personal' });
+			});
+		}
+		var clearBtn = document.getElementById('pl-leasing-saved-clear');
+		if (clearBtn) {
+			clearBtn.addEventListener('click', function () {
+				clearLeasingApplyUi();
 			});
 		}
 
@@ -6236,6 +6815,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 			price: state.price,
 			financed: getFinancedAmount(),
 			prodId: state.prodId,
+			products: getLeasingCartProductTitles(null),
 		};
 
 		if (typeof console !== 'undefined' && console.log) {
@@ -6460,10 +7040,27 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 		);
 	}
 
+	function clearLeasingApplyUi() {
+		clearSavedApply();
+		renderSavedApply();
+		renderTeaser();
+		syncCheckoutCta();
+		/* Re-sync invoice UI: stay locked + green msg if installment still selected. */
+		syncInvoiceFromLeasing({ forceIndividual: false });
+	}
+
 	function bindTriggers() {
 		document.body.addEventListener(
 			'click',
 			function (e) {
+				var clearAction = e.target.closest('.aside-leasing__preview-clear');
+				if (clearAction) {
+					e.preventDefault();
+					e.stopPropagation();
+					clearLeasingApplyUi();
+					return false;
+				}
+
 				var trigger = e.target.closest(
 					'[data-url^="leasing"], .js-open-leasing'
 				);
@@ -6524,7 +7121,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 		bindInvoiceLeasingWatchers();
 		bindLeasingConfirmGate();
 		/* Refresh keeps apply in sessionStorage, but payment radios reset —
-		 * re-select PostBank installments so #leasing-schema / scheme stay visible. */
+		 * re-select ПБ Лични финанси installments so #leasing-schema / scheme stay visible. */
 		if (isLeasingApplyFilled()) {
 			syncCheckoutPaymentInstallments();
 			if (state.apply && state.apply.column) {
@@ -6543,6 +7140,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 				syncWantInvoiceLockForInstallment();
 				if (radio.value === '8') {
 					renderSavedApply();
+					syncInvoiceFromLeasing({ forceIndividual: false });
 				} else {
 					syncCheckoutCta();
 					syncInvoiceFromLeasing({ forceIndividual: false });
@@ -6551,20 +7149,14 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 		});
 
 		syncCheckoutCta();
+		syncInvoiceFromLeasing({ forceIndividual: false });
 
 		window.PlasicoLeasing = {
 			open: openModal,
 			close: closeModal,
 			refresh: refresh,
 			getApply: readSavedApply,
-			clearApply: function () {
-				clearSavedApply();
-				hideInvoiceLeasingUi();
-				renderSavedApply();
-				renderTeaser();
-				syncCheckoutCta();
-				syncWantInvoiceLockForInstallment();
-			},
+			clearApply: clearLeasingApplyUi,
 			isApplyFilled: isLeasingApplyFilled,
 			isCompletedCtaActive: isLeasingCompletedCtaActive,
 			syncCheckoutCta: syncCheckoutCta,
@@ -6628,6 +7220,14 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 /* Dedicated aside leasing binder — always open modal on #aside-leasing-btn click */
 (function () {
   function openAsideLeasing(e) {
+    if (e && e.target && e.target.closest && e.target.closest(".aside-leasing__preview-clear")) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (window.PlasicoLeasing && typeof window.PlasicoLeasing.clearApply === "function") {
+        window.PlasicoLeasing.clearApply();
+      }
+      return;
+    }
     if (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -8277,13 +8877,7 @@ window.__plasicoEnsureBoxNow = function () {
  <div class="auth-modal__check">
  <input id=login-agree-terms type=checkbox name=agree_terms value=1 required>
  <span class="auth-modal__check-text">
- <label for=login-agree-terms>Запознат съм с </label><a class="auth-modal__check-link" href="https://plasico.bg/help?info=52" target=_blank rel="noopener noreferrer">Общите условия</a>
- </span>
- </div>
- <div class="auth-modal__check">
- <input id=login-agree-privacy type=checkbox name=agree_privacy value=1 required>
- <span class="auth-modal__check-text">
- <label for=login-agree-privacy>Запознат съм с </label><a class="auth-modal__check-link" href="https://static.plasico.bg/resources/191112164954personal_data_policy.pdf" target=_blank rel="noopener noreferrer">Политиката за поверителност</a>
+ <label for=login-agree-terms>Запознат съм с </label><a class="auth-modal__check-link" href="https://plasico.bg/help?info=52" target=_blank rel="noopener noreferrer">Общите условия</a> и <a class="auth-modal__check-link" href="https://static.plasico.bg/resources/191112164954personal_data_policy.pdf" target=_blank rel="noopener noreferrer">Политиката за поверителност</a>
  </span>
  </div>
  </div>
@@ -8339,13 +8933,7 @@ window.__plasicoEnsureBoxNow = function () {
  <div class="auth-modal__check">
  <input id=register-agree-terms type=checkbox name=agree_terms value=1 required>
  <span class="auth-modal__check-text">
- <label for=register-agree-terms>Запознат съм с </label><a class="auth-modal__check-link" href="https://plasico.bg/help?info=52" target=_blank rel="noopener noreferrer">Общите условия</a>
- </span>
- </div>
- <div class="auth-modal__check">
- <input id=register-agree-privacy type=checkbox name=agree_privacy value=1 required>
- <span class="auth-modal__check-text">
- <label for=register-agree-privacy>Запознат съм с </label><a class="auth-modal__check-link" href="https://static.plasico.bg/resources/191112164954personal_data_policy.pdf" target=_blank rel="noopener noreferrer">Политиката за поверителност</a>
+ <label for=register-agree-terms>Запознат съм с </label><a class="auth-modal__check-link" href="https://plasico.bg/help?info=52" target=_blank rel="noopener noreferrer">Общите условия</a> и <a class="auth-modal__check-link" href="https://static.plasico.bg/resources/191112164954personal_data_policy.pdf" target=_blank rel="noopener noreferrer">Политиката за поверителност</a>
  </span>
  </div>
  </div>

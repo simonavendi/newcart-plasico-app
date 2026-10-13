@@ -7,7 +7,7 @@
 
 	/**
 	 * Left: personal finance / „Купи на изплащане“ (BNP-style multipliers).
-	 * Right: PostBank credit-card installments (distinct, slightly lower rates).
+	 * Right: ПБ Лични финанси credit-card installments (distinct, slightly lower rates).
 	 * Rates/fees are client-side approximations for local preview only.
 	 */
 	var COLUMNS = {
@@ -24,7 +24,7 @@
 		postbank: {
 			id: 'postbank',
 			provider: 'postbank',
-			title: 'Купи на вноски с кредитна карта на PostBank',
+			title: 'Купи на вноски с кредитна карта на ПБ Лични финанси',
 			terms: [
 				{ months: 3, multiplier: 1.178, glp: 14.34, gpr: 15.29, fee: 0 },
 				{ months: 6, multiplier: 1.221, glp: 14.34, gpr: 15.29, fee: 0 },
@@ -195,7 +195,7 @@
 		);
 	}
 
-	/** Payment method „На изплащане с PostBank“ (shows #pl-leasing-saved). */
+	/** Payment method „На изплащане с ПБ Лични финанси“ (shows #pl-leasing-saved). */
 	function isPostBankInstallmentPaymentSelected() {
 		var checked = document.querySelector('input[name="payment_id"]:checked');
 		return !!(checked && String(checked.value) === '8');
@@ -214,16 +214,24 @@
 
 	/**
 	 * Approved credit path: leasing apply completed (`#pl-leasing-saved` /
-	 * is-leasing-complete) AND „На изплащане с PostBank“ selected.
-	 * Green notice + hide Физическо лице only then — not on PostBank click alone.
+	 * is-leasing-complete) AND „На изплащане с ПБ Лични финанси“ selected.
+	 * Hide Физическо лице / МОЛ badge only then.
+	 * Green notice + locked „Искам фактура“ also apply on installment alone.
 	 * „Копирай от горните данни“ stays visible/usable in all states.
 	 */
 	function isLeasingInvoicePathActive() {
 		return isLeasingApplyFilled() && isPostBankInstallmentPaymentSelected();
 	}
 
+	/** Show green auto-invoice notice whenever installment payment is selected. */
+	function showInstallmentInvoiceAutoMsg(ui) {
+		if (!ui || !ui.top) return;
+		ui.top.textContent = INVOICE_LEASING_AUTO_MSG;
+		ui.top.hidden = false;
+	}
+
 	var BUY_LABEL_DEFAULT = 'Купи';
-	var BUY_LABEL_LEASING = 'КУПИ НА ИЗПЛАЩАНЕ';
+	var BUY_LABEL_LEASING = 'Изпрати данни за кандидатстване';
 	var BUY_HINT_ID = 'checkout-finish-leasing-hint';
 	var ASIDE_LABEL_DEFAULT = 'Купи на изплащане';
 	var ASIDE_LABEL_SUBMITTED = 'Избрали сте изплащане на лизинг';
@@ -266,6 +274,143 @@
 			line += ' · първон. вноска ' + formatEuro(Number(data.downPayment) || 0);
 		}
 		return line;
+	}
+
+	function shortenProductTitle(title, maxLen) {
+		var text = String(title || '')
+			.replace(/\s+/g, ' ')
+			.trim();
+		if (!text) return '';
+		var limit = maxLen || 48;
+		if (text.length <= limit) return text;
+		return text.slice(0, Math.max(1, limit - 1)).replace(/\s+\S*$/, '') + '…';
+	}
+
+	/** Cart line titles for scheme summary (saved apply, DOM, then storage). */
+	function getLeasingCartProductTitles(data) {
+		var titles = [];
+		var seen = {};
+		function pushTitle(raw) {
+			var title = String(raw || '')
+				.replace(/\s+/g, ' ')
+				.trim();
+			if (!title || seen[title]) return;
+			seen[title] = true;
+			titles.push(title);
+		}
+
+		if (data && Array.isArray(data.products) && data.products.length) {
+			data.products.forEach(function (item) {
+				if (typeof item === 'string') pushTitle(item);
+				else if (item && item.title) pushTitle(item.title);
+			});
+			if (titles.length) return titles;
+		}
+
+		try {
+			var lines = readConfirmCartLines();
+			lines.forEach(function (line) {
+				pushTitle(line && line.title);
+			});
+		} catch (e) {
+			/* ignore */
+		}
+		if (titles.length) return titles;
+
+		readCartFromStorage().forEach(function (item) {
+			pushTitle(item && (item.title || item.name));
+		});
+		return titles;
+	}
+
+	function formatSchemeKindLabel(productCount) {
+		var n = Number(productCount) || 0;
+		if (n <= 0) return '';
+		if (n === 1) return 'Изплащане на 1 продукт';
+		return 'Комбинирано изплащане — ' + n + ' продукта';
+	}
+
+	function formatSchemeProductsBrief(titles) {
+		if (!titles || !titles.length) return '';
+		return titles
+			.map(function (t) {
+				return shortenProductTitle(t, 42);
+			})
+			.join('; ');
+	}
+
+	/** Full scheme breakdown for #pl-leasing-saved (and shared rates helper). */
+	function buildSavedSchemeDetailsHtml(data) {
+		var rates = resolveApplySchemeRates(data);
+		var title = escapeHtml(data && data.columnTitle ? data.columnTitle : 'Схема на изплащане');
+		var products = getLeasingCartProductTitles(data);
+		var kindLabel = formatSchemeKindLabel(products.length);
+		var productsBrief = formatSchemeProductsBrief(products);
+		var rows = '';
+		if (rates.months != null && isFinite(rates.months) && rates.months > 0) {
+			rows +=
+				'<div class="pl-leasing-saved__scheme-row"><dt>Брой вноски</dt><dd>' +
+				escapeHtml(String(rates.months)) +
+				'</dd></div>';
+		}
+		if (rates.monthly != null && isFinite(rates.monthly)) {
+			rows +=
+				'<div class="pl-leasing-saved__scheme-row"><dt>Месечна вноска</dt><dd>' +
+				escapeHtml(formatEuro(rates.monthly)) +
+				'</dd></div>';
+		}
+		if (rates.downPayment > 0) {
+			rows +=
+				'<div class="pl-leasing-saved__scheme-row"><dt>Първон. вноска</dt><dd>' +
+				escapeHtml(formatEuro(rates.downPayment)) +
+				'</dd></div>';
+		}
+		if (rates.glp != null && isFinite(rates.glp)) {
+			rows +=
+				'<div class="pl-leasing-saved__scheme-row"><dt>% ГЛП</dt><dd>' +
+				escapeHtml(formatPercent(rates.glp)) +
+				'</dd></div>';
+		}
+		if (rates.gpr != null && isFinite(rates.gpr)) {
+			rows +=
+				'<div class="pl-leasing-saved__scheme-row"><dt>% ГПР</dt><dd>' +
+				escapeHtml(formatPercent(rates.gpr)) +
+				'</dd></div>';
+		}
+		if (rates.total != null && isFinite(rates.total)) {
+			rows +=
+				'<div class="pl-leasing-saved__scheme-row pl-leasing-saved__scheme-row--total"><dt>Обща дължима сума</dt><dd>' +
+				escapeHtml(formatEuro(rates.total)) +
+				'</dd></div>';
+		}
+		if (!rows && !kindLabel) {
+			return (
+				'<p class="pl-leasing-saved__scheme">' +
+				escapeHtml(formatAsideSchemeLine(data)) +
+				'</p>'
+			);
+		}
+		var head = '<p class="pl-leasing-saved__scheme-title">' + title + '</p>';
+		if (kindLabel) {
+			head +=
+				'<p class="pl-leasing-saved__scheme-kind">' +
+				escapeHtml(kindLabel) +
+				'</p>';
+		}
+		if (productsBrief) {
+			head +=
+				'<p class="pl-leasing-saved__scheme-products">' +
+				escapeHtml(productsBrief) +
+				'</p>';
+		}
+		return (
+			'<div class="pl-leasing-saved__scheme">' +
+			head +
+			(rows
+				? '<dl class="pl-leasing-saved__scheme-meta">' + rows + '</dl>'
+				: '') +
+			'</div>'
+		);
 	}
 
 	/** Resolve GLP/GPR/fee/total for confirm UI (saved apply or COLUMNS lookup). */
@@ -314,7 +459,10 @@
 
 		if (filled && data) {
 			aside.classList.add('is-submitted');
-			aside.setAttribute('aria-label', ASIDE_LABEL_SUBMITTED + ' — Промени данните');
+			aside.setAttribute(
+				'aria-label',
+				ASIDE_LABEL_SUBMITTED + ' — Промени или изтрий данните'
+			);
 			aside.innerHTML =
 				'<span class="aside-leasing__label">' +
 				escapeHtml(ASIDE_LABEL_SUBMITTED) +
@@ -335,7 +483,10 @@
 				'<span class="aside-leasing__preview-scheme">' +
 				escapeHtml(formatAsideSchemeLine(data)) +
 				'</span>' +
+				'<span class="aside-leasing__preview-actions">' +
 				'<span class="aside-leasing__preview-edit">Промени данните</span>' +
+				'<span class="aside-leasing__preview-clear">Изтрий данните</span>' +
+				'</span>' +
 				'</span>';
 			return;
 		}
@@ -550,7 +701,7 @@
 		var totals = readConfirmTotals();
 		var ship = readConfirmShippingSummary();
 		var apply = readSavedApply();
-		var scheme = formatAsideSchemeLine(apply) || 'На изплащане с PostBank';
+		var scheme = formatAsideSchemeLine(apply) || 'На изплащане с ПБ Лични финанси';
 
 		var itemsHtml = lines.length
 			? lines
@@ -720,7 +871,8 @@
 			e.preventDefault();
 			e.stopPropagation();
 		}
-		openConfirmModal();
+		/* Skip summary confirm overlay — submit application data immediately. */
+		proceedLeasingConfirm();
 	}
 
 	function bindLeasingBuyConfirmClick(buy) {
@@ -790,7 +942,7 @@
 				if (!buy || !buy.classList.contains('is-leasing-complete')) return;
 				e.preventDefault();
 				e.stopPropagation();
-				openConfirmModal();
+				proceedLeasingConfirm();
 			},
 			true
 		);
@@ -808,7 +960,7 @@
 				if (!buy) return;
 				e.preventDefault();
 				e.stopPropagation();
-				openConfirmModal();
+				proceedLeasingConfirm();
 			},
 			true
 		);
@@ -920,7 +1072,7 @@
 	}
 
 	/**
-	 * PostBank installment (payment_id=8): „Искам фактура“ must stay checked
+	 * ПБ Лични финанси installment (payment_id=8): „Искам фактура“ must stay checked
 	 * and cannot be cleared. Keep the checkbox enabled for form submit.
 	 * @param {boolean} locked
 	 */
@@ -1060,10 +1212,10 @@
 	}
 
 	/**
-	 * After leasing apply + PostBank installment selected: open „Искам фактура“,
-	 * autofill физ. лице (automatic — option + individual fields + „Тип лице“ hidden),
-	 * show credit notice with firm-option hint.
-	 * On ЮЛ: firm fields + МОЛ + red badge. Notices/locks clear when payment leaves leasing.
+	 * On „На изплащане“ (payment_id=8): lock/check „Искам фактура“, green notice,
+	 * hide Физическо лице + „Тип лице“, keep ЮЛ as unexpanded opt-in (auto физ).
+	 * With leasing apply filled: autofill + МОЛ badge when firm selected.
+	 * Notices/locks clear when payment leaves installment.
 	 * @param {{ forceIndividual?: boolean }} opts
 	 */
 	function syncInvoiceFromLeasing(opts) {
@@ -1074,23 +1226,20 @@
 			syncWantInvoiceLockForInstallment();
 			var data = readSavedApply();
 			var filled = isLeasingApplyFilled();
-			var pathActive = isLeasingInvoicePathActive();
+			var installment = isPostBankInstallmentPaymentSelected();
+			var pathActive = !!(filled && data && installment);
 			var ui = ensureInvoiceLeasingMessages();
 
-			if (!filled || !data) {
+			/* Left installment → clear notices + unlock person-type UI. */
+			if (!installment) {
 				hideInvoiceLeasingUi();
 				return;
 			}
 
-			syncFizicheskoPersonTypeAvailability(pathActive);
-
-			/* Leasing filled but PostBank installment not selected → hide notices + unlock UI. */
-			if (!pathActive) {
-				if (ui.top) ui.top.hidden = true;
-				if (ui.badge) ui.badge.hidden = true;
-				restoreInvoicePersonPanelsAfterLeasing();
-				return;
-			}
+			/* Installment: invoice locked + hide физ; ЮЛ stays available but not auto-expanded. */
+			showInvoiceFieldsPanel();
+			ui = ensureInvoiceLeasingMessages();
+			syncFizicheskoPersonTypeAvailability(true);
 
 			var want = document.getElementById('want-invoice');
 			var primed = document.body.getAttribute('data-leasing-invoice') === '1';
@@ -1098,11 +1247,8 @@
 
 			if (shouldPrime) {
 				document.body.setAttribute('data-leasing-invoice', '1');
-				showInvoiceFieldsPanel();
-				/* Auto физ path — option label stays hidden; radio remains selected. */
+				/* HTML defaults to ЮЛ checked — force auto физ so firm panel stays collapsed. */
 				selectInvoicePersonType('1');
-			} else {
-				showInvoiceFieldsPanel();
 			}
 
 			if (!want || !want.checked) {
@@ -1110,7 +1256,7 @@
 				want = document.getElementById('want-invoice');
 			}
 			if (!want || !want.checked) {
-				if (ui.top) ui.top.hidden = true;
+				showInstallmentInvoiceAutoMsg(ui);
 				if (ui.badge) ui.badge.hidden = true;
 				return;
 			}
@@ -1118,22 +1264,23 @@
 			var type = document.querySelector('input[name="invoice_person_type"]:checked');
 			var isFirm = !!(type && String(type.value) === '2');
 
-			/* Leasing path: always hide individual fields; ЮЛ still shows firm panel. */
+			/* Always hide individual fields on installment; firm panel only if ЮЛ chosen. */
 			syncInvoicePersonPanels(isFirm, true);
 
 			if (isFirm) {
-				applyLeasingToInvoiceMol(data);
+				if (pathActive) applyLeasingToInvoiceMol(data);
 				if (ui.top) ui.top.hidden = true;
 				if (ui.badge) {
-					ui.badge.textContent = INVOICE_LEASING_MOL_MSG;
-					ui.badge.hidden = false;
+					if (pathActive) {
+						ui.badge.textContent = INVOICE_LEASING_MOL_MSG;
+						ui.badge.hidden = false;
+					} else {
+						ui.badge.hidden = true;
+					}
 				}
 			} else {
-				applyLeasingToInvoiceIndividual(data);
-				if (ui.top) {
-					ui.top.textContent = INVOICE_LEASING_AUTO_MSG;
-					ui.top.hidden = false;
-				}
+				if (pathActive) applyLeasingToInvoiceIndividual(data);
+				showInstallmentInvoiceAutoMsg(ui);
 				if (ui.badge) ui.badge.hidden = true;
 			}
 		} finally {
@@ -1176,7 +1323,7 @@
 			'pointerdown',
 			function (e) {
 				yulCheckedBeforePointer = false;
-				if (!isLeasingInvoicePathActive()) return;
+				if (!isPostBankInstallmentPaymentSelected()) return;
 				var t = e.target;
 				if (!t || !t.closest) return;
 				var label = t.closest('.co-person-type label');
@@ -1191,7 +1338,7 @@
 		document.addEventListener(
 			'click',
 			function (e) {
-				if (!isLeasingInvoicePathActive()) return;
+				if (!isPostBankInstallmentPaymentSelected()) return;
 				if (!yulCheckedBeforePointer) return;
 				var t = e.target;
 				if (!t || !t.closest) return;
@@ -1277,17 +1424,6 @@
 		syncHiddenApplyFields(data);
 		syncInstallmentOptionSelection(data.column);
 
-		var schemeLine =
-			escapeHtml(data.columnTitle || '') +
-			' — ' +
-			escapeHtml(String(data.months || '')) +
-			' вноски × ' +
-			escapeHtml(formatEuro(Number(data.monthly) || 0));
-		if (Number(data.downPayment) > 0) {
-			schemeLine +=
-				' · първон. вноска ' + escapeHtml(formatEuro(Number(data.downPayment) || 0));
-		}
-
 		panel.hidden = false;
 		panel.innerHTML =
 			'<p class="pl-leasing-saved__title">Данни за кандидатстване</p>' +
@@ -1305,15 +1441,22 @@
 			escapeHtml(data.email) +
 			'</dd></div>' +
 			'</dl>' +
-			'<p class="pl-leasing-saved__scheme">' +
-			schemeLine +
-			'</p>' +
-			'<button type="button" class="pl-leasing-saved__edit" id="pl-leasing-saved-edit">Промени данните</button>';
+			buildSavedSchemeDetailsHtml(data) +
+			'<div class="pl-leasing-saved__actions">' +
+			'<button type="button" class="pl-leasing-saved__edit" id="pl-leasing-saved-edit">Промени данните</button>' +
+			'<button type="button" class="pl-leasing-saved__clear" id="pl-leasing-saved-clear">Изтрий данните</button>' +
+			'</div>';
 
 		var editBtn = document.getElementById('pl-leasing-saved-edit');
 		if (editBtn) {
 			editBtn.addEventListener('click', function () {
 				openModal({ column: data.column || 'personal' });
+			});
+		}
+		var clearBtn = document.getElementById('pl-leasing-saved-clear');
+		if (clearBtn) {
+			clearBtn.addEventListener('click', function () {
+				clearLeasingApplyUi();
 			});
 		}
 
@@ -1856,6 +1999,7 @@
 			price: state.price,
 			financed: getFinancedAmount(),
 			prodId: state.prodId,
+			products: getLeasingCartProductTitles(null),
 		};
 
 		if (typeof console !== 'undefined' && console.log) {
@@ -2080,10 +2224,27 @@
 		);
 	}
 
+	function clearLeasingApplyUi() {
+		clearSavedApply();
+		renderSavedApply();
+		renderTeaser();
+		syncCheckoutCta();
+		/* Re-sync invoice UI: stay locked + green msg if installment still selected. */
+		syncInvoiceFromLeasing({ forceIndividual: false });
+	}
+
 	function bindTriggers() {
 		document.body.addEventListener(
 			'click',
 			function (e) {
+				var clearAction = e.target.closest('.aside-leasing__preview-clear');
+				if (clearAction) {
+					e.preventDefault();
+					e.stopPropagation();
+					clearLeasingApplyUi();
+					return false;
+				}
+
 				var trigger = e.target.closest(
 					'[data-url^="leasing"], .js-open-leasing'
 				);
@@ -2144,7 +2305,7 @@
 		bindInvoiceLeasingWatchers();
 		bindLeasingConfirmGate();
 		/* Refresh keeps apply in sessionStorage, but payment radios reset —
-		 * re-select PostBank installments so #leasing-schema / scheme stay visible. */
+		 * re-select ПБ Лични финанси installments so #leasing-schema / scheme stay visible. */
 		if (isLeasingApplyFilled()) {
 			syncCheckoutPaymentInstallments();
 			if (state.apply && state.apply.column) {
@@ -2163,6 +2324,7 @@
 				syncWantInvoiceLockForInstallment();
 				if (radio.value === '8') {
 					renderSavedApply();
+					syncInvoiceFromLeasing({ forceIndividual: false });
 				} else {
 					syncCheckoutCta();
 					syncInvoiceFromLeasing({ forceIndividual: false });
@@ -2171,20 +2333,14 @@
 		});
 
 		syncCheckoutCta();
+		syncInvoiceFromLeasing({ forceIndividual: false });
 
 		window.PlasicoLeasing = {
 			open: openModal,
 			close: closeModal,
 			refresh: refresh,
 			getApply: readSavedApply,
-			clearApply: function () {
-				clearSavedApply();
-				hideInvoiceLeasingUi();
-				renderSavedApply();
-				renderTeaser();
-				syncCheckoutCta();
-				syncWantInvoiceLockForInstallment();
-			},
+			clearApply: clearLeasingApplyUi,
 			isApplyFilled: isLeasingApplyFilled,
 			isCompletedCtaActive: isLeasingCompletedCtaActive,
 			syncCheckoutCta: syncCheckoutCta,

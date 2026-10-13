@@ -1,38 +1,37 @@
-# Leasing invoice message gated on approved credit
+# Leasing / installment invoice notice
 
-- Landed on: `main` @ `00a6b7e`
-- Live: https://newcart-plasico-app.vercel.app/
 - Local: http://127.0.0.1:8780/index.html
 
 ## Behavior
 
-`#co-invoice-leasing-auto-msg` („Автоматично ще бъде издадена фактура на физическото лице при кредит.“) shows **only** when credit is approved/completed:
+`#co-invoice-leasing-auto-msg` („Автоматично ще бъде издадена фактура…“) and locked checked „Искам фактура“ show whenever payment method „На изплащане“ (`payment_id=8`) is selected — even before leasing apply is filled.
 
-- leasing apply filled (`#pl-leasing-saved` / `is-leasing-complete` path), **and**
-- payment method „На изплащане с PostBank“ (`payment_id=8`) selected
+Also on payment 8:
 
-Does **not** show when PostBank row is clicked without approved leasing data. Hides when switching away from that method or after `clearApply()`.
+- hide **Физическо лице** + „Тип лице“ (auto физ; HTML default ЮЛ is cleared so firm fields stay collapsed)
+- **Юридическо лице** stays available as opt-in (not expanded until clicked; re-click returns to auto физ)
 
-Same gate for the red ЮЛ МОЛ badge.
+Hides / unlocks when switching away from that method.
 
-### Физическо лице
+### After approved leasing + payment 8
 
-On the approved leasing + PostBank path, the **Физическо лице** person-type option is hidden (auto invoice per green notice). **Юридическо лице** stays available. Clicking already-selected ЮЛ returns to the automatic физ path. Outside that path, both options are available again.
+Additionally:
+
+- red МОЛ badge on firm path
+- autofill from leasing apply
 
 ### Копирай от горните данни
 
-Always visible and functional — never hidden on the leasing path.
+Always visible and functional.
 
 ## Code
 
-- `local-leasing-modal.js` — `isLeasingInvoicePathActive`, `syncFizicheskoPersonTypeAvailability`, `syncInvoiceFromLeasing`
-- `local-leasing-modal.css` — `.is-leasing-person-locked`
+- `local-leasing-modal.js` — `syncInvoiceFromLeasing`, `syncWantInvoiceLockForInstallment`
 - Synced: `index.html`, `poruchka.html`, `boxnowno.html` (+ `_leasing_modal.js`)
 
 ## Verify
 
 ```bash
+node _verify_invoice_lock_installment.js
 node _verify_leasing_invoice_msg_gated.js
 ```
-
-- Shot: `.cursor/stores/self/media/leasing-invoice-msg-gated.png`

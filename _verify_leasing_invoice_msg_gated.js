@@ -105,21 +105,24 @@ async function selectPayment(page, value) {
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.waitForTimeout(700);
 
-  // --- PostBank clicked WITHOUT approved leasing → message must stay hidden
+  // --- PostBank clicked WITHOUT approved leasing → green msg, hide физ, ЮЛ not expanded
   await selectPayment(page, "8");
-  await page.evaluate(() => {
-    const want = document.getElementById("want-invoice");
-    if (want && !want.checked) {
-      want.checked = true;
-      want.dispatchEvent(new Event("change", { bubbles: true }));
-    }
-  });
   await page.waitForTimeout(300);
   let st = await readState(page);
   assert(!st.filled, "expected no leasing apply yet");
   assert(st.pay8, "pay8 should be selected");
-  assert(st.topHidden, "auto-msg must stay hidden without approved credit: " + JSON.stringify(st));
-  assert(!st.fizHidden, "Физическо лице should stay available without approved leasing");
+  assert(st.want, "want-invoice must be checked on installment alone: " + JSON.stringify(st));
+  assert(!st.topHidden, "auto-msg must show on installment alone: " + JSON.stringify(st));
+  assert(
+    st.topText.includes("Автоматично ще бъде издадена фактура"),
+    "wrong auto-msg on installment alone: " + st.topText
+  );
+  assert(st.fizHidden, "Физическо лице must be hidden on installment: " + JSON.stringify(st));
+  assert(!st.firmHidden, "ЮЛ must remain available on installment");
+  assert(!st.firmChecked, "ЮЛ must not be expanded/selected by default: " + JSON.stringify(st));
+  assert(st.fizChecked, "auto физ radio must stay selected: " + JSON.stringify(st));
+  assert(st.typeLabelHidden, "Тип лице must be hidden on installment");
+  assert(st.indivHidden, "individual fields must be hidden on installment");
 
   // --- Complete leasing apply (approves credit → pay8 + pl-leasing-saved)
   await page.evaluate(() => window.PlasicoLeasing.open({ column: "personal" }));
@@ -176,14 +179,16 @@ async function selectPayment(page, value) {
   assert(st.typeLabelHidden, "Тип лице hidden again");
   assert(st.indivHidden, "individual hidden again");
 
-  // --- clearApply → hide message, restore физ
+  // --- clearApply → leasing extras off, but installment still selected → физ stays hidden
   await page.evaluate(() => window.PlasicoLeasing.clearApply());
   await page.waitForTimeout(300);
   st = await readState(page);
   assert(!st.filled, "apply cleared");
-  assert(st.topHidden, "auto-msg hidden after clearApply");
-  assert(!st.fizHidden, "Физическо лице restored after clearApply");
-  assert(!st.typeLabelHidden, "Тип лице restored after clearApply");
+  assert(st.pay8, "pay8 still selected after clearApply");
+  assert(!st.topHidden, "auto-msg stays while installment selected after clearApply");
+  assert(st.fizHidden, "Физическо лице stays hidden while installment selected");
+  assert(st.typeLabelHidden, "Тип лице stays hidden while installment selected");
+  assert(!st.firmChecked, "ЮЛ must stay collapsed after clearApply");
 
   console.log("OK leasing-invoice-msg-gated");
   await browser.close();

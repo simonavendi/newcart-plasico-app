@@ -574,24 +574,96 @@
 	line-height: 1.4;
 	color: #333;
 }
+.pl-leasing-saved__scheme-title {
+	margin: 0 0 4px;
+	font-family: "exo2b", sans-serif;
+	font-size: 13px;
+	line-height: 1.35;
+	color: #222;
+}
+.pl-leasing-saved__scheme-kind {
+	margin: 0 0 4px;
+	font-size: 12px;
+	line-height: 1.35;
+	font-weight: 600;
+	color: #2e7d32;
+}
+.pl-leasing-saved__scheme-products {
+	margin: 0 0 8px;
+	font-size: 12px;
+	line-height: 1.4;
+	color: #555;
+	word-break: break-word;
+}
+.pl-leasing-saved__scheme-meta {
+	margin: 0;
+	padding: 0;
+}
+.pl-leasing-saved__scheme-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	gap: 12px;
+	margin: 4px 0;
+}
+.pl-leasing-saved__scheme-row dt {
+	margin: 0;
+	color: #666;
+	font-weight: normal;
+}
+.pl-leasing-saved__scheme-row dt::after {
+	content: ":";
+}
+.pl-leasing-saved__scheme-row dd {
+	margin: 0;
+	color: #222;
+	text-align: right;
+	white-space: nowrap;
+}
+.pl-leasing-saved__scheme-row--total {
+	margin-top: 8px;
+	padding-top: 8px;
+	border-top: 1px solid #e0e0e0;
+	font-family: "exo2b", sans-serif;
+}
+.pl-leasing-saved__scheme-row--total dt,
+.pl-leasing-saved__scheme-row--total dd {
+	color: #2e7d32;
+	font-weight: 700;
+}
 
-.pl-leasing-saved__edit {
+.pl-leasing-saved__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 16px;
+	margin-top: 10px;
+}
+.pl-leasing-saved__edit,
+.pl-leasing-saved__clear {
 	display: inline-flex;
 	align-items: center;
-	margin-top: 10px;
+	margin: 0;
 	padding: 0;
 	border: 0;
 	background: transparent;
-	color: #ff6100;
 	font: inherit;
 	font-size: 13px;
 	font-weight: 600;
 	cursor: pointer;
 	text-decoration: underline;
 }
-
+.pl-leasing-saved__edit {
+	color: #ff6100;
+}
 .pl-leasing-saved__edit:hover {
 	color: #e55700;
+}
+.pl-leasing-saved__clear {
+	color: #c62828;
+}
+.pl-leasing-saved__clear:hover {
+	color: #b71c1c;
 }
 
 .pl-leasing-apply-submit {
@@ -679,8 +751,9 @@
 .installment-option img {
 	display: block;
 	width: 100%;
-	max-width: 154px;
+	max-width: 100%;
 	height: auto;
+	aspect-ratio: 154 / 69;
 	object-fit: contain;
 	margin: 0 auto;
 }
@@ -915,17 +988,19 @@
 	align-items: center;
 	justify-content: center;
 	min-height: 48px;
-	padding: 12px 28px;
+	max-width: 100%;
+	padding: 12px 20px;
 	border: 2px solid #55a630;
 	border-radius: 4px;
 	background: #55a630;
 	color: #fff;
 	font-family: "exo2b", sans-serif;
-	font-size: 16px;
+	font-size: 15px;
 	font-weight: bold;
-	line-height: 1.2;
+	line-height: 1.25;
 	text-align: center;
 	text-transform: none;
+	white-space: normal;
 	cursor: pointer;
 	box-sizing: border-box;
 }
@@ -943,6 +1018,7 @@
 	color: #fff;
 	font-size: inherit;
 	font-weight: bold;
+	white-space: normal;
 	line-height: 1.2;
 	letter-spacing: 0.02em;
 }
@@ -1022,13 +1098,31 @@
 	color: #2e7d32;
 	font-weight: 600;
 }
-#checkout .aside-leasing.is-submitted .aside-leasing__preview-edit,
-.aside-leasing.is-submitted .aside-leasing__preview-edit {
-	display: block;
+#checkout .aside-leasing.is-submitted .aside-leasing__preview-actions,
+.aside-leasing.is-submitted .aside-leasing__preview-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 16px;
 	margin: 8px 0 0;
-	color: #288000;
+}
+#checkout .aside-leasing.is-submitted .aside-leasing__preview-edit,
+.aside-leasing.is-submitted .aside-leasing__preview-edit,
+#checkout .aside-leasing.is-submitted .aside-leasing__preview-clear,
+.aside-leasing.is-submitted .aside-leasing__preview-clear {
+	display: inline;
+	margin: 0;
 	font-weight: 600;
 	text-decoration: underline;
+	cursor: pointer;
+}
+#checkout .aside-leasing.is-submitted .aside-leasing__preview-edit,
+.aside-leasing.is-submitted .aside-leasing__preview-edit {
+	color: #288000;
+}
+#checkout .aside-leasing.is-submitted .aside-leasing__preview-clear,
+.aside-leasing.is-submitted .aside-leasing__preview-clear {
+	color: #c62828;
 }
 
 /* Leasing → invoice (фактура) notices */

@@ -1088,9 +1088,25 @@
 		}
 	}
 
+	/** Clear auto-checked invoice when leaving installment payment. */
+	function clearInvoiceFieldsPanel() {
+		var want = document.getElementById('want-invoice');
+		var inv = document.getElementById('checkout-invoice-fields');
+		var label = document.querySelector('label.co-invoice-check[for=want-invoice]');
+		if (want && want.checked) {
+			want.checked = false;
+			dispatchDomChange(want);
+		}
+		if (label) label.classList.remove('is-checked');
+		if (inv) {
+			inv.classList.add('hide', 'sf-hidden');
+			inv.setAttribute('hidden', '');
+		}
+	}
+
 	/**
 	 * ПБ Лични финанси installment (payment_id=8): „Искам фактура“ must stay checked
-	 * and cannot be cleared. Keep the checkbox enabled for form submit.
+	 * and cannot be cleared. Leaving installment unlocks and clears the check.
 	 * @param {boolean} locked
 	 */
 	function setWantInvoiceLocked(locked) {
@@ -1106,12 +1122,15 @@
 			}
 			showInvoiceFieldsPanel();
 		} else {
+			var wasLocked = want.getAttribute('data-invoice-locked') === '1';
 			want.removeAttribute('data-invoice-locked');
 			want.removeAttribute('aria-disabled');
 			if (label) {
 				label.classList.remove('is-invoice-locked');
 				label.removeAttribute('aria-disabled');
 			}
+			/* Only clear when leaving the forced installment lock — not on cold init. */
+			if (wasLocked) clearInvoiceFieldsPanel();
 		}
 	}
 

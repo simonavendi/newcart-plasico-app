@@ -688,7 +688,7 @@ margin:0 0 8px!important;padding-top:0!important;font-size:22px;line-height:1.25
 #checkout .checkout-subhead{margin:0 0 10px;font-size:16px}
 #checkout .co-option-stack{display:flex;flex-direction:column;gap:8px;margin:0 0 12px}
 #checkout .co-option-row{display:block;border:1px solid #e0e0e0;border-radius:6px;padding:10px 12px;cursor:pointer;background:#fff;margin:0;position:relative}
-#checkout .co-option-row.clicked,#checkout .co-option-row:has(input:checked){border-color:#ff6100}
+#checkout .co-option-row.clicked,#checkout .co-option-row:has(input:checked){border-color:#ff6100;background:#ffe8d6}
 #checkout .co-option-row.is-disabled,#checkout .co-option-row:has(input:disabled){
 cursor:not-allowed;opacity:.48;background:#f5f5f5;border-color:#e8e8e8;pointer-events:none;color:#888}
 #checkout .co-option-row.is-disabled.clicked,#checkout .co-option-row:has(input:disabled:checked),
@@ -730,6 +730,11 @@ min-height:52px;box-sizing:border-box
 }
 #checkout .boxnow-selected__heading-logo[hidden]{display:none!important}
 #checkout .co-option-row__hint{display:block;font-size:13px;color:#666;margin-top:2px}
+/* BOX NOW COD warning: body is font-weight:300 so UA strong{bolder} only reaches ~400 — force real bold */
+#checkout [data-locker-courier-row=boxnow] .co-option-row__hint strong,
+#checkout [data-locker-courier-row=boxnow] .co-option-row__hint strong u{
+font-family:"exo2b",sans-serif;font-weight:700;text-decoration:underline
+}
 #checkout .co-option-row__badge{font-style:normal;font-size:12px;color:#ff6100;margin-left:0}
 #checkout .co-option-row__price{white-space:nowrap;font-weight:bold;color:#000}
 /* Invoice checkbox accent (poruchka behavior, Plasico colors) — larger tick + full-card hit */
@@ -745,7 +750,7 @@ min-height:52px;box-sizing:border-box
 #checkout .co-invoice-fields .checkout-guest-field{margin-bottom:4px}
 #checkout .co-person-type{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px}
 #checkout .co-person-type label{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid #e0e0e0;border-radius:6px;cursor:pointer;background:#fff;font-size:14px}
-#checkout .co-person-type label:has(input:checked),#checkout .co-person-type label.clicked{border-color:#ff6100}
+#checkout .co-person-type label:has(input:checked),#checkout .co-person-type label.clicked{border-color:#ff6100;background:#ffe8d6}
 #checkout .co-invoice-type-label{margin:0 0 6px;font-size:13px;color:#666}
 #checkout #bank-transfer-details{margin:8px 0 4px;padding:12px 14px;border:1px solid #e0e0e0;border-radius:6px;background:#fafafa;box-sizing:border-box}
 #checkout #bank-transfer-details[hidden],#checkout #bank-transfer-details.hide{display:none!important}
@@ -762,26 +767,28 @@ min-height:52px;box-sizing:border-box
 #checkout .installment-options__label{margin:0 0 8px;font-size:13px;color:#666}
 #checkout .installment-options__grid{display:flex;flex-wrap:nowrap;gap:8px;align-items:stretch;justify-content:flex-start}
 #checkout .installment-option{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;flex:0 1 180px;min-width:0;width:100%;max-width:180px;height:auto;padding:6px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer;font:inherit;font-size:13px;text-align:center;box-sizing:border-box}
-#checkout .installment-option[aria-pressed=true],#checkout .installment-option.is-selected{border-color:#ff6100}
+#checkout .installment-option[aria-pressed=true],#checkout .installment-option.is-selected{border-color:#ff6100;background:#ffe8d6}
 #checkout .installment-option__caption{display:block;margin-top:4px;font-size:11px;color:#666;line-height:1.3;min-height:calc(1.3em * 2);width:100%}
 #checkout .installment-option img{display:block;width:100%;max-width:100%;height:auto;aspect-ratio:154/69;object-fit:contain;margin:0 auto;flex:0 0 auto}
 
 #checkout .co-ship-panel{margin-top:8px}
 #checkout .co-ship-panel[hidden],#checkout .co-ship-panel.hide{display:none!important}
-/* Nested locker/office/address courier rows: soft fill, no inner orange outline (parent ship-mode keeps orange) */
+/* Nested locker/office/address courier rows: orange outline + soft fill */
 #checkout .co-ship-panel .co-option-row.clicked,
 #checkout .co-ship-panel .co-option-row:has(input:checked){
-border-color:transparent;background:#ffe8d6;box-sizing:border-box;width:100%;margin-left:0;margin-right:0
-}
-#checkout #step-ship-method .co-option-row[data-ship-mode].clicked,
-#checkout #step-ship-method .co-option-row[data-ship-mode]:has(> .co-ship-mode-select input:checked){
-border-color:#ff6100;background:#fff
+border-color:#ff6100;background:#ffe8d6;box-sizing:border-box;width:100%;margin-left:0;margin-right:0
 }
 
 /* Unified delivery accordion: panel mounts under selected method row */
 #checkout .co-option-row[data-ship-mode]{display:flex;flex-direction:column;align-items:stretch;gap:0}
 #checkout .co-option-row[data-ship-mode] > .co-ship-mode-select{display:block;width:100%;cursor:pointer}
 #checkout .co-option-row[data-ship-mode] > .co-ship-mode-select .co-option-row__body{width:100%}
+/* Ship-mode accordion parent: open container only — not the final pick (nested rows keep orange) */
+#checkout #step-ship-method .co-option-row[data-ship-mode].clicked,
+#checkout #step-ship-method .co-option-row[data-ship-mode]:has(> .co-ship-mode-select input:checked),
+#checkout #step-ship-method .co-option-row[data-ship-mode]:has(input:checked){
+border-color:#e0e0e0;background:#fff
+}
 #checkout .co-ship-expand{margin:10px 0 0;padding:12px 0 2px;border-top:1px solid #eee;width:100%;box-sizing:border-box}
 #checkout .co-ship-expand[hidden],#checkout .co-ship-expand.hide{display:none!important}
 #checkout .co-ship-expand > .co-ship-panel{margin-top:0}
@@ -4311,7 +4318,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 </div>
 </div>
 <span class="co-option-row__price"><em class="co-option-row__badge">БЕЗПЛАТНО</em></span>
-<span class="co-option-row__hint">престой  48 часа. достъпно 24/7</span>
+<span class="co-option-row__hint"><strong><u>НЕ ПОДДЪРЖА НАЛОЖЕН ПЛАТЕЖ. ПРАТКИ С ПРЕСТОЙ 48 ЧАСА</u></strong></span>
 </div>
 </div>
 <div class="co-option-row" data-locker-courier-row=speedy>
@@ -8986,7 +8993,12 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
       window.setClickedForRadios("locker_courier");
     }
     if (typeof syncCodForShipMethod === "function") syncCodForShipMethod();
+    /* Shared Speedy/Econt locker widget: clear selection on courier switch
+       (same as office_courier) so Econt does not show Speedy's card, etc. */
+    if (typeof clearOfficeSelection === "function") clearOfficeSelection();
+    if (typeof closeOfficeLocator === "function") closeOfficeLocator();
     if (t.value === "speedy" || t.value === "econt") {
+      if (typeof syncOfficeCarrierMarks === "function") syncOfficeCarrierMarks(t.value);
       if (typeof mountLockerOfficeWidget === "function") mountLockerOfficeWidget();
     } else if (typeof remountOfficeWidgetToOfficePanel === "function") {
       remountOfficeWidgetToOfficePanel();
@@ -9007,16 +9019,25 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
     var bselAddr = document.getElementById("boxnow-selected-text");
     var bsel = document.getElementById("boxnow-selected");
     var wrap = document.getElementById("office-widget-wrap");
+    var has = !!(name && String(name.value || "").trim());
     if (bid && id) bid.value = id.value || "";
     if (bname && name) bname.value = name.value || "";
     if (baddr && addr) baddr.value = addr.value || "";
     if (bselName && name) bselName.textContent = name.value || "";
     if (bselAddr && addr) bselAddr.textContent = addr.value || "";
-    if (bsel && name && name.value) {
-      bsel.removeAttribute("hidden");
-      bsel.hidden = false;
+    if (bsel) {
+      if (has) {
+        bsel.removeAttribute("hidden");
+        bsel.hidden = false;
+      } else {
+        bsel.setAttribute("hidden", "");
+        bsel.hidden = true;
+      }
     }
-    if (wrap) wrap.classList.add("is-selected");
+    if (wrap) {
+      if (has) wrap.classList.add("is-selected");
+      else wrap.classList.remove("is-selected");
+    }
   }
 
   window.__plasicoOfficeOnShipChange = function (panelKey) {

@@ -1436,3 +1436,24 @@
 		border: 0;
 	}
 }
+
+/* Incomplete leasing checkout gate (payment_id=8) */
+#checkout .leasing-checkout-incomplete-error,
+.leasing-checkout-incomplete-error {
+	display: block;
+	margin: 8px 0 4px;
+	padding: 8px 10px;
+	border: 1px solid #e07070;
+	border-radius: 4px;
+	background: #fff5f5;
+	color: #b00020;
+	font-family: "exo2b", sans-serif;
+	font-size: 13px;
+	line-height: 1.35;
+}
+#checkout #installment-options.is-incomplete,
+#checkout .aside-leasing.is-incomplete,
+.aside-leasing.is-incomplete {
+	outline: 2px solid #e07070;
+	outline-offset: 2px;
+}

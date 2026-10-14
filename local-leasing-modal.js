@@ -267,12 +267,35 @@
 		return !!(checked && String(checked.value) === '8');
 	}
 
+	/** BNP / PostBank under-option selected inside #installment-options. */
+	function isInstallmentSubOptionSelected() {
+		var host = document.getElementById('installment-options');
+		if (!host) return false;
+		return !!(
+			host.querySelector('.installment-option.is-selected') ||
+			host.querySelector('.installment-option[aria-pressed="true"]')
+		);
+	}
+
 	/**
-	 * Filled apply + still on leasing path (payment 8 or nothing chosen yet).
-	 * Selecting any other payment restores the normal Купи + aside CTA.
+	 * Checkout may proceed (or reach leasing confirm) only when payment 8 has
+	 * both an under-option and a completed leasing apply.
+	 */
+	function isLeasingCheckoutReady() {
+		return (
+			isPostBankInstallmentPaymentSelected() &&
+			isInstallmentSubOptionSelected() &&
+			isLeasingApplyFilled()
+		);
+	}
+
+	/**
+	 * Filled apply + still on leasing path (payment 8 or nothing chosen yet)
+	 * + under-option chosen. Selecting any other payment restores the normal Купи.
 	 */
 	function isLeasingCompletedCtaActive() {
 		if (!isLeasingApplyFilled()) return false;
+		if (!isInstallmentSubOptionSelected()) return false;
 		var checked = document.querySelector('input[name="payment_id"]:checked');
 		if (!checked) return true;
 		return String(checked.value) === '8';
@@ -1015,9 +1038,208 @@
 		}
 	}
 
+	var LEASING_INCOMPLETE_ERROR_ID = 'leasing-checkout-incomplete-error';
+	var leasingIncompleteGateBound = false;
+
+	function clearLeasingIncompleteError() {
+		var err = document.getElementById(LEASING_INCOMPLETE_ERROR_ID);
+		if (err && err.parentNode) err.parentNode.removeChild(err);
+		var install = document.getElementById('installment-options');
+		if (install) install.classList.remove('is-incomplete');
+		var aside = document.getElementById('aside-leasing-btn');
+		if (aside) aside.classList.remove('is-incomplete');
+		var saved = document.getElementById('pl-leasing-saved');
+		if (saved) saved.classList.remove('is-incomplete');
+	}
+
+	function ensureLeasingIncompleteError(anchor, message) {
+		clearLeasingIncompleteError();
+		if (!anchor || !anchor.parentNode) return null;
+		var err = document.createElement('p');
+		err.id = LEASING_INCOMPLETE_ERROR_ID;
+		err.className = 'leasing-checkout-incomplete-error';
+		err.setAttribute('role', 'alert');
+		err.textContent = message;
+		if (anchor.id === 'installment-options') {
+			anchor.classList.add('is-incomplete');
+			if (anchor.nextSibling) {
+				anchor.parentNode.insertBefore(err, anchor.nextSibling);
+			} else {
+				anchor.parentNode.appendChild(err);
+			}
+		} else if (anchor.id === 'aside-leasing-btn') {
+			anchor.classList.add('is-incomplete');
+			var wrap = anchor.parentNode;
+			if (wrap) wrap.insertBefore(err, anchor.nextSibling);
+		} else {
+			anchor.classList.add('is-incomplete');
+			anchor.appendChild(err);
+		}
+		return err;
+	}
+
+	function focusLeasingIncompleteTarget(el) {
+		if (!el) return;
+		try {
+			el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+		} catch (errScroll) {
+			try {
+				el.scrollIntoView(true);
+			} catch (err2) {
+				/* ignore */
+			}
+		}
+		var focusEl = el;
+		if (el.id === 'installment-options') {
+			focusEl =
+				el.querySelector('.installment-option:not([disabled])') || el;
+		}
+		if (focusEl && typeof focusEl.focus === 'function') {
+			try {
+				focusEl.focus({ preventScroll: true });
+			} catch (errFocus) {
+				try {
+					focusEl.focus();
+				} catch (err3) {
+					/* ignore */
+				}
+			}
+		}
+	}
+
+	/**
+	 * Block Купи / form submit on payment_id=8 until under-option + leasing apply.
+	 * Does not touch bank-transfer (7) or other payment methods.
+	 */
+	function showLeasingIncompleteGate() {
+		var needOption = !isInstallmentSubOptionSelected();
+		var needApply = !isLeasingApplyFilled();
+		var message;
+		var target;
+
+		if (needOption) {
+			message =
+				'Моля изберете схема на изплащане (ПБ Лични финанси или кредитна карта), след което попълнете данните за кандидатстване.';
+			target = document.getElementById('installment-options');
+			var pay8Label =
+				document.querySelector(
+					'label.co-option-row:has(input[name="payment_id"][value="8"])'
+				) ||
+				document.querySelector('input[name="payment_id"][value="8"]');
+			if (target && (target.hidden || target.classList.contains('hide'))) {
+				try {
+					var pay8 = document.querySelector(
+						'input[name="payment_id"][value="8"]'
+					);
+					if (pay8 && !pay8.checked) {
+						pay8.checked = true;
+						pay8.dispatchEvent(new Event('change', { bubbles: true }));
+					}
+				} catch (errPay) {
+					/* ignore */
+				}
+			}
+			if (!target) target = pay8Label;
+		} else if (needApply) {
+			message =
+				'Моля попълнете данните за кандидатстване чрез „Купи на изплащане“, преди да завършите поръчката.';
+			target =
+				document.getElementById('aside-leasing-btn') ||
+				document.getElementById('pl-leasing-saved') ||
+				document.getElementById('leasing-schema') ||
+				document.getElementById('installment-options');
+		} else {
+			return false;
+		}
+
+		ensureLeasingIncompleteError(target, message);
+		focusLeasingIncompleteTarget(target);
+		return true;
+	}
+
+	function bindLeasingIncompleteGate() {
+		if (leasingIncompleteGateBound) return;
+		leasingIncompleteGateBound = true;
+
+		function shouldBlockLeasingSubmit() {
+			if (leasingConfirmProceed) return false;
+			if (!isPostBankInstallmentPaymentSelected()) return false;
+			return !isLeasingCheckoutReady();
+		}
+
+		function blockIfIncomplete(e) {
+			if (!shouldBlockLeasingSubmit()) {
+				if (isLeasingCheckoutReady()) clearLeasingIncompleteError();
+				return;
+			}
+			if (e) {
+				e.preventDefault();
+				e.stopPropagation();
+				if (typeof e.stopImmediatePropagation === 'function') {
+					e.stopImmediatePropagation();
+				}
+			}
+			showLeasingIncompleteGate();
+		}
+
+		document.addEventListener(
+			'click',
+			function (e) {
+				if (!shouldBlockLeasingSubmit()) return;
+				var t = e.target;
+				if (!t || !t.closest) return;
+				var buy = t.closest('.checkout-finish.btn');
+				if (!buy) return;
+				blockIfIncomplete(e);
+			},
+			true
+		);
+		document.addEventListener(
+			'submit',
+			function (e) {
+				if (!shouldBlockLeasingSubmit()) return;
+				var form = e.target;
+				if (!form || !form.querySelector) return;
+				if (!form.querySelector('.checkout-finish.btn')) return;
+				blockIfIncomplete(e);
+			},
+			true
+		);
+
+		document.addEventListener(
+			'change',
+			function (e) {
+				var t = e.target;
+				if (!t) return;
+				if (t.name === 'payment_id') clearLeasingIncompleteError();
+			},
+			true
+		);
+		document.addEventListener(
+			'click',
+			function (e) {
+				var t = e.target;
+				if (!t || !t.closest) return;
+				if (
+					t.closest('.installment-option[data-installment]') ||
+					t.closest('#aside-leasing-btn') ||
+					t.closest('.js-open-leasing')
+				) {
+					clearLeasingIncompleteError();
+				}
+			},
+			false
+		);
+		document.addEventListener('plasico:leasing-apply', function () {
+			clearLeasingIncompleteError();
+			syncCheckoutCta();
+		});
+	}
+
 	function bindLeasingConfirmGate() {
 		if (leasingConfirmBound) return;
 		leasingConfirmBound = true;
+		bindLeasingIncompleteGate();
 		document.addEventListener(
 			'click',
 			function (e) {
@@ -2538,6 +2760,8 @@
 			getApply: readSavedApply,
 			clearApply: clearLeasingApplyUi,
 			isApplyFilled: isLeasingApplyFilled,
+			isInstallmentSubOptionSelected: isInstallmentSubOptionSelected,
+			isCheckoutReady: isLeasingCheckoutReady,
 			isCompletedCtaActive: isLeasingCompletedCtaActive,
 			syncCheckoutCta: syncCheckoutCta,
 			syncInvoiceFromLeasing: syncInvoiceFromLeasing,

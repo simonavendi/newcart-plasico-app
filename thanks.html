@@ -1052,6 +1052,7 @@ body{margin:0}
   }
 
   var stored = orderPayload() || {};
+  try { sessionStorage.removeItem("plasico_demo_order"); } catch (eClearOrder) {}
   var orderNo =
     queryParam("order") ||
     (stored.orderNo ? String(stored.orderNo) : "") ||

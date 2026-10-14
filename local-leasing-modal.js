@@ -220,36 +220,19 @@
 	}
 
 	function readSavedApply() {
-		if (state.apply) return state.apply;
-		try {
-			var raw = sessionStorage.getItem(APPLY_STORAGE_KEY);
-			if (!raw) return null;
-			state.apply = JSON.parse(raw);
-			return state.apply;
-		} catch (e) {
-			return null;
-		}
+		/* In-memory only — full refresh must not restore leasing choices */
+		return state.apply || null;
 	}
 
 	function writeSavedApply(payload) {
 		state.apply = payload;
-		try {
-			sessionStorage.setItem(APPLY_STORAGE_KEY, JSON.stringify(payload));
-		} catch (e) {
-			/* private mode / quota — in-memory still works */
-		}
 	}
 
 	function clearSavedApply() {
 		state.apply = null;
-		try {
-			sessionStorage.removeItem(APPLY_STORAGE_KEY);
-		} catch (e) {
-			/* ignore */
-		}
 	}
 
-	/** Successful modal apply (sessionStorage / state.apply with core fields). */
+	/** Successful modal apply (in-memory state.apply with core fields). */
 	function isLeasingApplyFilled() {
 		var data = readSavedApply();
 		return !!(
@@ -2718,14 +2701,7 @@
 		renderTeaser();
 		bindInvoiceLeasingWatchers();
 		bindLeasingConfirmGate();
-		/* Refresh keeps apply in sessionStorage, but payment radios reset —
-		 * re-select ПБ Лични финанси installments so #leasing-schema / scheme stay visible. */
-		if (isLeasingApplyFilled()) {
-			syncCheckoutPaymentInstallments();
-			if (state.apply && state.apply.column) {
-				syncInstallmentOptionSelection(state.apply.column);
-			}
-		}
+		/* Do not restore leasing/payment selection after refresh */
 		renderSavedApply();
 		bindTriggers();
 		syncWantInvoiceLockForInstallment();

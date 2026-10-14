@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- boxnowno: checkout copy — BOX NOW unavailable (size); default Speedy office --> <html lang=bg data-immersive-translate-page-theme=light style><script>
-/* Local checkout: do not hold cookies */
+/* Local checkout: no cookies; clear choice persistence on every load */
 (function () {
   try {
     document.cookie.split(";").forEach(function (c) {
@@ -28,13 +28,39 @@
     } catch (e3) {}
   }
   try {
+    [
+      "plasico_demo_auth",
+      "plasico-hss2026-cart"
+    ].forEach(function (k) {
+      try { localStorage.removeItem(k); } catch (e) {}
+    });
     var rm = [];
     for (var i = 0; i < localStorage.length; i++) {
       var k = localStorage.key(i);
-      if (k && /cookie|cookiescript|CookieScript|CookieConsent/i.test(k)) rm.push(k);
+      if (
+        k &&
+        (/cookie|cookiescript|CookieScript|CookieConsent/i.test(k) ||
+          /^plasico[_-]/i.test(k))
+      )
+        rm.push(k);
     }
     rm.forEach(function (k) { localStorage.removeItem(k); });
   } catch (e4) {}
+  try {
+    [
+      "plasico_demo_order",
+      "plasico-auth-email-mode",
+      "plasico-leasing-apply"
+    ].forEach(function (k) {
+      try { sessionStorage.removeItem(k); } catch (e) {}
+    });
+    var rms = [];
+    for (var j = 0; j < sessionStorage.length; j++) {
+      var sk = sessionStorage.key(j);
+      if (sk && /^plasico[_-]/i.test(sk)) rms.push(sk);
+    }
+    rms.forEach(function (k) { sessionStorage.removeItem(k); });
+  } catch (e5) {}
 })();
 </script>
 <!--
@@ -4143,7 +4169,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
  <div id=checkout-pane>
  
 <div id=checkout-new class=oh>
-<form method=post action=https://plasico.bg/%D0%BF%D0%BE%D1%80%D1%8A%D1%87%D0%BA%D0%B0 class=cl>
+<form method=post action=https://plasico.bg/%D0%BF%D0%BE%D1%80%D1%8A%D1%87%D0%BA%D0%B0 class=cl autocomplete=off>
 <div class=sr-only id=checkout-type aria-hidden=true>
  <input type=radio autocomplete=off name=type value=1 checked>
  <input type=radio autocomplete=off name=type value=2>
@@ -5312,36 +5338,19 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 	}
 
 	function readSavedApply() {
-		if (state.apply) return state.apply;
-		try {
-			var raw = sessionStorage.getItem(APPLY_STORAGE_KEY);
-			if (!raw) return null;
-			state.apply = JSON.parse(raw);
-			return state.apply;
-		} catch (e) {
-			return null;
-		}
+		/* In-memory only — full refresh must not restore leasing choices */
+		return state.apply || null;
 	}
 
 	function writeSavedApply(payload) {
 		state.apply = payload;
-		try {
-			sessionStorage.setItem(APPLY_STORAGE_KEY, JSON.stringify(payload));
-		} catch (e) {
-			/* private mode / quota — in-memory still works */
-		}
 	}
 
 	function clearSavedApply() {
 		state.apply = null;
-		try {
-			sessionStorage.removeItem(APPLY_STORAGE_KEY);
-		} catch (e) {
-			/* ignore */
-		}
 	}
 
-	/** Successful modal apply (sessionStorage / state.apply with core fields). */
+	/** Successful modal apply (in-memory state.apply with core fields). */
 	function isLeasingApplyFilled() {
 		var data = readSavedApply();
 		return !!(
@@ -7810,14 +7819,7 @@ main.cl > .pw.cl,#checkout ~ #checkout-steps{/* noop */}
 		renderTeaser();
 		bindInvoiceLeasingWatchers();
 		bindLeasingConfirmGate();
-		/* Refresh keeps apply in sessionStorage, but payment radios reset —
-		 * re-select ПБ Лични финанси installments so #leasing-schema / scheme stay visible. */
-		if (isLeasingApplyFilled()) {
-			syncCheckoutPaymentInstallments();
-			if (state.apply && state.apply.column) {
-				syncInstallmentOptionSelection(state.apply.column);
-			}
-		}
+		/* Do not restore leasing/payment selection after refresh */
 		renderSavedApply();
 		bindTriggers();
 		syncWantInvoiceLockForInstallment();
